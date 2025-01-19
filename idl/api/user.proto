@@ -1,0 +1,57 @@
+// idl/hello/hello.proto
+syntax = "proto3";
+
+package user;
+
+option go_package = "api/user";
+
+import "api.proto";
+//import "common.proto";
+
+message LoginRequest {
+  string username = 1 [(api.form) = "username"];
+  string password = 2 [(api.form) = "password"];
+}
+message LoginResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message RegisterRequest {
+  string username = 1 [(api.form)= "username"];
+  string password = 2 [(api.form)= "password"];
+  string description = 3 [(api.form)= "description"];
+  int32 sex = 4 [(api.form)= "sex"];
+  string avatar = 5 [(api.form)= "avatar"];
+}
+
+message RegisterResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"']; // 0-success, other values-failure
+  string status_msg = 2;
+}
+
+message GetUserInfoResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+  string username = 3;
+  int32 sex = 4;
+  string description = 5;
+  string avatar = 6;
+}
+
+message Empty {}
+
+service UserService {
+
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (api.get) = "/user/login";
+  }
+
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (api.post) = "/user/register";
+  }
+
+  rpc GetUserInfo(Empty) returns (GetUserInfoResponse) {
+    option (api.get) = "/user/info";
+  }
+}

@@ -1,0 +1,16 @@
+go 1.21.0
+
+use (
+	./app/cart
+	./app/checkout
+	./app/order
+	./app/payment
+	./app/product
+	./app/user
+	./app/auth
+	./app/api
+	//./common
+	douyin_mall_rpc
+)
+
+replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
