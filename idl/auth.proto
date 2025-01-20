@@ -18,9 +18,13 @@ message VerifyTokenReq {
 }
 
 message DeliveryResp {
-  string token = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  string token = 3;
 }
 
 message VerifyResp {
-  bool res = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  bool res = 3;
 }

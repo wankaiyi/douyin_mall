@@ -9,7 +9,7 @@ use (
 	./app/user
 	./app/auth
 	./app/api
-	//./common
+	./common
 	douyin_mall_rpc
 )
 

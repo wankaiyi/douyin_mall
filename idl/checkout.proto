@@ -28,6 +28,8 @@ message CheckoutReq {
 }
 
 message CheckoutResp {
-  string order_id = 1;
-  string transaction_id = 2;
+  int32 status_code = 1;
+  string status_msg = 2;
+  string order_id = 3;
+  string transaction_id = 4;
 }

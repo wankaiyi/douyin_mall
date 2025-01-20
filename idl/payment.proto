@@ -24,5 +24,7 @@ message ChargeReq {
 }
 
 message ChargeResp {
-  string transaction_id = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  string transaction_id = 3;
 }

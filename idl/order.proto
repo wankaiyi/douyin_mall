@@ -39,7 +39,9 @@ message OrderResult {
 }
 
 message PlaceOrderResp {
-  OrderResult order = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  OrderResult order = 3;
 }
 
 message ListOrderReq {
@@ -57,7 +59,9 @@ message Order {
 }
 
 message ListOrderResp {
-  repeated Order orders = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Order orders = 3;
 }
 
 message MarkOrderPaidReq {
@@ -65,4 +69,7 @@ message MarkOrderPaidReq {
   string order_id = 2;
 }
 
-message MarkOrderPaidResp {}
+message MarkOrderPaidResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}

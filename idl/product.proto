@@ -28,7 +28,9 @@ message Product {
 }
 
 message ListProductsResp {
-  repeated Product products = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Product products = 3;
 }
 
 message GetProductReq {
@@ -36,7 +38,9 @@ message GetProductReq {
 }
 
 message GetProductResp {
-  Product product = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  Product product = 3;
 }
 
 message SearchProductsReq {
@@ -44,5 +48,7 @@ message SearchProductsReq {
 }
 
 message SearchProductsResp {
-  repeated Product results = 1;
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Product results = 3;
 }

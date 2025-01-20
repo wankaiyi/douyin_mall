@@ -1,6 +1,6 @@
 # RPC Client Generator
 ```shell
-#cd douyin_mall_rpc
+cd douyin_mall_rpc
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/auth.proto
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/cart.proto
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/checkout.proto
@@ -23,10 +23,10 @@ cd ../user; cwgo server --type RPC --service user --module douyin_mall/user --pa
 
 # Http Server Generator
 ```shell
-cd app/api; cwgo server  --type HTTP  --idl ../../idl/api/user.proto  --server_name api --module douyin_mall/api
-cwgo server  --type HTTP  --idl ../../idl/api/cart.proto  --server_name api --module douyin_mall/api
-cwgo server  --type HTTP  --idl ../../idl/api/order.proto  --server_name api --module douyin_mall/api
-cwgo server  --type HTTP  --idl ../../idl/api/product.proto  --server_name api --module douyin_mall/api
-cwgo server  --type HTTP  --idl ../../idl/api/checkout.proto  --server_name api --module douyin_mall/api
-cwgo server  --type HTTP  --idl ../../idl/api/payment.proto  --server_name api --module douyin_mall/api
+cd app/api; cwgo server  --type HTTP  --idl ../../idl/api/user_api.proto  --server_name api --module douyin_mall/api
+cwgo server  --type HTTP  --idl ../../idl/api/cart_api.proto  --server_name api --module douyin_mall/api
+cwgo server  --type HTTP  --idl ../../idl/api/order_api.proto  --server_name api --module douyin_mall/api
+cwgo server  --type HTTP  --idl ../../idl/api/product_api.proto  --server_name api --module douyin_mall/api
+cwgo server  --type HTTP  --idl ../../idl/api/checkout_api.proto  --server_name api --module douyin_mall/api
+cwgo server  --type HTTP  --idl ../../idl/api/payment_api.proto  --server_name api --module douyin_mall/api
 ```
