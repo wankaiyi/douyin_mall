@@ -1,9 +1,8 @@
 package main
 
 import (
-	"douyin_mall/cart/biz/dal/mysql"
-	"douyin_mall/cart/biz/dal/redis"
-	euregistry "github.com/kitex-contrib/registry-eureka/registry"
+	"douyin_mall/cart/biz/dal"
+	"douyin_mall/common/infra/nacos"
 	"net"
 	"time"
 
@@ -18,8 +17,7 @@ import (
 )
 
 func main() {
-	mysql.Init()
-	redis.Init()
+	dal.Init()
 	opts := kitexInit()
 
 	svr := cartservice.NewServer(new(CartServiceImpl), opts...)
@@ -43,7 +41,7 @@ func kitexInit() (opts []server.Option) {
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
 
-	r := euregistry.NewEurekaRegistry(conf.GetConf().Registry.RegistryAddress, 15*time.Second)
+	r := nacos.RegisterService()
 	opts = append(opts, server.WithRegistry(r))
 
 	// klog

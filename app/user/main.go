@@ -1,10 +1,8 @@
 package main
 
 import (
-	euregistry "github.com/kitex-contrib/registry-eureka/registry"
-	"net"
-	"time"
-
+	"douyin_mall/common/infra/nacos"
+	"douyin_mall/user/biz/dal"
 	"douyin_mall/user/conf"
 	"douyin_mall/user/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -13,9 +11,12 @@ import (
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"net"
+	"time"
 )
 
 func main() {
+	dal.Init()
 	opts := kitexInit()
 
 	svr := userservice.NewServer(new(UserServiceImpl), opts...)
@@ -39,7 +40,7 @@ func kitexInit() (opts []server.Option) {
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
 
-	r := euregistry.NewEurekaRegistry(conf.GetConf().Registry.RegistryAddress, 15*time.Second)
+	r := nacos.RegisterService()
 	opts = append(opts, server.WithRegistry(r))
 
 	// klog

@@ -1,7 +1,8 @@
 package main
 
 import (
-	euregistry "github.com/kitex-contrib/registry-eureka/registry"
+	"douyin_mall/checkout/biz/dal"
+	"douyin_mall/common/infra/nacos"
 	"net"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 )
 
 func main() {
+	dal.Init()
 	opts := kitexInit()
 
 	svr := checkoutservice.NewServer(new(CheckoutServiceImpl), opts...)
@@ -39,7 +41,7 @@ func kitexInit() (opts []server.Option) {
 		ServiceName: conf.GetConf().Kitex.Service,
 	}))
 
-	r := euregistry.NewEurekaRegistry(conf.GetConf().Registry.RegistryAddress, 15*time.Second)
+	r := nacos.RegisterService()
 	opts = append(opts, server.WithRegistry(r))
 
 	// klog

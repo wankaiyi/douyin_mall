@@ -144,6 +144,16 @@ func (x *ListProductsResp) FastRead(buf []byte, _type int8, number int32) (offse
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -158,6 +168,16 @@ ReadFieldError:
 }
 
 func (x *ListProductsResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *ListProductsResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *ListProductsResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
 	var v Product
 	offset, err = fastpb.ReadMessage(buf, _type, &v)
 	if err != nil {
@@ -199,6 +219,16 @@ func (x *GetProductResp) FastRead(buf []byte, _type int8, number int32) (offset 
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -213,6 +243,16 @@ ReadFieldError:
 }
 
 func (x *GetProductResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *GetProductResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *GetProductResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
 	var v Product
 	offset, err = fastpb.ReadMessage(buf, _type, &v)
 	if err != nil {
@@ -254,6 +294,16 @@ func (x *SearchProductsResp) FastRead(buf []byte, _type int8, number int32) (off
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -268,6 +318,16 @@ ReadFieldError:
 }
 
 func (x *SearchProductsResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *SearchProductsResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *SearchProductsResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
 	var v Product
 	offset, err = fastpb.ReadMessage(buf, _type, &v)
 	if err != nil {
@@ -379,15 +439,33 @@ func (x *ListProductsResp) FastWrite(buf []byte) (offset int) {
 		return offset
 	}
 	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
 	return offset
 }
 
 func (x *ListProductsResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *ListProductsResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
+func (x *ListProductsResp) fastWriteField3(buf []byte) (offset int) {
 	if x.Products == nil {
 		return offset
 	}
 	for i := range x.GetProducts() {
-		offset += fastpb.WriteMessage(buf[offset:], 1, x.GetProducts()[i])
+		offset += fastpb.WriteMessage(buf[offset:], 3, x.GetProducts()[i])
 	}
 	return offset
 }
@@ -413,14 +491,32 @@ func (x *GetProductResp) FastWrite(buf []byte) (offset int) {
 		return offset
 	}
 	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
 	return offset
 }
 
 func (x *GetProductResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *GetProductResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
+func (x *GetProductResp) fastWriteField3(buf []byte) (offset int) {
 	if x.Product == nil {
 		return offset
 	}
-	offset += fastpb.WriteMessage(buf[offset:], 1, x.GetProduct())
+	offset += fastpb.WriteMessage(buf[offset:], 3, x.GetProduct())
 	return offset
 }
 
@@ -445,15 +541,33 @@ func (x *SearchProductsResp) FastWrite(buf []byte) (offset int) {
 		return offset
 	}
 	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
 	return offset
 }
 
 func (x *SearchProductsResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *SearchProductsResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
+func (x *SearchProductsResp) fastWriteField3(buf []byte) (offset int) {
 	if x.Results == nil {
 		return offset
 	}
 	for i := range x.GetResults() {
-		offset += fastpb.WriteMessage(buf[offset:], 1, x.GetResults()[i])
+		offset += fastpb.WriteMessage(buf[offset:], 3, x.GetResults()[i])
 	}
 	return offset
 }
@@ -560,15 +674,33 @@ func (x *ListProductsResp) Size() (n int) {
 		return n
 	}
 	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
 	return n
 }
 
 func (x *ListProductsResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *ListProductsResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
+func (x *ListProductsResp) sizeField3() (n int) {
 	if x.Products == nil {
 		return n
 	}
 	for i := range x.GetProducts() {
-		n += fastpb.SizeMessage(1, x.GetProducts()[i])
+		n += fastpb.SizeMessage(3, x.GetProducts()[i])
 	}
 	return n
 }
@@ -594,14 +726,32 @@ func (x *GetProductResp) Size() (n int) {
 		return n
 	}
 	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
 	return n
 }
 
 func (x *GetProductResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *GetProductResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
+func (x *GetProductResp) sizeField3() (n int) {
 	if x.Product == nil {
 		return n
 	}
-	n += fastpb.SizeMessage(1, x.GetProduct())
+	n += fastpb.SizeMessage(3, x.GetProduct())
 	return n
 }
 
@@ -626,15 +776,33 @@ func (x *SearchProductsResp) Size() (n int) {
 		return n
 	}
 	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
 	return n
 }
 
 func (x *SearchProductsResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *SearchProductsResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
+func (x *SearchProductsResp) sizeField3() (n int) {
 	if x.Results == nil {
 		return n
 	}
 	for i := range x.GetResults() {
-		n += fastpb.SizeMessage(1, x.GetResults()[i])
+		n += fastpb.SizeMessage(3, x.GetResults()[i])
 	}
 	return n
 }
@@ -655,7 +823,9 @@ var fieldIDToName_Product = map[int32]string{
 }
 
 var fieldIDToName_ListProductsResp = map[int32]string{
-	1: "Products",
+	1: "StatusCode",
+	2: "StatusMsg",
+	3: "Products",
 }
 
 var fieldIDToName_GetProductReq = map[int32]string{
@@ -663,7 +833,9 @@ var fieldIDToName_GetProductReq = map[int32]string{
 }
 
 var fieldIDToName_GetProductResp = map[int32]string{
-	1: "Product",
+	1: "StatusCode",
+	2: "StatusMsg",
+	3: "Product",
 }
 
 var fieldIDToName_SearchProductsReq = map[int32]string{
@@ -671,5 +843,7 @@ var fieldIDToName_SearchProductsReq = map[int32]string{
 }
 
 var fieldIDToName_SearchProductsResp = map[int32]string{
-	1: "Results",
+	1: "StatusCode",
+	2: "StatusMsg",
+	3: "Results",
 }
