@@ -2,8 +2,8 @@ package utils
 
 import (
 	"context"
-	"douyin_mall/auth/biz/dal/redis"
 	"douyin_mall/auth/conf"
+	"douyin_mall/auth/utils/redis"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
@@ -30,7 +30,7 @@ const (
 func GenerateRefreshToken(userId int32) (string, error) {
 	s, err := generateJWT(userId, refreshTokenExpireDuration)
 	if err == nil {
-		err = redis.RedisClient.Set(ctx, GetRefreshTokenKey(userId), s, refreshTokenExpireDuration).Err()
+		_, err = redis.SetVal(ctx, GetRefreshTokenKey(userId), s, refreshTokenExpireDuration)
 		if err != nil {
 			return "", err
 		}
@@ -41,7 +41,7 @@ func GenerateRefreshToken(userId int32) (string, error) {
 func GenerateAccessToken(userId int32) (string, error) {
 	s, err := generateJWT(userId, accessTokenExpireDuration)
 	if err == nil {
-		err = redis.RedisClient.Set(ctx, GetAccessTokenKey(userId), s, accessTokenExpireDuration).Err()
+		_, err = redis.SetVal(ctx, GetAccessTokenKey(userId), s, accessTokenExpireDuration)
 		if err != nil {
 			return "", err
 		}
@@ -79,25 +79,22 @@ func ParseJWT(tokenStr string) (jwt.MapClaims, int) {
 
 }
 
-func saveRefreshToken(userId int32, refreshToken string) error {
-	return redis.RedisClient.Set(ctx, GetRefreshTokenKey(userId), refreshToken, time.Hour*24*7).Err()
-}
-
-func refreshAccessToken(refreshToken string) (string, bool) {
-	// 解析refreshToken
-	claims, status := ParseJWT(refreshToken)
-	if status != TokenValid {
-		return "", false
-	}
-
-	userId := claims["userId"].(int32)
-	newAccessToken, err := generateJWT(userId, accessTokenExpireDuration)
-	if err != nil {
-		return "", false
-	}
-	err = redis.RedisClient.Set(ctx, GetAccessTokenKey(userId), newAccessToken, accessTokenExpireDuration).Err()
-	return newAccessToken, true
-}
+// 刷新access token，同时也要刷新refresh token
+//func refreshAccessToken(refreshToken string) (string, bool) {
+//	// 解析refreshToken
+//	claims, status := ParseJWT(refreshToken)
+//	if status != TokenValid {
+//		return "", false
+//	}
+//
+//	userId := claims["userId"].(int32)
+//	newAccessToken, err := generateJWT(userId, accessTokenExpireDuration)
+//	if err != nil {
+//		return "", false
+//	}
+//	err = redis.RedisClient.Set(ctx, GetAccessTokenKey(userId), newAccessToken, accessTokenExpireDuration).Err()
+//	return newAccessToken, true
+//}
 
 //func loginHandler(w http.ResponseWriter, r *http.Request) {
 //	userId := "exampleUser" // 这应该是经过验证的用户ID

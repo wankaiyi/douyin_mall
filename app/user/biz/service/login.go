@@ -21,9 +21,6 @@ func NewLoginService(ctx context.Context) *LoginService {
 
 // Run create note info
 func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error) {
-	//if 1 == 1 {
-	//	panic("test panic")
-	//}
 	loginUser, err := model.GetUserByEmail(mysql.DB, s.ctx, req.Email)
 	if err != nil {
 		// 数据库的错误

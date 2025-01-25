@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"douyin_mall/api/biz/middleware"
 	"douyin_mall/api/infra/rpc"
 	"time"
 
@@ -28,6 +29,7 @@ func main() {
 	rpc.InitClient()
 	address := conf.GetConf().Hertz.Address
 	h := server.New(server.WithHostPorts(address))
+	h.Use(middleware.AuthorizationMiddleware())
 
 	registerMiddleware(h)
 

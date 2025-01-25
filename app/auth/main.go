@@ -1,6 +1,7 @@
 package main
 
 import (
+	"douyin_mall/auth/biz/dal"
 	"douyin_mall/common/infra/nacos"
 	"net"
 	"time"
@@ -16,6 +17,7 @@ import (
 )
 
 func main() {
+	dal.Init()
 	opts := kitexInit()
 
 	svr := authservice.NewServer(new(AuthServiceImpl), opts...)

@@ -2,22 +2,23 @@ package auth
 
 import (
 	"context"
-	auth "douyin_mall/rpc/kitex_gen/auth"
+	user "douyin_mall/rpc/kitex_gen/user"
 
-	"douyin_mall/rpc/kitex_gen/auth/authservice"
+	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/callopt"
 )
 
 type RPCClient interface {
-	KitexClient() authservice.Client
+	KitexClient() userservice.Client
 	Service() string
-	DeliverTokenByRPC(ctx context.Context, Req *auth.DeliverTokenReq, callOptions ...callopt.Option) (r *auth.DeliveryResp, err error)
-	VerifyTokenByRPC(ctx context.Context, Req *auth.VerifyTokenReq, callOptions ...callopt.Option) (r *auth.VerifyResp, err error)
+	Register(ctx context.Context, Req *user.RegisterReq, callOptions ...callopt.Option) (r *user.RegisterResp, err error)
+	Login(ctx context.Context, Req *user.LoginReq, callOptions ...callopt.Option) (r *user.LoginResp, err error)
+	GetUser(ctx context.Context, Req *user.GetUserReq, callOptions ...callopt.Option) (r *user.GetUserResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
-	kitexClient, err := authservice.NewClient(dstService, opts...)
+	kitexClient, err := userservice.NewClient(dstService, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -31,21 +32,25 @@ func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
 
 type clientImpl struct {
 	service     string
-	kitexClient authservice.Client
+	kitexClient userservice.Client
 }
 
 func (c *clientImpl) Service() string {
 	return c.service
 }
 
-func (c *clientImpl) KitexClient() authservice.Client {
+func (c *clientImpl) KitexClient() userservice.Client {
 	return c.kitexClient
 }
 
-func (c *clientImpl) DeliverTokenByRPC(ctx context.Context, Req *auth.DeliverTokenReq, callOptions ...callopt.Option) (r *auth.DeliveryResp, err error) {
-	return c.kitexClient.DeliverTokenByRPC(ctx, Req, callOptions...)
+func (c *clientImpl) Register(ctx context.Context, Req *user.RegisterReq, callOptions ...callopt.Option) (r *user.RegisterResp, err error) {
+	return c.kitexClient.Register(ctx, Req, callOptions...)
 }
 
-func (c *clientImpl) VerifyTokenByRPC(ctx context.Context, Req *auth.VerifyTokenReq, callOptions ...callopt.Option) (r *auth.VerifyResp, err error) {
-	return c.kitexClient.VerifyTokenByRPC(ctx, Req, callOptions...)
+func (c *clientImpl) Login(ctx context.Context, Req *user.LoginReq, callOptions ...callopt.Option) (r *user.LoginResp, err error) {
+	return c.kitexClient.Login(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) GetUser(ctx context.Context, Req *user.GetUserReq, callOptions ...callopt.Option) (r *user.GetUserResp, err error) {
+	return c.kitexClient.GetUser(ctx, Req, callOptions...)
 }
