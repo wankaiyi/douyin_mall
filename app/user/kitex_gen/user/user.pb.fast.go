@@ -154,6 +154,11 @@ func (x *LoginResp) FastRead(buf []byte, _type int8, number int32) (offset int, 
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -178,7 +183,12 @@ func (x *LoginResp) fastReadField2(buf []byte, _type int8) (offset int, err erro
 }
 
 func (x *LoginResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.AccessToken, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *LoginResp) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.RefreshToken, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -282,6 +292,7 @@ func (x *LoginResp) FastWrite(buf []byte) (offset int) {
 	offset += x.fastWriteField1(buf[offset:])
 	offset += x.fastWriteField2(buf[offset:])
 	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
 	return offset
 }
 
@@ -302,10 +313,18 @@ func (x *LoginResp) fastWriteField2(buf []byte) (offset int) {
 }
 
 func (x *LoginResp) fastWriteField3(buf []byte) (offset int) {
-	if x.UserId == 0 {
+	if x.AccessToken == "" {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 3, x.GetUserId())
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetAccessToken())
+	return offset
+}
+
+func (x *LoginResp) fastWriteField4(buf []byte) (offset int) {
+	if x.RefreshToken == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 4, x.GetRefreshToken())
 	return offset
 }
 
@@ -409,6 +428,7 @@ func (x *LoginResp) Size() (n int) {
 	n += x.sizeField1()
 	n += x.sizeField2()
 	n += x.sizeField3()
+	n += x.sizeField4()
 	return n
 }
 
@@ -429,10 +449,18 @@ func (x *LoginResp) sizeField2() (n int) {
 }
 
 func (x *LoginResp) sizeField3() (n int) {
-	if x.UserId == 0 {
+	if x.AccessToken == "" {
 		return n
 	}
-	n += fastpb.SizeInt32(3, x.GetUserId())
+	n += fastpb.SizeString(3, x.GetAccessToken())
+	return n
+}
+
+func (x *LoginResp) sizeField4() (n int) {
+	if x.RefreshToken == "" {
+		return n
+	}
+	n += fastpb.SizeString(4, x.GetRefreshToken())
 	return n
 }
 
@@ -456,5 +484,6 @@ var fieldIDToName_LoginReq = map[int32]string{
 var fieldIDToName_LoginResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
-	3: "UserId",
+	3: "AccessToken",
+	4: "RefreshToken",
 }

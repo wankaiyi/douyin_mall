@@ -15,7 +15,7 @@ func (u User) TableName() string {
 	return "tb_user"
 }
 
-func GetByEmail(db *gorm.DB, ctx context.Context, email string) (user *User, err error) {
+func GetUserByEmail(db *gorm.DB, ctx context.Context, email string) (user *User, err error) {
 	err = db.WithContext(ctx).Model(&User{}).Where(&User{Email: email}).First(&user).Error
 	return
 }

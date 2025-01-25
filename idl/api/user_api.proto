@@ -9,12 +9,14 @@ import "api.proto";
 //import "common.proto";
 
 message LoginRequest {
-  string username = 1 [(api.form) = "username"];
+  string email = 1 [(api.form) = "email"];
   string password = 2 [(api.form) = "password"];
 }
 message LoginResponse {
-  bool success = 1;
-  string message = 2;
+  int32 status_code = 1[(api.go_tag)='json:"status_code"']; // 0-success, other values-failure
+  string status_msg = 2;
+  string access_token = 3;
+  string refresh_token = 4;
 }
 
 message RegisterRequest {

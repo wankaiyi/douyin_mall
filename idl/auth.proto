@@ -14,13 +14,15 @@ message DeliverTokenReq {
 }
 
 message VerifyTokenReq {
-  string token = 1;
+  string access_token = 1;
+  string refresh_token = 2;
 }
 
 message DeliveryResp {
   int32 status_code = 1;
   string status_msg = 2;
-  string token = 3;
+  string access_token = 3;
+  string refresh_token = 4;
 }
 
 message VerifyResp {

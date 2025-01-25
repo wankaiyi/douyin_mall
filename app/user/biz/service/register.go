@@ -41,6 +41,6 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 		}
 	}
 
-	resp = &user.RegisterResp{UserId: int32(newUser.ID)}
+	resp = &user.RegisterResp{UserId: newUser.ID}
 	return resp, nil
 }

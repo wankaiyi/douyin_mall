@@ -30,5 +30,6 @@ message LoginReq {
 message LoginResp {
   int32 status_code = 1;
   string status_msg = 2;
-  int32 user_id = 3;
+  string access_token = 3;
+  string refresh_token = 4;
 }

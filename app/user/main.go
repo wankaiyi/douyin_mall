@@ -3,6 +3,7 @@ package main
 import (
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/user/biz/dal"
+	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/conf"
 	"douyin_mall/user/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -16,6 +17,7 @@ import (
 )
 
 func main() {
+	rpc.InitClient()
 	dal.Init()
 	opts := kitexInit()
 
