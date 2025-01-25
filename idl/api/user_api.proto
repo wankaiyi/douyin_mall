@@ -48,7 +48,7 @@ message Empty {}
 service UserService {
 
   rpc Login(LoginRequest) returns (LoginResponse) {
-    option (api.get) = "/user/login";
+    option (api.post) = "/user/login";
   }
 
   rpc Register(RegisterRequest) returns (RegisterResponse) {

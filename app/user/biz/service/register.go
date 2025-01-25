@@ -41,6 +41,9 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 		}
 	}
 
-	resp = &user.RegisterResp{UserId: newUser.ID}
+	resp = &user.RegisterResp{
+		StatusCode: 0,
+		StatusMsg:  constant.GetMsg(0),
+		UserId:     newUser.ID}
 	return resp, nil
 }

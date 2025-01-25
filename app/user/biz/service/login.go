@@ -47,7 +47,7 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 	}
 	resp = &user.LoginResp{
 		StatusCode:   0,
-		StatusMsg:    "success",
+		StatusMsg:    constant.GetMsg(0),
 		AccessToken:  deliveryTokenResp.AccessToken,
 		RefreshToken: deliveryTokenResp.RefreshToken,
 	}

@@ -14,6 +14,7 @@ var (
 func init() {
 	once.Do(func() {
 		commonMsgMap = map[int]string{
+			0:   "成功",
 			500: "服务器异常",
 
 			// 用户服务
