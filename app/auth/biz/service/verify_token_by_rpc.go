@@ -18,31 +18,30 @@ func NewVerifyTokenByRPCService(ctx context.Context) *VerifyTokenByRPCService {
 // Run create note info
 func (s *VerifyTokenByRPCService) Run(req *auth.VerifyTokenReq) (resp *auth.VerifyResp, err error) {
 	// 校验access token
-	_, jwtStatus := jwt.ParseJWT(req.AccessToken)
-	if jwtStatus == jwt.TokenValid {
-		savedAccessToken, err := redis.GetVal(s.ctx, req.AccessToken)
-		if err != nil {
-			return nil, err
-		}
-		if savedAccessToken == req.AccessToken {
-			resp = &auth.VerifyResp{
-				StatusCode: 0,
-				StatusMsg:  constant.GetMsg(0),
-				Res:        true,
-			}
-		} else {
-			resp = &auth.VerifyResp{
-				StatusCode: 1005,
-				StatusMsg:  constant.GetMsg(1005),
-				Res:        false,
-			}
-		}
-	} else {
-		resp = &auth.VerifyResp{
+	userId, err := jwt.GetUserIdFromToken(req.AccessToken)
+	if err != nil {
+		return &auth.VerifyResp{
 			StatusCode: 1004,
 			StatusMsg:  constant.GetMsg(1004),
-			Res:        false,
-		}
+		}, nil
 	}
-	return
+
+	// 检查 Redis 中的 access token
+	savedAccessToken, err := redis.GetVal(s.ctx, redis.GetAccessTokenKey(userId))
+	if err != nil {
+		return nil, err
+	}
+
+	if savedAccessToken != req.AccessToken {
+		return &auth.VerifyResp{
+			StatusCode: 1005,
+			StatusMsg:  constant.GetMsg(1005),
+		}, nil
+	}
+
+	return &auth.VerifyResp{
+		StatusCode: 0,
+		StatusMsg:  constant.GetMsg(0),
+		UserId:     userId,
+	}, nil
 }

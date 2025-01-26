@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"douyin_mall/user/biz/dal/mysql"
+	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
 )
 
@@ -14,7 +16,16 @@ func NewGetUserService(ctx context.Context) *GetUserService {
 
 // Run create note info
 func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err error) {
-	// Finish your business logic.
-
+	userInfo, err := model.GetUserById(mysql.DB, s.ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	resp = &user.GetUserResp{
+		StatusCode: 0,
+		StatusMsg:  "success",
+		User: &user.User{
+			Email: userInfo.Email,
+		},
+	}
 	return
 }

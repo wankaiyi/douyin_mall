@@ -168,7 +168,7 @@ func (x *VerifyResp) fastReadField2(buf []byte, _type int8) (offset int, err err
 }
 
 func (x *VerifyResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	x.Res, offset, err = fastpb.ReadBool(buf, _type)
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
 	return offset, err
 }
 
@@ -363,10 +363,10 @@ func (x *VerifyResp) fastWriteField2(buf []byte) (offset int) {
 }
 
 func (x *VerifyResp) fastWriteField3(buf []byte) (offset int) {
-	if !x.Res {
+	if x.UserId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteBool(buf[offset:], 3, x.GetRes())
+	offset += fastpb.WriteInt32(buf[offset:], 3, x.GetUserId())
 	return offset
 }
 
@@ -540,10 +540,10 @@ func (x *VerifyResp) sizeField2() (n int) {
 }
 
 func (x *VerifyResp) sizeField3() (n int) {
-	if !x.Res {
+	if x.UserId == 0 {
 		return n
 	}
-	n += fastpb.SizeBool(3, x.GetRes())
+	n += fastpb.SizeInt32(3, x.GetUserId())
 	return n
 }
 
@@ -625,7 +625,7 @@ var fieldIDToName_DeliveryResp = map[int32]string{
 var fieldIDToName_VerifyResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
-	3: "Res",
+	3: "UserId",
 }
 
 var fieldIDToName_RefreshTokenReq = map[int32]string{

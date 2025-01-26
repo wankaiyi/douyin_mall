@@ -24,3 +24,8 @@ func Create(db *gorm.DB, ctx context.Context, user *User) error {
 	result := db.Create(user)
 	return result.Error
 }
+
+func GetUserById(db *gorm.DB, ctx context.Context, userId int32) (user *User, err error) {
+	err = db.WithContext(ctx).Model(&User{}).Where(&User{Base: Base{ID: userId}}).First(&user).Error
+	return
+}

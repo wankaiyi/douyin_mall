@@ -15,8 +15,8 @@ func SetVal(ctx context.Context, key string, val interface{}, expiration time.Du
 	return result, err
 }
 
-func GetVal(ctx context.Context, token string) (string, error) {
-	result, err := redis.RedisClient.Get(ctx, token).Result()
+func GetVal(ctx context.Context, key string) (string, error) {
+	result, err := redis.RedisClient.Get(ctx, key).Result()
 	if err != nil {
 		klog.Error("redis get失败，", err)
 	}

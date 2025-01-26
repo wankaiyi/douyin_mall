@@ -29,7 +29,7 @@ message DeliveryResp {
 message VerifyResp {
   int32 status_code = 1;
   string status_msg = 2;
-  bool res = 3;
+  int32 user_id = 3;
 }
 
 message RefreshTokenReq {
