@@ -84,7 +84,7 @@ func RecoverPanic(next endpoint.Endpoint) endpoint.Endpoint {
 			currentEnv, getEnvErr := env.GetString("env")
 			if getEnvErr != nil {
 				klog.Error(getEnvErr.Error())
-			} else if currentEnv == "dev" {
+			} else if currentEnv != "dev" {
 				feishuWebhook := conf.GetConf().Alert.FeishuWebhook
 				errMsg := fmt.Sprintf("服务**%s**接口**%s**发生异常，错误信息：%+v", endpointInfo.ServiceName(), endpointInfo.Method(), err)
 				feishu.SendFeishuAlert(ctx, feishuWebhook, errMsg)
