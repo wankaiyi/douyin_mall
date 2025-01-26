@@ -17,6 +17,13 @@ func NewVerifyTokenByRPCService(ctx context.Context) *VerifyTokenByRPCService {
 
 // Run create note info
 func (s *VerifyTokenByRPCService) Run(req *auth.VerifyTokenReq) (resp *auth.VerifyResp, err error) {
+	// 检查 accessToken 是否为空
+	if req.AccessToken == "" {
+		return &auth.VerifyResp{
+			StatusCode: 1004,
+			StatusMsg:  constant.GetMsg(1004),
+		}, nil
+	}
 	// 校验access token
 	userId, err := jwt.GetUserIdFromToken(req.AccessToken)
 	if err != nil {

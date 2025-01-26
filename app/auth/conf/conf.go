@@ -22,6 +22,7 @@ type Config struct {
 	Kitex Kitex `yaml:"kitex"`
 	Redis Redis `yaml:"redis"`
 	Jwt   Jwt   `yaml:"jwt"`
+	Alert Alert `yaml:"alert"`
 }
 
 type Redis struct {
@@ -43,6 +44,10 @@ type Kitex struct {
 
 type Jwt struct {
 	Secret string `yaml:"secret"`
+}
+
+type Alert struct {
+	FeishuWebhook string `yaml:"feishu_webhook"`
 }
 
 // GetConf gets configuration instance

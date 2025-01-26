@@ -23,6 +23,7 @@ type Config struct {
 	MySQL    MySQL    `yaml:"mysql"`
 	Redis    Redis    `yaml:"redis"`
 	Registry Registry `yaml:"registry"`
+	Alert    Alert    `yaml:"alert"`
 }
 
 type MySQL struct {
@@ -50,6 +51,10 @@ type Registry struct {
 	RegistryAddress string `yaml:"registry_address"`
 	Username        string `yaml:"username"`
 	Password        string `yaml:"password"`
+}
+
+type Alert struct {
+	FeishuWebhook string `yaml:"feishu_webhook"`
 }
 
 // GetConf gets configuration instance

@@ -23,9 +23,11 @@ func AuthorizationMiddleware() app.HandlerFunc {
 				c.JSON(consts.StatusOK, utils.H{
 					"status_code": 500,
 					"status_msg":  constant.GetMsg(500)})
+				c.Abort()
 			} else {
 				if verifyResp.StatusCode != 0 {
 					c.JSON(consts.StatusOK, verifyResp)
+					c.Abort()
 				}
 				ctx = context.WithValue(ctx, "user_id", verifyResp.UserId)
 			}

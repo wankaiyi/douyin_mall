@@ -4,6 +4,7 @@ import (
 	"douyin_mall/rpc/kitex_gen/auth/authservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
+	"time"
 
 	//prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"sync"
@@ -36,14 +37,14 @@ func InitClient() {
 }
 
 func initUserClient() {
-	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithRPCTimeout(3*time.Second))
 	if err != nil {
 		klog.Fatal("init user client failed: ", err)
 	}
 }
 
 func initAuthClient() {
-	AuthClient, err = authservice.NewClient("auth-service", commonSuite)
+	AuthClient, err = authservice.NewClient("auth-service", commonSuite, client.WithRPCTimeout(3*time.Second))
 	if err != nil {
 		klog.Fatal("init auth client failed: ", err)
 	}
