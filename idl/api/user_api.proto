@@ -58,4 +58,8 @@ service UserService {
   rpc GetUserInfo(Empty) returns (GetUserInfoResponse) {
     option (api.get) = "/user/info";
   }
+
+  rpc RefreshToken(Empty) returns (LoginResponse) {
+    option (api.post) = "/user/refresh_token";
+  }
 }

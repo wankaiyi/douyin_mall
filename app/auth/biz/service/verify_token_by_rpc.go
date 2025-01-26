@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	auth "douyin_mall/auth/kitex_gen/auth"
-	"douyin_mall/auth/utils"
+	"douyin_mall/auth/utils/jwt"
 	"douyin_mall/auth/utils/redis"
 	"douyin_mall/common/constant"
 )
@@ -18,8 +18,8 @@ func NewVerifyTokenByRPCService(ctx context.Context) *VerifyTokenByRPCService {
 // Run create note info
 func (s *VerifyTokenByRPCService) Run(req *auth.VerifyTokenReq) (resp *auth.VerifyResp, err error) {
 	// 校验access token
-	_, jwtStatus := utils.ParseJWT(req.AccessToken)
-	if jwtStatus == utils.TokenValid {
+	_, jwtStatus := jwt.ParseJWT(req.AccessToken)
+	if jwtStatus == jwt.TokenValid {
 		savedAccessToken, err := redis.GetVal(s.ctx, req.AccessToken)
 		if err != nil {
 			return nil, err

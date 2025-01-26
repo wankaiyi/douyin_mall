@@ -7,6 +7,7 @@ option go_package = "/auth";
 service AuthService {
   rpc DeliverTokenByRPC(DeliverTokenReq) returns (DeliveryResp) {}
   rpc VerifyTokenByRPC(VerifyTokenReq) returns (VerifyResp) {}
+  rpc RefreshTokenByRPC(RefreshTokenReq) returns (RefreshTokenResp) {}
 }
 
 message DeliverTokenReq {
@@ -29,4 +30,15 @@ message VerifyResp {
   int32 status_code = 1;
   string status_msg = 2;
   bool res = 3;
+}
+
+message RefreshTokenReq {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string access_token = 3;
+  string refresh_token = 4;
 }

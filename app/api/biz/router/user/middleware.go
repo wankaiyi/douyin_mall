@@ -30,3 +30,8 @@ func _registerMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _refreshtokenMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
