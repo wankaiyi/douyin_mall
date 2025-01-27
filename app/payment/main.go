@@ -35,7 +35,13 @@ func main() {
 
 func kitexInit() (opts []server.Option) {
 	// address
-	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
+	var address string
+	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {
+		address = "0.0.0.0:8888"
+	} else {
+		address = conf.GetConf().Kitex.Address
+	}
+	addr, err := net.ResolveTCPAddr("tcp", address)
 	if err != nil {
 		panic(err)
 	}

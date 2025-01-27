@@ -6,6 +6,7 @@ import (
 	"context"
 	"douyin_mall/api/biz/middleware"
 	"douyin_mall/api/infra/rpc"
+	"douyin_mall/common/utils/env"
 	"time"
 
 	"douyin_mall/api/biz/router"
@@ -27,7 +28,12 @@ import (
 
 func main() {
 	rpc.InitClient()
-	address := conf.GetConf().Hertz.Address
+	var address string
+	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {
+		address = "0.0.0.0:8888"
+	} else {
+		address = conf.GetConf().Hertz.Address
+	}
 	h := server.New(server.WithHostPorts(address))
 	h.Use(middleware.AuthorizationMiddleware())
 
