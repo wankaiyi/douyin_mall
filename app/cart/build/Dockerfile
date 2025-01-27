@@ -11,6 +11,6 @@ WORKDIR /app/cart
 
 RUN go mod tidy && go build -o exe
 
-EXPOSE 8001
+EXPOSE 8888
 
 CMD ["./exe"]
