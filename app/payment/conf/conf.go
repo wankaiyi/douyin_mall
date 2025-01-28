@@ -100,12 +100,11 @@ func initConf() {
 		if conf == nil {
 			conf = new(Config)
 		}
-		err := parser.Decode(vo.YAML, data, conf)
+		err := yaml.Unmarshal([]byte(data), &conf)
 		if err != nil {
-			klog.Error("parse yaml error - %v", err)
+			klog.Error("Error parsing YAML: %v\n", err)
+			return
 		}
-		//parsedData := parser.ParseConfig(data)
-		//fmt.Printf("Configuration updated: %v\n", parsedData)
 		_, err = pretty.Printf("%+v\n", conf)
 		if err != nil {
 			klog.Error("pretty print error - %v", err)
