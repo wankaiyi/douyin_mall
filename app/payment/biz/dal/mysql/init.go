@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"douyin_mall/payment/biz/model"
 	"douyin_mall/payment/conf"
 
 	"gorm.io/driver/mysql"
@@ -13,12 +14,17 @@ var (
 )
 
 func Init() {
-	DB, err = gorm.Open(mysql.Open(conf.GetConf().MySQL.DSN),
+	dsn := conf.GetConf().MySQL.DSN
+	DB, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
 			PrepareStmt:    true,
 			TranslateError: true,
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
+	err := DB.AutoMigrate(&model.Payment{})
 	if err != nil {
 		panic(err)
 	}

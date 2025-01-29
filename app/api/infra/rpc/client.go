@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"douyin_mall/rpc/kitex_gen/auth/authservice"
+	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"time"
@@ -16,12 +17,13 @@ import (
 )
 
 var (
-	AuthClient   authservice.Client
-	UserClient   userservice.Client
-	once         sync.Once
-	err          error
-	registryAddr string
-	commonSuite  client.Option
+	AuthClient    authservice.Client
+	UserClient    userservice.Client
+	PaymentClient paymentservice.Client
+	once          sync.Once
+	err           error
+	registryAddr  string
+	commonSuite   client.Option
 )
 
 func InitClient() {
