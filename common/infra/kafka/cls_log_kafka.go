@@ -46,12 +46,11 @@ func InitClsLogKafka(user string, password string, topicId string) {
 		}
 	}()
 
-	// 捕获退出信号
+	// 捕获退出信号，优雅停机
 	go func() {
 		sigs := make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 		<-sigs
-		SendLogMessage("exit")
 		_ = producer.Close()
 	}()
 }
