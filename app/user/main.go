@@ -18,10 +18,13 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"net"
+	"os"
 	"time"
 )
 
 func main() {
+	os.Setenv("TZ", "Asia/Shanghai")
+	time.Local, _ = time.LoadLocation("")
 	rpc.InitClient()
 	dal.Init()
 	opts := kitexInit()

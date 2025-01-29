@@ -7,6 +7,7 @@ import (
 	"douyin_mall/api/biz/middleware"
 	"douyin_mall/api/infra/rpc"
 	"douyin_mall/common/utils/env"
+	"os"
 	"time"
 
 	"douyin_mall/api/biz/router"
@@ -27,6 +28,8 @@ import (
 )
 
 func main() {
+	os.Setenv("TZ", "Asia/Shanghai")
+	time.Local, _ = time.LoadLocation("")
 	rpc.InitClient()
 	var address string
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {

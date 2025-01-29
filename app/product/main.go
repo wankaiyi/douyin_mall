@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"net"
+	"os"
 	"time"
 
 	"douyin_mall/product/conf"
@@ -22,6 +23,8 @@ import (
 )
 
 func main() {
+	os.Setenv("TZ", "Asia/Shanghai")
+	time.Local, _ = time.LoadLocation("")
 	dal.Init()
 	opts := kitexInit()
 

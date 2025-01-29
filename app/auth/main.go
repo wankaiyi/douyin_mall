@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"net"
+	"os"
 	"time"
 
 	"douyin_mall/auth/conf"
@@ -23,6 +24,8 @@ import (
 )
 
 func main() {
+	os.Setenv("TZ", "Asia/Shanghai")
+	time.Local, _ = time.LoadLocation("")
 	dal.Init()
 	opts := kitexInit()
 	kafka.InitClsLogKafka(conf.GetConf().Kafka.ClsKafka.Usser, conf.GetConf().Kafka.ClsKafka.Password, conf.GetConf().Kafka.ClsKafka.TopicId)
