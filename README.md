@@ -2,12 +2,12 @@
 ```shell
 cd douyin_mall_rpc
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/auth.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/cart.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/checkout.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/order.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/payment.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/product.proto
-cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service auth --idl ../idl/user.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service cart --idl ../idl/cart.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service checkout --idl ../idl/checkout.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service order --idl ../idl/order.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service payment --idl ../idl/payment.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service product --idl ../idl/product.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service user --idl ../idl/user.proto
 ```
 
 # RPC Server Generator
