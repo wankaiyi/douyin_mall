@@ -24,6 +24,7 @@ type Config struct {
 	Redis    Redis    `yaml:"redis"`
 	Registry Registry `yaml:"registry"`
 	Alert    Alert    `yaml:"alert"`
+	Kafka    Kafka    `yaml:"kafka"`
 }
 
 type MySQL struct {
@@ -55,6 +56,16 @@ type Registry struct {
 
 type Alert struct {
 	FeishuWebhook string `yaml:"feishu_webhook"`
+}
+
+type Kafka struct {
+	ClsKafka ClsKafka `yaml:"cls_kafka"`
+}
+
+type ClsKafka struct {
+	Usser    string `yaml:"user"`
+	Password string `yaml:"password"`
+	TopicId  string `yaml:"topic_id"`
 }
 
 // GetConf gets configuration instance

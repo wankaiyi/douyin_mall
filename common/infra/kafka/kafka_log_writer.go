@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"douyin_mall/common/utils/env"
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
@@ -8,15 +9,12 @@ import (
 	"syscall"
 )
 
-var (
+type KafkaWriter struct {
 	producer sarama.AsyncProducer
-	err      error
-	// 日志主题id
-	logTopicId string
-)
+	topicId  string
+}
 
-func InitClsLogKafka(user string, password string, topicId string) {
-	logTopicId = topicId
+func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 	config := sarama.NewConfig()
 
 	config.Net.SASL.Mechanism = "PLAIN"
@@ -29,20 +27,14 @@ func InitClsLogKafka(user string, password string, topicId string) {
 	config.Version = sarama.V1_1_0_0
 	config.Producer.Compression = sarama.CompressionGZIP
 
-	producer, err = sarama.NewAsyncProducer([]string{"gz-producer.cls.tencentcs.com:9096"}, config)
+	producer, err := sarama.NewAsyncProducer([]string{"gz-producer.cls.tencentcs.com:9096"}, config)
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
 		for err := range producer.Errors() {
-			klog.Error("发送消息失败: %v\n", err)
-		}
-	}()
-
-	go func() {
-		for success := range producer.Successes() {
-			klog.Info("发送消息成功，topic %s, partition %d, offset %d\n", success.Topic, success.Partition, success.Offset)
+			klog.Errorf("发送消息失败: %v", err)
 		}
 	}()
 
@@ -53,12 +45,24 @@ func InitClsLogKafka(user string, password string, topicId string) {
 		<-sigs
 		_ = producer.Close()
 	}()
+	return &KafkaWriter{
+		producer: producer,
+		topicId:  topicId,
+	}
 }
 
-func SendLogMessage(log string) {
-	producer.Input() <- &sarama.ProducerMessage{
-		Topic: logTopicId,
-		Value: sarama.StringEncoder(log),
+// Write 实现 zapcore.WriteSyncer 的 Write 方法
+func (kw *KafkaWriter) Write(p []byte) (n int, err error) {
+	if currentEnv, err := env.GetString("env"); err != nil && currentEnv != "dev" {
+		kw.producer.Input() <- &sarama.ProducerMessage{
+			Topic: kw.topicId,
+			Value: sarama.StringEncoder(p),
+		}
 	}
-	_ = producer.Close()
+	return len(p), nil
+}
+
+// Sync 实现 zapcore.WriteSyncer 的 Sync 方法
+func (kw *KafkaWriter) Sync() error {
+	return nil
 }

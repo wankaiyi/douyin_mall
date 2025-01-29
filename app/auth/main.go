@@ -28,7 +28,6 @@ func main() {
 	time.Local, _ = time.LoadLocation("")
 	dal.Init()
 	opts := kitexInit()
-	kafka.InitClsLogKafka(conf.GetConf().Kafka.ClsKafka.Usser, conf.GetConf().Kafka.ClsKafka.Password, conf.GetConf().Kafka.ClsKafka.TopicId)
 
 	svr := authservice.NewServer(new(AuthServiceImpl), opts...)
 
@@ -65,14 +64,23 @@ func kitexInit() (opts []server.Option) {
 	logger := kitexlogrus.NewLogger()
 	klog.SetLogger(logger)
 	klog.SetLevel(conf.LogLevel())
+	fileWriter := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   conf.GetConf().Kitex.LogFileName,
+		MaxSize:    conf.GetConf().Kitex.LogMaxSize,
+		MaxBackups: conf.GetConf().Kitex.LogMaxBackups,
+		MaxAge:     conf.GetConf().Kitex.LogMaxAge,
+	})
+
+	kafkaWriter := kafka.NewKafkaWriter(
+		conf.GetConf().Kafka.ClsKafka.Usser,
+		conf.GetConf().Kafka.ClsKafka.Password,
+		conf.GetConf().Kafka.ClsKafka.TopicId,
+	)
+
+	writeSyncers := zapcore.NewMultiWriteSyncer(fileWriter, kafkaWriter)
 	asyncWriter := &zapcore.BufferedWriteSyncer{
-		WS: zapcore.AddSync(&lumberjack.Logger{
-			Filename:   conf.GetConf().Kitex.LogFileName,
-			MaxSize:    conf.GetConf().Kitex.LogMaxSize,
-			MaxBackups: conf.GetConf().Kitex.LogMaxBackups,
-			MaxAge:     conf.GetConf().Kitex.LogMaxAge,
-		}),
-		FlushInterval: time.Minute,
+		WS:            writeSyncers,
+		FlushInterval: time.Second * 5,
 	}
 	klog.SetOutput(asyncWriter)
 	server.RegisterShutdownHook(func() {
