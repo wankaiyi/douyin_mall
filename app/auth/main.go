@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"douyin_mall/auth/biz/dal"
+	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
@@ -24,6 +25,7 @@ import (
 func main() {
 	dal.Init()
 	opts := kitexInit()
+	kafka.InitClsLogKafka(conf.GetConf().Kafka.ClsKafka.Usser, conf.GetConf().Kafka.ClsKafka.Password, conf.GetConf().Kafka.ClsKafka.TopicId)
 
 	svr := authservice.NewServer(new(AuthServiceImpl), opts...)
 
