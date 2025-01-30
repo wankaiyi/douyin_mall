@@ -20,3 +20,8 @@ func _chargeMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _notifyMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -35,6 +35,7 @@ func InitClient() {
 		})
 		initAuthClient()
 		initUserClient()
+		initPaymentClient()
 	})
 }
 
@@ -49,5 +50,11 @@ func initAuthClient() {
 	AuthClient, err = authservice.NewClient("auth-service", commonSuite, client.WithRPCTimeout(3*time.Second))
 	if err != nil {
 		klog.Fatal("init auth client failed: ", err)
+	}
+}
+func initPaymentClient() {
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithRPCTimeout(3*time.Second))
+	if err != nil {
+		klog.Fatal("init payment client failed: ", err)
 	}
 }

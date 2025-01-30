@@ -1,11 +1,15 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
 	"github.com/go-pay/xlog"
 	"io"
+	"net/http"
 	"os"
 )
 
@@ -36,7 +40,7 @@ func init() {
 	defer AppPublicContentPath.Close()
 
 	appid = os.Getenv("APPID")
-	notifyUrl = "http://example.com/payment/charge"
+	notifyUrl = os.Getenv("NOTIFY_URL")
 	privateKey = os.Getenv("PRIVATE_KEY")
 	subject = "douyin_mall_order"
 	product_code = "FAST_INSTANT_TRADE_PAY"
@@ -92,8 +96,7 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string
 	// 构建支付请求对象
 	client, err := PayInit()
 	if err != nil {
-		xlog.Error(err)
-		return
+		return "", err
 	}
 	// 构建支付请求参数
 	bodyMap := make(gopay.BodyMap)
@@ -103,11 +106,78 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string
 	bodyMap.Set("product_code", product_code)
 	paymentUrl, err := client.TradePagePay(ctx, bodyMap)
 	if err != nil {
-		xlog.Error(err)
-		return
+		return "", err
 	}
 	// 跳转到支付页面
 	return paymentUrl, nil
 }
 
-//todo 支付宝支付通知回调
+// 支付宝支付通知异步回调
+func PayNotify(ctx *context.Context, notifyBody string, c *app.RequestContext) {
+	// 解析异步通知的参数
+	// req：*http.Request
+	request, err := convertToHTTPRequest(&c.Request)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+	notifyReq, err := alipay.ParseNotifyToBodyMap(request) // c.Request 是 gin 框架的写法
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+	//或
+	// value：url.Values
+	//
+	//notifyReq, err = alipay.ParseNotifyByURLValues()
+	//if err != nil {
+	//	xlog.Error(err)
+	//	return
+	//}
+
+	//// 支付宝异步通知验签（公钥模式）
+	//ok, err = alipay.VerifySign(aliPayPublicKey, notifyReq)
+
+	// 支付宝异步通知验签（公钥证书模式）
+	_, err = alipay.VerifySignWithCert(AlipayPublicContent, notifyReq)
+	if err != nil {
+		xlog.Error(err)
+		return
+	}
+
+	// 如果需要，可将 BodyMap 内数据，Unmarshal 到指定结构体指针 ptr
+	//err = notifyReq.Unmarshal(ptr)
+
+	// ====异步通知，返回支付宝平台的信息====
+	// 文档：https://opendocs.alipay.com/open/203/105286
+	// 程序执行完后必须打印输出“success”（不包含引号）。如果商户反馈给支付宝的字符不是success这7个字符，支付宝服务器会不断重发通知，直到超过24小时22分钟。一般情况下，25小时以内完成8次通知（通知的间隔频率一般是：4m,10m,10m,1h,2h,6h,15h）
+
+	// 此写法是 gin 框架返回支付宝的写法
+	//c.String(http.StatusOK, "%s", "success")
+
+	// 此写法是 echo 框架返回支付宝的写法
+	c.String(http.StatusOK, "success")
+}
+
+// convertToHTTPRequest 将 Hertz 的 *protocol.Request 转换为标准库的 *http.Request
+func convertToHTTPRequest(req *protocol.Request) (*http.Request, error) {
+	// 读取请求体
+	body := io.NopCloser(bytes.NewReader(req.Body()))
+
+	// 创建 *http.Request
+	httpReq, err := http.NewRequest(
+		string(req.Method()),
+		req.URI().String(),
+		body,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// 复制 Header
+	req.Header.VisitAll(func(key, value []byte) {
+		httpReq.Header.Set(string(key), string(value))
+	})
+
+	return httpReq, nil
+}

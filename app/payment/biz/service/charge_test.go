@@ -11,11 +11,14 @@ func TestCharge_Run(t *testing.T) {
 	s := NewChargeService(ctx)
 	// init req and assert value
 
-	req := &payment.ChargeReq{}
+	req := &payment.ChargeReq{
+		Amount:  999,
+		OrderId: "1632567837",
+		UserId:  123456,
+	}
+
 	resp, err := s.Run(req)
 	t.Logf("err: %v", err)
 	t.Logf("resp: %v", resp)
-
-	// todo: edit your unit test
 
 }

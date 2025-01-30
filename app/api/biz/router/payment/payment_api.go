@@ -20,5 +20,6 @@ func Register(r *server.Hertz) {
 	{
 		_payment := root.Group("/payment", _paymentMw()...)
 		_payment.POST("/charge", append(_chargeMw(), payment.Charge)...)
+		_payment.POST("/notify", append(_notifyMw(), payment.Notify)...)
 	}
 }
