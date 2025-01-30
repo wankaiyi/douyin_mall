@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
+	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
 	"douyin_mall/user/biz/dal"
@@ -26,6 +27,7 @@ import (
 func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
+	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort, conf.GetConf().Registry.RegistryAddress)
 	rpc.InitClient()
 	dal.Init()
 	opts := kitexInit()
