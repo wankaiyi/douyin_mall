@@ -1,0 +1,40 @@
+// idl/hello/hello.proto
+syntax = "proto3";
+
+package api.product;
+
+option go_package = "api/product";
+
+import "api.proto";
+//import "common.proto";
+
+message Product {
+  uint32 id = 1;
+  string name = 2;
+  string description = 3;
+  string picture = 4;
+  float price = 5;
+
+  repeated string categories = 6;
+  int64 stock=7;
+  int64 sale=8;
+  uint32 publish_status=9;
+}
+
+message ProductRequest {
+  string productName = 1 [(api.form)= "productName"];
+}
+
+message ProductResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+  repeated Product products=3;//定义产品数组
+}
+
+service ProductService {
+
+  rpc Search(ProductRequest) returns (ProductResponse) {
+    option (api.post) = "/product/search";
+  }
+
+}
