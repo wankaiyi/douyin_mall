@@ -25,6 +25,9 @@ message Product {
   float price = 5;
 
   repeated string categories = 6;
+  int64 stock=7;
+  int64 sale=8;
+  uint32 publish_status=9;
 }
 
 message ListProductsResp {
