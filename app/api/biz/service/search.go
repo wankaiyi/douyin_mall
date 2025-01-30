@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
-	"douyin_mall/api/biz/dal/mysql"
-	"fmt"
+	"douyin_mall/api/infra/rpc"
+	rpcproduct "douyin_mall/rpc/kitex_gen/product"
+	"errors"
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	product "douyin_mall/api/hertz_gen/api/product"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -24,19 +26,16 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
 	// todo edit your code
-	db := mysql.DB
-	var p []product.Product
-	result := db.Table("tb_product").Select("*").Find(&p)
-	products := make([]*product.Product, len(p))
-	for i := range p {
-		products[i] = &p[i]
+	client := rpc.ProductClient
+	//把前端传入的参数放进去
+	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName})
+	if err != nil {
+		klog.Error("payment failed, err: ", err)
+		return nil, errors.New("支付失败，请稍后再试")
 	}
-
-	fmt.Println(result)
-
-	return &product.ProductResponse{
-		StatusCode: 0,
-		StatusMsg:  "success",
-		Products:   products,
-	}, nil
+	resp = &product.ProductResponse{
+		StatusCode: res.StatusCode,
+		StatusMsg:  res.StatusMsg,
+	}
+	return resp, err
 }
