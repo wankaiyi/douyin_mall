@@ -14,7 +14,7 @@ import (
 
 var Registry *prometheus.Registry
 
-func InitMetric(serviceName string, metricsPort string, registryAddr string) {
+func InitMetric(serviceName string, metricsPort string) {
 	Registry = prometheus.NewRegistry()
 	Registry.MustRegister(collectors.NewGoCollector())
 	Registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
@@ -24,7 +24,7 @@ func InitMetric(serviceName string, metricsPort string, registryAddr string) {
 	addr, _ := net.ResolveTCPAddr("tcp", metricsPort)
 
 	registryInfo := &registry.Info{
-		ServiceName: "prometheus",
+		ServiceName: "prometheus" + serviceName,
 		Addr:        addr,
 		Weight:      1,
 		Tags:        map[string]string{"service": serviceName},

@@ -27,7 +27,7 @@ import (
 func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
-	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort, conf.GetConf().Registry.RegistryAddress)
+	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	rpc.InitClient()
 	dal.Init()
 	opts := kitexInit()

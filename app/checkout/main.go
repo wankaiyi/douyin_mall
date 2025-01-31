@@ -5,6 +5,7 @@ import (
 	"douyin_mall/checkout/biz/dal"
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
+	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
 	"fmt"
@@ -27,6 +28,7 @@ func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
 	dal.Init()
+	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	opts := kitexInit()
 
 	svr := checkoutservice.NewServer(new(CheckoutServiceImpl), opts...)

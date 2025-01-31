@@ -18,12 +18,13 @@ var (
 )
 
 type Config struct {
-	Env   string
-	Kitex Kitex `yaml:"kitex"`
-	Redis Redis `yaml:"redis"`
-	Jwt   Jwt   `yaml:"jwt"`
-	Alert Alert `yaml:"alert"`
-	Kafka Kafka `yaml:"kafka"`
+	Env      string
+	Kitex    Kitex    `yaml:"kitex"`
+	Redis    Redis    `yaml:"redis"`
+	Registry Registry `yaml:"registry"`
+	Jwt      Jwt      `yaml:"jwt"`
+	Alert    Alert    `yaml:"alert"`
+	Kafka    Kafka    `yaml:"kafka"`
 }
 
 type Redis struct {
@@ -36,11 +37,18 @@ type Redis struct {
 type Kitex struct {
 	Service       string `yaml:"service"`
 	Address       string `yaml:"address"`
+	MetricsPort   string `yaml:"metrics_port"`
 	LogLevel      string `yaml:"log_level"`
 	LogFileName   string `yaml:"log_file_name"`
 	LogMaxSize    int    `yaml:"log_max_size"`
 	LogMaxBackups int    `yaml:"log_max_backups"`
 	LogMaxAge     int    `yaml:"log_max_age"`
+}
+
+type Registry struct {
+	RegistryAddress string `yaml:"registry_address"`
+	Username        string `yaml:"username"`
+	Password        string `yaml:"password"`
 }
 
 type Jwt struct {
