@@ -25,3 +25,8 @@ func _notifyMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _cancelMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

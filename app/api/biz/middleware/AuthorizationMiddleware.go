@@ -16,6 +16,8 @@ var (
 		"/user/login":         {},
 		"/user/register":      {},
 		"/user/refresh_token": {},
+		"/payment/notify":     {},
+		"/payment/cancel":     {},
 	}
 )
 

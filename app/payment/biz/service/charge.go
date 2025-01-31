@@ -20,13 +20,13 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 	// Finish your business logic.
 	orderId, err := strconv.ParseInt(req.OrderId, 0, 64)
 	if err != nil {
-		klog.Error(err)
+		klog.Errorf("parse order id error: %s", err.Error())
 	}
 	amount := req.Amount
 
 	paymentUrl, err := Pay(s.ctx, orderId, amount)
 	if err != nil {
-		klog.Error(err)
+		klog.Errorf("pay error: %s", err.Error())
 		resp = &payment.ChargeResp{
 			StatusCode: 5000,
 			StatusMsg:  constant.GetMsg(5000),

@@ -51,3 +51,23 @@ func Notify(ctx context.Context, c *app.RequestContext) {
 	}
 
 }
+
+// Cancel .
+// @router /payment/cancel [POST]
+func Cancel(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req payment.CancelRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewCancelService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

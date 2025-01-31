@@ -31,7 +31,7 @@ func (h *ChargeService) Run(req *payment.ChargeRequest) (resp *payment.ChargeRes
 		UserId:  req.UserId,
 	})
 	if err != nil {
-		hlog.Error("payment failed, err: ", err)
+		hlog.CtxErrorf(h.Context, "payment failed, err: %s, req: %+v", err, &req)
 		return nil, errors.New("支付失败，请稍后再试")
 	}
 	resp = &payment.ChargeResponse{

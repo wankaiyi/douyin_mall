@@ -22,6 +22,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"CancelCharge": kitex.NewMethodInfo(
+		cancelChargeHandler,
+		newCancelChargeArgs,
+		newCancelChargeResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -241,6 +248,159 @@ func (p *ChargeResult) GetResult() interface{} {
 	return p.Success
 }
 
+func cancelChargeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(payment.CancelChargeReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(payment.PaymentService).CancelCharge(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *CancelChargeArgs:
+		success, err := handler.(payment.PaymentService).CancelCharge(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*CancelChargeResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newCancelChargeArgs() interface{} {
+	return &CancelChargeArgs{}
+}
+
+func newCancelChargeResult() interface{} {
+	return &CancelChargeResult{}
+}
+
+type CancelChargeArgs struct {
+	Req *payment.CancelChargeReq
+}
+
+func (p *CancelChargeArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(payment.CancelChargeReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *CancelChargeArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *CancelChargeArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *CancelChargeArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *CancelChargeArgs) Unmarshal(in []byte) error {
+	msg := new(payment.CancelChargeReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var CancelChargeArgs_Req_DEFAULT *payment.CancelChargeReq
+
+func (p *CancelChargeArgs) GetReq() *payment.CancelChargeReq {
+	if !p.IsSetReq() {
+		return CancelChargeArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *CancelChargeArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CancelChargeArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type CancelChargeResult struct {
+	Success *payment.CancelChargeResp
+}
+
+var CancelChargeResult_Success_DEFAULT *payment.CancelChargeResp
+
+func (p *CancelChargeResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(payment.CancelChargeResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *CancelChargeResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *CancelChargeResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *CancelChargeResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *CancelChargeResult) Unmarshal(in []byte) error {
+	msg := new(payment.CancelChargeResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *CancelChargeResult) GetSuccess() *payment.CancelChargeResp {
+	if !p.IsSetSuccess() {
+		return CancelChargeResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *CancelChargeResult) SetSuccess(x interface{}) {
+	p.Success = x.(*payment.CancelChargeResp)
+}
+
+func (p *CancelChargeResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CancelChargeResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -256,6 +416,16 @@ func (p *kClient) Charge(ctx context.Context, Req *payment.ChargeReq) (r *paymen
 	_args.Req = Req
 	var _result ChargeResult
 	if err = p.c.Call(ctx, "Charge", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CancelCharge(ctx context.Context, Req *payment.CancelChargeReq) (r *payment.CancelChargeResp, err error) {
+	var _args CancelChargeArgs
+	_args.Req = Req
+	var _result CancelChargeResult
+	if err = p.c.Call(ctx, "CancelCharge", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

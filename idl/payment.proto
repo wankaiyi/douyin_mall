@@ -7,6 +7,7 @@ option go_package = "payment";
 
 service PaymentService {
   rpc Charge(ChargeReq) returns (ChargeResp) {}
+  rpc CancelCharge(CancelChargeReq) returns (CancelChargeResp) {}
 }
 
 
@@ -21,4 +22,13 @@ message ChargeResp {
   string status_msg = 2;
   string transaction_id = 3;
   string payment_url = 4;
+}
+
+message CancelChargeReq {
+  string order_id = 1;
+}
+
+message CancelChargeResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }

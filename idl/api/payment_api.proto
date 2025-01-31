@@ -13,6 +13,10 @@ service PaymentService {
   rpc Notify(Empty) returns (Empty) {
     option (api.post) = "/payment/notify";
   }
+
+  rpc Cancel(CancelRequest) returns (CancelResponse) {
+    option (api.post) = "/payment/cancel";
+  }
 }
 
 message NotifyResponse {
@@ -34,3 +38,11 @@ message ChargeResponse {
   string payment_url = 4;
 }
 
+message CancelRequest {
+  string order_id = 1[(api.form) = "order_id"];
+}
+
+message CancelResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+}

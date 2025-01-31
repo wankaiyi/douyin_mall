@@ -2,33 +2,24 @@ package payment
 
 import (
 	"context"
-	product "douyin_mall/rpc/kitex_gen/product"
+	payment "douyin_mall/rpc/kitex_gen/payment"
 	"github.com/cloudwego/kitex/client/callopt"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
-func ListProducts(ctx context.Context, req *product.ListProductsReq, callOptions ...callopt.Option) (resp *product.ListProductsResp, err error) {
-	resp, err = defaultClient.ListProducts(ctx, req, callOptions...)
+func Charge(ctx context.Context, req *payment.ChargeReq, callOptions ...callopt.Option) (resp *payment.ChargeResp, err error) {
+	resp, err = defaultClient.Charge(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "ListProducts call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "Charge call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
 }
 
-func GetProduct(ctx context.Context, req *product.GetProductReq, callOptions ...callopt.Option) (resp *product.GetProductResp, err error) {
-	resp, err = defaultClient.GetProduct(ctx, req, callOptions...)
+func CancelCharge(ctx context.Context, req *payment.CancelChargeReq, callOptions ...callopt.Option) (resp *payment.CancelChargeResp, err error) {
+	resp, err = defaultClient.CancelCharge(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "GetProduct call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func SearchProducts(ctx context.Context, req *product.SearchProductsReq, callOptions ...callopt.Option) (resp *product.SearchProductsResp, err error) {
-	resp, err = defaultClient.SearchProducts(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "SearchProducts call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "CancelCharge call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
