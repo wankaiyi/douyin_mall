@@ -24,7 +24,7 @@ func InitMetric(serviceName string, metricsPort string) {
 	addr, _ := net.ResolveTCPAddr("tcp", metricsPort)
 
 	registryInfo := &registry.Info{
-		ServiceName: "prometheus" + serviceName,
+		ServiceName: "prometheus-" + serviceName,
 		Addr:        addr,
 		Weight:      1,
 		Tags:        map[string]string{"service": serviceName},
