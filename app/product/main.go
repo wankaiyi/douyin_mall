@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"douyin_mall/api/infra/elastic"
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/mtl"
@@ -29,6 +30,7 @@ func main() {
 	time.Local, _ = time.LoadLocation("")
 	dal.Init()
 	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
+	elastic.InitClient()
 	opts := kitexInit()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)

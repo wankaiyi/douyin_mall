@@ -20,9 +20,10 @@ var (
 type Config struct {
 	Env string
 
-	Hertz Hertz `yaml:"hertz"`
-	MySQL MySQL `yaml:"mysql"`
-	Redis Redis `yaml:"redis"`
+	Hertz         Hertz         `yaml:"hertz"`
+	MySQL         MySQL         `yaml:"mysql"`
+	Redis         Redis         `yaml:"redis"`
+	Elasticsearch Elasticsearch `yaml:"elasticsearch"`
 }
 
 type MySQL struct {
@@ -48,6 +49,13 @@ type Hertz struct {
 	LogMaxBackups   int      `yaml:"log_max_backups"`
 	LogMaxAge       int      `yaml:"log_max_age"`
 	RegistryAddr    []string `yaml:"registry_addr"`
+}
+
+type Elasticsearch struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 // GetConf gets configuration instance
