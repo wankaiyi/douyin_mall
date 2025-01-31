@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
+	product "douyin_mall/api/hertz_gen/api/product"
 	"douyin_mall/api/infra/rpc"
 	rpcproduct "douyin_mall/rpc/kitex_gen/product"
 	"errors"
-	"github.com/cloudwego/kitex/pkg/klog"
-
-	product "douyin_mall/api/hertz_gen/api/product"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type SearchService struct {
@@ -30,7 +29,7 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 	//把前端传入的参数放进去
 	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName})
 	if err != nil {
-		klog.Error("payment failed, err: ", err)
+		hlog.Error("payment failed, err: ", err)
 		return nil, errors.New("支付失败，请稍后再试")
 	}
 	resp = &product.ProductResponse{
