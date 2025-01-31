@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"douyin_mall/api/biz/dal"
 	"douyin_mall/api/biz/middleware"
 	"douyin_mall/api/infra/rpc"
 	"douyin_mall/common/utils/env"
@@ -31,7 +30,6 @@ import (
 func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
-	dal.Init()
 	rpc.InitClient()
 	var address string
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {

@@ -20,17 +20,11 @@ func NewSearchService(Context context.Context, RequestContext *app.RequestContex
 }
 
 func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductResponse, err error) {
-	//defer func() {
-	// hlog.CtxInfof(h.Context, "req = %+v", req)
-	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
-	//}()
-	// todo edit your code
 	client := rpc.ProductClient
-	//把前端传入的参数放进去
 	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName})
 	if err != nil {
-		hlog.Error("payment failed, err: ", err)
-		return nil, errors.New("支付失败，请稍后再试")
+		hlog.Error("商品搜索失败", err)
+		return nil, errors.New("商品搜索失败")
 	}
 	resp = &product.ProductResponse{
 		StatusCode: res.StatusCode,
