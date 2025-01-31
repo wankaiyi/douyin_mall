@@ -13,7 +13,7 @@ func TestCharge_Run(t *testing.T) {
 
 	req := &payment.ChargeReq{
 		Amount:  999,
-		OrderId: "1632567837",
+		OrderId: "1634181837",
 		UserId:  123456,
 	}
 
