@@ -30,7 +30,7 @@ func main() {
 	dal.Init()
 	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	opts := kitexInit()
-
+	//将server服务注册到nacos
 	svr := paymentservice.NewServer(new(PaymentServiceImpl), opts...)
 
 	err := svr.Run()

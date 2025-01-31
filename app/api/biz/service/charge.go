@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
+	payment "douyin_mall/api/hertz_gen/api/payment"
 	"douyin_mall/api/infra/rpc"
 	rpcpayment "douyin_mall/rpc/kitex_gen/payment"
 	"errors"
-	"github.com/cloudwego/kitex/pkg/klog"
-
-	payment "douyin_mall/api/hertz_gen/api/payment"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type ChargeService struct {
@@ -32,7 +31,7 @@ func (h *ChargeService) Run(req *payment.ChargeRequest) (resp *payment.ChargeRes
 		UserId:  req.UserId,
 	})
 	if err != nil {
-		klog.Error("payment failed, err: ", err)
+		hlog.Error("payment failed, err: ", err)
 		return nil, errors.New("支付失败，请稍后再试")
 	}
 	resp = &payment.ChargeResponse{

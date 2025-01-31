@@ -1,13 +1,11 @@
 package service
 
 import (
-	"bytes"
 	"context"
+	"douyin_mall/api/biz/utils"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/go-pay/gopay/alipay"
-	"github.com/go-pay/xlog"
 	"io"
 	"net/http"
 	"os"
@@ -27,26 +25,27 @@ func (h *NotifyService) Run(RequestContext *app.RequestContext) (err error) {
 	//hlog.CtxInfof(h.Context, "req = %+v", req)
 	//hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
-	AlipayPublicContentPath, _ := os.Open(os.Getenv("ALIPAY_PUBLIC_KEY_PATH"))
+	AlipayPublicContentPath, _ := os.Open(os.Getenv("ALIPAY_PUBLIC_CONTENT_PATH"))
 	AlipayPublicContent, _ := io.ReadAll(AlipayPublicContentPath)
 
 	// 解析异步通知的参数
 	// req：*http.Request
-	request, err := convertToHTTPRequest(&RequestContext.Request)
+	request, err := utils.ConvertToHTTPRequest(&RequestContext.Request)
 	if err != nil {
-		xlog.Error(err)
+		hlog.Error(err)
 		return
 	}
 	notifyReq, err := alipay.ParseNotifyToBodyMap(request) // c.Request 是 gin 框架的写法
 	if err != nil {
-		xlog.Error(err)
+		hlog.Error(err)
 		return
 	}
-	xlog.Info("notifyReq: ", notifyReq)
+	hlog.Info("notifyReq: ", notifyReq)
 	tradeStatus := notifyReq.GetString("trade_status")
 	if tradeStatus != "TRADE_SUCCESS" {
 		hlog.CtxErrorf(h.Context, "trade_status is not TRADE_SUCCESS")
 	} else {
+		hlog.CtxInfof(h.Context, "trade_status is TRADE_SUCCESS")
 		//todo 支付成功逻辑
 
 	}
@@ -82,27 +81,4 @@ func (h *NotifyService) Run(RequestContext *app.RequestContext) (err error) {
 	// 此写法是 echo 框架返回支付宝的写法
 	RequestContext.String(http.StatusOK, "success")
 	return
-}
-
-// convertToHTTPRequest 将 Hertz 的 *protocol.Request 转换为标准库的 *http.Request
-func convertToHTTPRequest(req *protocol.Request) (*http.Request, error) {
-	// 读取请求体
-	body := io.NopCloser(bytes.NewReader(req.Body()))
-
-	// 创建 *http.Request
-	httpReq, err := http.NewRequest(
-		string(req.Method()),
-		req.URI().String(),
-		body,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	// 复制 Header
-	req.Header.VisitAll(func(key, value []byte) {
-		httpReq.Header.Set(string(key), string(value))
-	})
-
-	return httpReq, nil
 }

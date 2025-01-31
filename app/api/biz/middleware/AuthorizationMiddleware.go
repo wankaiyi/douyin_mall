@@ -13,7 +13,7 @@ import (
 func AuthorizationMiddleware() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		path := string(c.Request.URI().Path())
-		if !(path == "/ping" || path == "/user/login" || path == "/user/register" || path == "/user/refresh_token") {
+		if !(path == "/ping" || path == "/user/login" || path == "/user/register" || path == "/user/refresh_token" || path == "/payment/notify") {
 			authClient := rpc.AuthClient
 			verifyResp, err := authClient.VerifyTokenByRPC(ctx, &auth.VerifyTokenReq{
 				RefreshToken: c.Request.Header.Get("refresh_token"),
