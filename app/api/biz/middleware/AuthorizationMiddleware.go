@@ -10,10 +10,19 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
+var (
+	whitelist = map[string]struct{}{
+		"/ping":               {},
+		"/user/login":         {},
+		"/user/register":      {},
+		"/user/refresh_token": {},
+	}
+)
+
 func AuthorizationMiddleware() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		path := string(c.Request.URI().Path())
-		if !(path == "/ping" || path == "/user/login" || path == "/user/register" || path == "/user/refresh_token" || path == "/payment/notify") {
+		if _, exist := whitelist[path]; !exist {
 			authClient := rpc.AuthClient
 			verifyResp, err := authClient.VerifyTokenByRPC(ctx, &auth.VerifyTokenReq{
 				RefreshToken: c.Request.Header.Get("refresh_token"),
