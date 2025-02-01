@@ -53,7 +53,7 @@ func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 
 // Write 实现 zapcore.WriteSyncer 的 Write 方法
 func (kw *KafkaWriter) Write(p []byte) (n int, err error) {
-	if currentEnv, err := env.GetString("env"); err != nil && currentEnv != "dev" {
+	if currentEnv, err := env.GetString("env"); err == nil && currentEnv != "dev" {
 		kw.producer.Input() <- &sarama.ProducerMessage{
 			Topic: kw.topicId,
 			Value: sarama.StringEncoder(p),
