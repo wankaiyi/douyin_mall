@@ -49,9 +49,40 @@ func (s *AnalyzeSearchOrderQuestionService) Run(req *doubao_ai.SearchOrderQuesti
 		klog.Errorf("智能购物助手：查询会话是否存在失败，会话id: %s, err: %v", uuid, err)
 		return nil, errors.WithStack(err)
 	}
-	optional := true
-	var chatHistory []*schema.Message
-	var historyMessages []model.Message
+
+	// chatHistory 是传给AI的；historyMessages 是缓存过期后从数据库中查出来的，要重新存入缓存
+	chatHistory, historyMessages, optional, err := getChatHistory(exist, uuid, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	txParams := &transactionParams{
+		UserId:          userId,
+		Question:        question,
+		Uuid:            uuid,
+		ChatHistory:     chatHistory,
+		HistoryMessages: historyMessages,
+		Optional:        optional,
+	}
+
+	aiResponseContent, err := processTransaction(ctx, txParams)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(aiResponseContent), &resp)
+	if err != nil {
+		klog.Errorf("智能购物助手：json解析查询订单对话结果失败，AI回复内容: %s, err: %v", aiResponseContent, err)
+		return nil, errors.WithStack(err)
+	}
+
+	resp.StatusCode = 0
+	resp.StatusMsg = constant.GetMsg(0)
+	return resp, nil
+}
+
+func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory []*schema.Message, historyMessages []model.Message, optional bool, err error) {
+	optional = true
 	if exist {
 		// 历史对话存在
 		optional = false
@@ -65,7 +96,8 @@ func (s *AnalyzeSearchOrderQuestionService) Run(req *doubao_ai.SearchOrderQuesti
 				err = json.Unmarshal([]byte(value), &message)
 				if err != nil {
 					klog.Errorf("智能购物助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
-					return nil, errors.WithStack(err)
+					err = errors.WithStack(err)
+					return nil, nil, false, err
 				}
 				chatHistory = append(chatHistory, message)
 			}
@@ -80,110 +112,140 @@ func (s *AnalyzeSearchOrderQuestionService) Run(req *doubao_ai.SearchOrderQuesti
 			}
 			if err != nil {
 				klog.Errorf("智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
-				return nil, errors.WithStack(err)
+				err = errors.WithStack(err)
+				return nil, nil, false, err
 			}
 		}
 	}
+	return
+}
 
+type transactionParams struct {
+	UserId          int32
+	Question        string
+	Uuid            string
+	ChatHistory     []*schema.Message
+	HistoryMessages []model.Message
+	Optional        bool
+}
+
+func processTransaction(ctx context.Context, params *transactionParams) (aiResponseContent string, err error) {
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		userMessage := &model.Message{
-			UserId:   userId,
+			UserId:   params.UserId,
 			Role:     model.RoleUser,
-			Content:  question,
-			Uuid:     uuid,
+			Content:  params.Question,
+			Uuid:     params.Uuid,
 			Scenario: model.OrderInquiry,
 		}
-
 		// 先插数据库再存缓存，防止事务回滚导致redis缓存不一致
-		err = model.CreateMessage(tx, ctx, userMessage)
-		if err != nil {
+		if err := model.CreateMessage(tx, ctx, userMessage); err != nil {
 			klog.Errorf("智能购物助手：用户消息写入数据库失败，message: %s, err: %v", userMessage, err)
 			return errors.WithStack(err)
 		}
 
-		searchOrderPrompt := "现在的时间是{{.datetime}}，我想让你作为一个智能购物助手的信息提取专家，专注于从用户的查询语句中精准提取与商品有关的信息，并以JSON格式呈现。JSON的格式需为 {start_time: \"yyyy - MM - dd HH:mm:ss\", end_time: \"yyyy - MM - dd HH:mm:ss\", search_terms: [\"item1\", \"item2\"]}，属性的值可以为空字符串或空数组。你的任务是：\n\n1. 仔细阅读并理解用户的查询和对话的上下文，忽略与商品名称和时间无关的修饰信息。\n2. 提取出与商品相关的关键词或类型描述，以及提到的下单时间范围（如果有）。如果在之前的对话中有明确提及商品名称且未被新的对话内容否定，应将其包含在search_terms中。\n3. 将提取的信息组织成简洁、准确的JSON格式，确保没有多余内容或信息丢失。\n\n请确保输出的JSON准确反映用户的查询和对话上下文需求，并在解析时考虑不同表述的变体和模糊性。"
-		template := prompt.FromMessages(schema.GoTemplate,
-			schema.SystemMessage(searchOrderPrompt),
-			// optional=false 表示必需的消息列表，在模版输入中找不到对应变量会报错
-			schema.MessagesPlaceholder("chat_history", optional),
-			schema.UserMessage("{{.query}}"),
-		)
-		messages, err := template.Format(ctx, map[string]any{
-			"datetime":     utils.GetCurrentFormattedTime(),
-			"query":        question,
-			"chat_history": chatHistory,
-		})
+		requestAiParams := &requestAiParams{
+			Optional:    params.Optional,
+			ChatHistory: params.ChatHistory,
+			Question:    params.Question,
+			Uuid:        params.Uuid,
+			UserId:      params.UserId,
+		}
+		aiMessage, err := generateAiResponse(requestAiParams, ctx)
 		if err != nil {
-			klog.Errorf("智能购物助手：查询订单格式化对话信息失败，会话id: %s, err: %v", uuid, err)
-			return errors.WithStack(err)
+			return err
 		}
-
-		chatModel, err := ark.NewChatModel(ctx, &ark.ChatModelConfig{
-			Model:  conf.GetConf().Ark.Model,
-			APIKey: conf.GetConf().Ark.ApiKey,
-		})
-		result, err := chatModel.Generate(ctx, messages)
-		if err != nil {
-			klog.Errorf("智能购物助手：查询订单生成对话失败：result: %s, err: %v", result, err)
-			return errors.WithStack(err)
-		}
-
-		err = json.Unmarshal([]byte(result.Content), &resp)
-		if err != nil {
-			klog.Errorf("智能购物助手：json解析查询订单对话结果失败，result: %s, err: %v", result, err)
-			return errors.WithStack(err)
-		}
-
-		aiMessage := &model.Message{
-			UserId:   userId,
-			Role:     model.RoleAssistant,
-			Content:  result.Content,
-			Uuid:     uuid,
-			Scenario: model.OrderInquiry,
-		}
+		aiResponseContent = aiMessage.Content
 		err = model.CreateMessage(mysql.DB, ctx, aiMessage)
 		if err != nil {
 			klog.Errorf("智能购物助手：AI回复消息写入数据库失败，message: %s, err: %v", aiMessage, err)
 			return errors.WithStack(err)
 		}
 
-		// 将用户消息和AI回复消息存入缓存
-		userMsgStr, err := json.Marshal(userMessage)
+		err = cacheChatMessages(ctx, userMessage, aiMessage, params.HistoryMessages, params.Uuid)
 		if err != nil {
-			klog.Errorf("智能购物助手：json序列化用户消息失败，message: %s, err: %v", userMessage, err)
-			return errors.WithStack(err)
+			return err
 		}
-		aiMsgStr, err := json.Marshal(aiMessage)
-		if err != nil {
-			klog.Errorf("智能购物助手：json序列化AI回复消息失败，message: %s, err: %v", aiMessage, err)
-			return errors.WithStack(err)
-		}
-
-		var preparedCacheMessages []string
-		for _, historyMessage := range historyMessages {
-			historyMsgStr, _ := json.Marshal(historyMessage)
-			preparedCacheMessages = append(preparedCacheMessages, string(historyMsgStr))
-		}
-		preparedCacheMessages = append(preparedCacheMessages, string(userMsgStr))
-		preparedCacheMessages = append(preparedCacheMessages, string(aiMsgStr))
-
-		err = redis.RedisClient.LPush(ctx, redisUtils.GetChatHistoryKey(uuid), preparedCacheMessages).Err()
-		if err != nil {
-			klog.Errorf("智能购物助手：保存消息到缓存失败，message: %s, err: %v", userMessage, err)
-			return errors.WithStack(err)
-		}
-		redis.RedisClient.Expire(ctx, redisUtils.GetChatHistoryKey(uuid), time.Minute*10)
-
 		return nil
 	})
 	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	return aiResponseContent, nil
+}
+
+type requestAiParams struct {
+	Optional    bool
+	ChatHistory []*schema.Message
+	Question    string
+	Uuid        string
+	UserId      int32
+}
+
+func generateAiResponse(requestAiParams *requestAiParams, ctx context.Context) (*model.Message, error) {
+	searchOrderPrompt := "现在的时间是{{.datetime}}，我想让你作为一个智能购物助手的信息提取专家，专注于从用户的查询语句中精准提取与商品有关的信息，并以JSON格式呈现。JSON的格式需为 {start_time: \"yyyy - MM - dd HH:mm:ss\", end_time: \"yyyy - MM - dd HH:mm:ss\", search_terms: [\"item1\", \"item2\"]}，属性的值可以为空字符串或空数组。你的任务是：\n\n1. 仔细阅读并理解用户的查询和对话的上下文，忽略与商品名称和时间无关的修饰信息。\n2. 提取出与商品相关的关键词或类型描述，以及提到的下单时间范围（如果有）。如果在之前的对话中有明确提及商品名称且未被新的对话内容否定，应将其包含在search_terms中。\n3. 将提取的信息组织成简洁、准确的JSON格式，确保没有多余内容或信息丢失。\n\n请确保输出的JSON准确反映用户的查询和对话上下文需求，并在解析时考虑不同表述的变体和模糊性。"
+	template := prompt.FromMessages(schema.GoTemplate,
+		schema.SystemMessage(searchOrderPrompt),
+		// optional=false 表示必需的消息列表，在模版输入中找不到对应变量会报错
+		schema.MessagesPlaceholder("chat_history", requestAiParams.Optional),
+		schema.UserMessage("{{.query}}"),
+	)
+	messages, err := template.Format(ctx, map[string]any{
+		"datetime":     utils.GetCurrentFormattedTime(),
+		"query":        requestAiParams.Question,
+		"chat_history": requestAiParams.ChatHistory,
+	})
+	if err != nil {
+		klog.Errorf("智能购物助手：查询订单格式化对话信息失败，会话id: %s, err: %v", requestAiParams.Uuid, err)
 		return nil, errors.WithStack(err)
 	}
 
+	chatModel, err := ark.NewChatModel(ctx, &ark.ChatModelConfig{
+		Model:  conf.GetConf().Ark.Model,
+		APIKey: conf.GetConf().Ark.ApiKey,
+	})
+	result, err := chatModel.Generate(ctx, messages)
 	if err != nil {
+		klog.Errorf("智能购物助手：查询订单生成对话失败：result: %s, err: %v", result, err)
 		return nil, errors.WithStack(err)
 	}
-	resp.StatusCode = 0
-	resp.StatusMsg = constant.GetMsg(0)
-	return resp, nil
+
+	aiMessage := &model.Message{
+		UserId:   requestAiParams.UserId,
+		Role:     model.RoleAssistant,
+		Content:  result.Content,
+		Uuid:     requestAiParams.Uuid,
+		Scenario: model.OrderInquiry,
+	}
+	return aiMessage, nil
+}
+
+func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessage *model.Message, historyMessages []model.Message, uuid string) error {
+	// 将用户消息和AI回复消息存入缓存
+	userMsgStr, err := json.Marshal(userMessage)
+	if err != nil {
+		klog.Errorf("智能购物助手：json序列化用户消息失败，message: %s, err: %v", userMessage, err)
+		return errors.WithStack(err)
+	}
+	aiMsgStr, err := json.Marshal(aiMessage)
+	if err != nil {
+		klog.Errorf("智能购物助手：json序列化AI回复消息失败，message: %s, err: %v", aiMessage, err)
+		return errors.WithStack(err)
+	}
+
+	var preparedCacheMessages []string
+	for _, historyMessage := range historyMessages {
+		historyMsgStr, _ := json.Marshal(historyMessage)
+		preparedCacheMessages = append(preparedCacheMessages, string(historyMsgStr))
+	}
+	preparedCacheMessages = append(preparedCacheMessages, string(userMsgStr))
+	preparedCacheMessages = append(preparedCacheMessages, string(aiMsgStr))
+
+	err = redis.RedisClient.RPush(ctx, redisUtils.GetChatHistoryKey(uuid), preparedCacheMessages).Err()
+	if err != nil {
+		klog.Errorf("智能购物助手：保存消息到缓存失败，message: %s, err: %v", userMessage, err)
+		return errors.WithStack(err)
+	}
+	redis.RedisClient.Expire(ctx, redisUtils.GetChatHistoryKey(uuid), time.Minute*10)
+	return nil
 }
