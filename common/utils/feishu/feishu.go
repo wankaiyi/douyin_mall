@@ -27,6 +27,7 @@ func SendFeishuAlert(ctx context.Context, url string, text string) {
 	}, body)
 	if err != nil {
 		klog.Error("飞书告警异常", "url", url, "请求体", string(body), "错误", err)
+		return
 	}
-	klog.Info("飞书告警异常", "url", url, "请求体", string(body), "响应", result.StatusCode)
+	klog.Info("飞书告警成功", "url", url, "请求体", string(body), "响应", result)
 }
