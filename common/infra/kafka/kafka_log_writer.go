@@ -1,9 +1,10 @@
 package kafka
 
 import (
+	"bytes"
 	"douyin_mall/common/utils/env"
+	"fmt"
 	"github.com/IBM/sarama"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,7 +35,13 @@ func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 
 	go func() {
 		for err := range producer.Errors() {
-			klog.Errorf("发送消息失败: %v", err)
+			fmt.Printf("发送消息失败: %v\n", err)
+		}
+	}()
+
+	go func() {
+		for range producer.Successes() {
+			fmt.Println("发送消息成功")
 		}
 	}()
 
@@ -54,11 +61,20 @@ func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 // Write 实现 zapcore.WriteSyncer 的 Write 方法
 func (kw *KafkaWriter) Write(p []byte) (n int, err error) {
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv != "dev" {
-		kw.producer.Input() <- &sarama.ProducerMessage{
-			Topic: kw.topicId,
-			Value: sarama.StringEncoder(p),
+		logs := bytes.Split(p, []byte("\n"))
+
+		for _, log := range logs {
+			if len(log) == 0 {
+				continue
+			}
+
+			kw.producer.Input() <- &sarama.ProducerMessage{
+				Topic: kw.topicId,
+				Value: sarama.StringEncoder(log),
+			}
 		}
 	}
+
 	return len(p), nil
 }
 
