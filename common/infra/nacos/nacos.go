@@ -28,10 +28,10 @@ func GetNamingClient() naming_client.INamingClient {
 		TimeoutMs:   5000,
 		LogLevel:    logLevel,
 	}
-	nacos_ip := os.Getenv("NACOS_ADDR")
+	nacosIp := os.Getenv("NACOS_ADDR")
 	serverConfigs := []constant.ServerConfig{
 		{
-			IpAddr: nacos_ip,
+			IpAddr: nacosIp,
 			Port:   8848,
 		},
 	}

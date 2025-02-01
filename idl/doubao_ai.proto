@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package doubao_ai;
+
+option go_package = "/doubao_ai";
+
+service DoubaoAiService {
+  rpc AnalyzeSearchOrderQuestion(SearchOrderQuestionReq) returns (SearchOrderQuestionResp) {}
+}
+
+message SearchOrderQuestionReq {
+  string question = 1;
+  string uuid = 2;
+  int32 user_id = 3;
+}
+
+message SearchOrderQuestionResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string start_time = 3;
+  string end_time = 4;
+  repeated string search_terms = 5;
+}

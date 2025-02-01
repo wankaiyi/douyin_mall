@@ -8,6 +8,7 @@ cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service order --idl 
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service payment --idl ../idl/payment.proto
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service product --idl ../idl/product.proto
 cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service user --idl ../idl/user.proto
+cwgo client --type RPC --module douyin_mall/rpc -I ../idl --service doubao_ai --idl ../idl/doubao_ai.proto
 ```
 
 # RPC Server Generator
@@ -19,6 +20,7 @@ cd ../order; cwgo server --type RPC --service order --module douyin_mall/order -
 cd ../payment; cwgo server --type RPC --service payment --module douyin_mall/payment --pass "-use  douyin_mall/rpc/kitex_gen"  -I ../../idl  --idl ../../idl/payment.proto
 cd ../product; cwgo server --type RPC --service product --module douyin_mall/product --pass "-use  douyin_mall/rpc/kitex_gen"  -I ../../idl  --idl ../../idl/product.proto
 cd ../user; cwgo server --type RPC --service user --module douyin_mall/user --pass "-use  douyin_mall/rpc/kitex_gen"  -I ../../idl  --idl ../../idl/user.proto
+cd ../doubao_ai; cwgo server --type RPC --service doubao_ai --module douyin_mall/doubao_ai --pass "-use  douyin_mall/rpc/kitex_gen"  -I ../../idl  --idl ../../idl/doubao_ai.proto
 ```
 
 # Http Server Generator

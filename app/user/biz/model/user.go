@@ -20,7 +20,7 @@ func GetUserByEmail(db *gorm.DB, ctx context.Context, email string) (user *User,
 	return
 }
 
-func Create(db *gorm.DB, ctx context.Context, user *User) error {
+func CreateUser(db *gorm.DB, ctx context.Context, user *User) error {
 	result := db.Create(user)
 	return result.Error
 }

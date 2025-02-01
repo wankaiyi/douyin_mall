@@ -30,7 +30,7 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
-	if err = model.Create(mysql.DB, s.ctx, newUser); err != nil {
+	if err = model.CreateUser(mysql.DB, s.ctx, newUser); err != nil {
 		klog.Error(err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			// 用户已存在

@@ -5,6 +5,7 @@ import (
 	"douyin_mall/user/biz/dal/mysql"
 	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
+	"fmt"
 )
 
 type GetUserService struct {
@@ -16,6 +17,7 @@ func NewGetUserService(ctx context.Context) *GetUserService {
 
 // Run create note info
 func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err error) {
+	fmt.Print(s.ctx.Value("user_id"))
 	userInfo, err := model.GetUserById(mysql.DB, s.ctx, req.UserId)
 	if err != nil {
 		return nil, err
