@@ -11,20 +11,13 @@ import (
 )
 
 var (
-	whitelist = map[string]struct{}{
-		"/ping":               {},
-		"/user/login":         {},
-		"/user/register":      {},
-		"/user/refresh_token": {},
-		"/payment/notify":     {},
-		"/payment/cancel":     {},
-	}
+	Whitelist = map[string]struct{}{}
 )
 
 func AuthorizationMiddleware() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		path := string(c.Request.URI().Path())
-		if _, exist := whitelist[path]; !exist {
+		if _, exist := Whitelist[path]; !exist {
 			authClient := rpc.AuthClient
 			verifyResp, err := authClient.VerifyTokenByRPC(ctx, &auth.VerifyTokenReq{
 				RefreshToken: c.Request.Header.Get("refresh_token"),

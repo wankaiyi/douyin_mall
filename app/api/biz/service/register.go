@@ -23,9 +23,13 @@ func NewRegisterService(Context context.Context, RequestContext *app.RequestCont
 func (h *RegisterService) Run(req *user.RegisterRequest) (resp *user.RegisterResponse, err error) {
 	client := rpc.UserClient
 	res, err := client.Register(h.Context, &rpcuser.RegisterReq{
+		Username:        req.Username,
 		Email:           req.Email,
 		Password:        req.Password,
 		ConfirmPassword: req.Password,
+		Sex:             req.Sex,
+		Description:     req.Description,
+		Avatar:          req.Avatar,
 	})
 	if err != nil {
 		klog.Error("register failed, err: ", err)

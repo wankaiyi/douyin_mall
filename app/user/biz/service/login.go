@@ -21,7 +21,7 @@ func NewLoginService(ctx context.Context) *LoginService {
 
 // Run create note info
 func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error) {
-	loginUser, err := model.GetUserByEmail(mysql.DB, s.ctx, req.Email)
+	loginUser, err := model.GetUserByUsername(mysql.DB, s.ctx, req.Username)
 	if err != nil {
 		// 数据库的错误
 		klog.Error("用户登录失败，req: %v, err: %v", req, err)

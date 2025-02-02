@@ -27,8 +27,12 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 	}
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	newUser := &model.User{
-		Email:    req.Email,
-		Password: string(hashedPassword),
+		Username:    req.Username,
+		Sex:         req.Sex,
+		Email:       req.Email,
+		Password:    string(hashedPassword),
+		Description: req.Description,
+		Avatar:      req.Avatar,
 	}
 	if err = model.CreateUser(mysql.DB, s.ctx, newUser); err != nil {
 		klog.Error(err)
