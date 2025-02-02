@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/api/infra/rpc"
+	"douyin_mall/common/constant"
 	rpcuser "douyin_mall/rpc/kitex_gen/user"
 
 	user "douyin_mall/api/hertz_gen/api/user"
@@ -28,8 +29,13 @@ func (h *GetUserInfoService) Run(req *user.Empty) (resp *user.GetUserInfoRespons
 		return nil, err
 	}
 	return &user.GetUserInfoResponse{
-		StatusCode: 0,
-		StatusMsg:  "success",
-		Email:      userInfo.User.Email,
+		StatusCode:  0,
+		StatusMsg:   constant.GetMsg(0),
+		Username:    userInfo.User.Username,
+		Email:       userInfo.User.Email,
+		Sex:         userInfo.User.Sex,
+		Description: userInfo.User.Description,
+		Avatar:      userInfo.User.Avatar,
+		CreatedAt:   userInfo.User.CreatedAt,
 	}, nil
 }

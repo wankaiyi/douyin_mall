@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 
 	"douyin_mall/api/biz/service"
 	"douyin_mall/api/biz/utils"
@@ -11,7 +12,7 @@ import (
 )
 
 // Login .
-// @router /user/login [GET]
+// @router /user/login [POST]
 func Login(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req user.LoginRequest
@@ -37,12 +38,19 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req user.RegisterRequest
 	err = c.BindAndValidate(&req)
+
+	resp := &user.RegisterResponse{}
+	if req.Sex < 0 || req.Sex > 2 {
+		resp.StatusCode = 1007
+		resp.StatusMsg = constant.GetMsg(1007)
+		utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+		return
+	}
 	if err != nil {
 		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
 		return
 	}
 
-	resp := &user.RegisterResponse{}
 	resp, err = service.NewRegisterService(ctx, c).Run(&req)
 	if err != nil {
 		utils.SendErrResponse(ctx, c, consts.StatusOK, err)

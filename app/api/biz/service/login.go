@@ -22,7 +22,7 @@ func NewLoginService(Context context.Context, RequestContext *app.RequestContext
 func (h *LoginService) Run(req *user.LoginRequest) (resp *user.LoginResponse, err error) {
 	client := rpc.UserClient
 	res, err := client.Login(h.Context, &rpcuser.LoginReq{
-		Email:    req.Email,
+		Username: req.Username,
 		Password: req.Password,
 	})
 	if err != nil {

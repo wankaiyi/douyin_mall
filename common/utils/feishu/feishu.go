@@ -22,12 +22,11 @@ func SendFeishuAlert(ctx context.Context, url string, text string) {
 			]
 		}
 	}`, text))
-	result, err := http.Post(ctx, url, map[string]string{
+	_, err := http.Post(ctx, url, map[string]string{
 		"Content-Type": "application/json",
 	}, body, true)
 	if err != nil {
 		klog.Error("飞书告警异常", "url", url, "请求体", string(body), "错误", err)
 		return
 	}
-	klog.Info("飞书告警成功", "url", url, "请求体", string(body), "响应", result)
 }

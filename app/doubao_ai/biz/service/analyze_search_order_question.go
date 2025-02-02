@@ -191,7 +191,7 @@ func generateAiResponse(requestAiParams *requestAiParams, ctx context.Context) (
 		schema.UserMessage("{{.query}}"),
 	)
 	messages, err := template.Format(ctx, map[string]any{
-		"datetime":     utils.GetCurrentFormattedTime(),
+		"datetime":     utils.GetCurrentFormattedDateTime(),
 		"query":        requestAiParams.Question,
 		"chat_history": requestAiParams.ChatHistory,
 	})

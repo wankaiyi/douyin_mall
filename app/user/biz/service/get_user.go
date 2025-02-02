@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"douyin_mall/common/utils"
 	"douyin_mall/user/biz/dal/mysql"
 	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
@@ -26,7 +27,12 @@ func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err 
 		StatusCode: 0,
 		StatusMsg:  "success",
 		User: &user.User{
-			Email: userInfo.Email,
+			Username:    userInfo.Username,
+			Email:       userInfo.Email,
+			Sex:         model.SexToString(userInfo.Sex),
+			Description: userInfo.Description,
+			Avatar:      userInfo.Avatar,
+			CreatedAt:   utils.GetFormattedDateTime(userInfo.CreatedAt),
 		},
 	}
 	return

@@ -11,9 +11,13 @@ service UserService {
 }
 
 message RegisterReq {
-  string email = 1;
+  string username = 1;
   string password = 2;
   string confirm_password = 3;
+  string email = 4;
+  string description = 5;
+  int32 sex = 6;
+  string avatar = 7;
 }
 
 message RegisterResp {
@@ -23,7 +27,7 @@ message RegisterResp {
 }
 
 message LoginReq {
-  string email= 1;
+  string username = 1;
   string password = 2;
 }
 
@@ -46,6 +50,10 @@ message GetUserResp {
 
 message User {
   int32 id = 1;
-  string email = 2;
-  string created_at = 12;
+  string username = 2;
+  string email = 3;
+  string sex = 4;
+  string description = 5;
+  string avatar = 6;
+  string created_at = 7;
 }

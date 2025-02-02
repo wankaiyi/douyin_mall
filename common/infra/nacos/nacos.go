@@ -1,12 +1,13 @@
 package nacos
 
 import (
+	"douyin_mall/common/utils/env"
+	"fmt"
 	kitexRigistry "github.com/cloudwego/kitex/pkg/registry"
 	"github.com/kitex-contrib/registry-nacos/registry"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"os"
 )
 
 func RegisterService() kitexRigistry.Registry {
@@ -16,9 +17,21 @@ func RegisterService() kitexRigistry.Registry {
 }
 
 func GetNamingClient() naming_client.INamingClient {
-	env := os.Getenv("env")
+	clientConfig, serverConfigs := GetNacosConfig()
+	namingClient, err := clients.CreateNamingClient(map[string]interface{}{
+		"serverConfigs": serverConfigs,
+		"clientConfig":  clientConfig,
+	})
+	if err != nil {
+		panic(err)
+	}
+	return namingClient
+}
+
+func GetNacosConfig() (constant.ClientConfig, []constant.ServerConfig) {
+	currentEnv, _ := env.GetString("env")
 	var logLevel string
-	if env == "dev" {
+	if currentEnv == "dev" {
 		logLevel = "debug"
 	} else {
 		logLevel = "info"
@@ -28,19 +41,16 @@ func GetNamingClient() naming_client.INamingClient {
 		TimeoutMs:   5000,
 		LogLevel:    logLevel,
 	}
-	nacosIp := os.Getenv("NACOS_ADDR")
+	nacosIp, err := env.GetString("NACOS_ADDR")
+	if err != nil {
+		fmt.Println("nacos ip为空" + err.Error())
+		panic(err)
+	}
 	serverConfigs := []constant.ServerConfig{
 		{
 			IpAddr: nacosIp,
 			Port:   8848,
 		},
 	}
-	namingClient, err := clients.CreateNamingClient(map[string]interface{}{
-		"serverConfigs": serverConfigs,
-		"clientConfig":  clientConfig,
-	})
-	if err != nil {
-		panic(err)
-	}
-	return namingClient
+	return clientConfig, serverConfigs
 }
