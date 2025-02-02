@@ -8,6 +8,7 @@ require (
 	github.com/cloudwego/fastpb v0.0.5
 	github.com/cloudwego/hertz v0.9.5
 	github.com/cloudwego/kitex v0.12.1
+	github.com/elastic/go-elasticsearch/v7 v7.17.10
 	github.com/kitex-contrib/config-nacos v0.4.1
 	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20241120035129-55da83caab1b
 	github.com/kr/pretty v0.3.1

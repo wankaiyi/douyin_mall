@@ -1,7 +1,7 @@
 package elastic
 
 import (
-	"douyin_mall/api/conf"
+	"douyin_mall/product/conf"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	elasticsearch7 "github.com/elastic/go-elasticsearch/v7"
 )

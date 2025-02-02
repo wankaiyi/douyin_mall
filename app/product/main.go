@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"douyin_mall/api/infra/elastic"
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
 	"douyin_mall/product/biz/dal"
+	"douyin_mall/product/infra/elastic"
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/endpoint"
 	"net"
