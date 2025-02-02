@@ -1,15 +1,18 @@
 package conf
 
 import (
-	"io/ioutil"
+	"douyin_mall/api/biz/middleware"
+	nacosUtils "douyin_mall/common/infra/nacos"
+	"encoding/json"
+	"github.com/kr/pretty"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+	"gopkg.in/yaml.v2"
 	"os"
-	"path/filepath"
 	"sync"
 
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/kr/pretty"
-	"gopkg.in/validator.v2"
-	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -20,21 +23,7 @@ var (
 type Config struct {
 	Env string
 
-	Hertz         Hertz         `yaml:"hertz"`
-	MySQL         MySQL         `yaml:"mysql"`
-	Redis         Redis         `yaml:"redis"`
-	Elasticsearch Elasticsearch `yaml:"elasticsearch"`
-}
-
-type MySQL struct {
-	DSN string `yaml:"dsn"`
-}
-
-type Redis struct {
-	Address  string `yaml:"address"`
-	Password string `yaml:"password"`
-	Username string `yaml:"username"`
-	DB       int    `yaml:"db"`
+	Hertz Hertz `yaml:"hertz"`
 }
 
 type Hertz struct {
@@ -51,13 +40,6 @@ type Hertz struct {
 	RegistryAddr    []string `yaml:"registry_addr"`
 }
 
-type Elasticsearch struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-}
-
 // GetConf gets configuration instance
 func GetConf() *Config {
 	once.Do(initConf)
@@ -65,31 +47,109 @@ func GetConf() *Config {
 }
 
 func initConf() {
-	prefix := "conf"
-	confFileRelPath := filepath.Join(prefix, filepath.Join(GetEnv(), "conf.yaml"))
-	content, err := ioutil.ReadFile(confFileRelPath)
+	clientConfig, serverConfigs := nacosUtils.GetNacosConfig()
+
+	configClient, err := clients.CreateConfigClient(map[string]interface{}{
+		"serverConfigs": serverConfigs,
+		"clientConfig":  clientConfig,
+	})
 	if err != nil {
-		panic(err)
+		hlog.Fatalf("初始化nacos配置客户端失败: %v", err)
 	}
 
-	conf = new(Config)
-	err = yaml.Unmarshal(content, conf)
+	// 定义配置项
+	configs := []struct {
+		DataId        string
+		Group         string
+		Type          vo.ConfigType
+		UnmarshalFunc func([]byte) error
+	}{
+		{
+			DataId: "api_conf.yaml",
+			Group:  "DEFAULT_GROUP",
+			Type:   vo.YAML,
+			UnmarshalFunc: func(data []byte) error {
+				if conf == nil {
+					conf = new(Config)
+				}
+				if err := yaml.Unmarshal(data, conf); err != nil {
+					return err
+				}
+				conf.Env = GetEnv()
+				return nil
+			},
+		},
+		{
+			DataId: "uri_whitelist_config",
+			Group:  "DEFAULT_GROUP",
+			Type:   vo.JSON,
+			UnmarshalFunc: func(data []byte) error {
+				middleware.Whitelist = make(map[string]struct{})
+				return json.Unmarshal(data, &middleware.Whitelist)
+			},
+		},
+	}
+
+	// 监听与初始化配置
+	for _, cfg := range configs {
+		listenAndLoadConfig(configClient, cfg)
+	}
+}
+
+func listenAndLoadConfig(client config_client.IConfigClient, cfg struct {
+	DataId        string
+	Group         string
+	Type          vo.ConfigType
+	UnmarshalFunc func([]byte) error
+}) {
+	// 监听配置
+	err := client.ListenConfig(vo.ConfigParam{
+		DataId: cfg.DataId,
+		Group:  cfg.Group,
+		Type:   cfg.Type,
+		OnChange: func(namespace, group, dataId, data string) {
+			if err := cfg.UnmarshalFunc([]byte(data)); err != nil {
+				hlog.Errorf("解析配置 %s 失败: %v", cfg.DataId, err)
+				return
+			}
+			prettyPrint(cfg.DataId)
+		},
+	})
 	if err != nil {
-		hlog.Error("parse yaml error - %v", err)
-		panic(err)
-	}
-	if err := validator.Validate(conf); err != nil {
-		hlog.Error("validate config error - %v", err)
-		panic(err)
+		hlog.Errorf("监听配置 %s 失败: %v", cfg.DataId, err)
 	}
 
-	conf.Env = GetEnv()
+	// 初始化配置
+	content, err := client.GetConfig(vo.ConfigParam{
+		DataId: cfg.DataId,
+		Group:  cfg.Group,
+		Type:   cfg.Type,
+	})
+	if err != nil {
+		hlog.Fatalf("获取配置 %s 失败: %v", cfg.DataId, err)
+	}
 
-	pretty.Printf("%+v\n", conf)
+	if err := cfg.UnmarshalFunc([]byte(content)); err != nil {
+		hlog.Fatalf("解析配置 %s 失败: %v", cfg.DataId, err)
+	}
+
+	prettyPrint(cfg.DataId)
+}
+
+func prettyPrint(name string) {
+	var data interface{}
+	if name == "api_conf.yaml" {
+		data = conf
+	} else {
+		data = middleware.Whitelist
+	}
+	if _, err := pretty.Printf("%+v\n", data); err != nil {
+		hlog.Errorf("pretty print error: %v", err)
+	}
 }
 
 func GetEnv() string {
-	e := os.Getenv("GO_ENV")
+	e := os.Getenv("env")
 	if len(e) == 0 {
 		return "test"
 	}

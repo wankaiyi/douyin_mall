@@ -13,6 +13,7 @@ require (
 	github.com/kitex-contrib/obs-opentelemetry/logging/logrus v0.0.0-20241120035129-55da83caab1b
 	github.com/kr/pretty v0.3.1
 	github.com/nacos-group/nacos-sdk-go v1.1.5
+	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.7.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/protobuf v1.33.0
@@ -70,7 +71,6 @@ require (
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
