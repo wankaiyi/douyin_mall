@@ -23,5 +23,6 @@ func InitClient() {
 		hlog.Error(err)
 		return
 	}
+	ProduceIndicesInit()
 
 }
