@@ -12,7 +12,7 @@ WORKDIR /app/product
 
 RUN echo 'https://mirrors.aliyun.com/alpine/v3.16/main' > /etc/apk/repositories && \
     echo 'https://mirrors.aliyun.com/alpine/v3.16/community' >> /etc/apk/repositories && \
-    apk update \
+    apk update
 
 RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
