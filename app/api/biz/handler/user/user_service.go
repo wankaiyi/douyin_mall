@@ -120,3 +120,30 @@ func Logout(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// UpdateUserInfo .
+// @router /user [POST]
+func UpdateUserInfo(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req user.UpdateUserInfoRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	resp := &user.UpdateUserInfoResponse{}
+	if req.Sex < 0 || req.Sex > 2 {
+		resp.StatusCode = 1007
+		resp.StatusMsg = constant.GetMsg(1007)
+		utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+		return
+	}
+
+	resp, err = service.NewUpdateUserInfoService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

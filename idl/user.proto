@@ -8,6 +8,7 @@ service UserService {
   rpc Register(RegisterReq) returns (RegisterResp) {}
   rpc Login(LoginReq) returns (LoginResp) {}
   rpc GetUser(GetUserReq) returns (GetUserResp) {}
+  rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
 }
 
 message RegisterReq {
@@ -46,6 +47,20 @@ message GetUserResp {
   int32 status_code = 1;
   string status_msg = 2;
   User user = 3;
+}
+
+message UpdateUserReq {
+  int32 user_id = 1;
+  string username = 2;
+  string email = 3;
+  int32 sex = 4;
+  string description = 5;
+  string avatar = 6;
+}
+
+message UpdateUserResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }
 
 message User {

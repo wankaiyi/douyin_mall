@@ -29,3 +29,10 @@ func (s *UserServiceImpl) GetUser(ctx context.Context, req *user.GetUserReq) (re
 
 	return resp, err
 }
+
+// UpdateUser implements the UserServiceImpl interface.
+func (s *UserServiceImpl) UpdateUser(ctx context.Context, req *user.UpdateUserReq) (resp *user.UpdateUserResp, err error) {
+	resp, err = service.NewUpdateUserService(ctx).Run(req)
+
+	return resp, err
+}
