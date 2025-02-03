@@ -8,6 +8,7 @@ service AuthService {
   rpc DeliverTokenByRPC(DeliverTokenReq) returns (DeliveryResp) {}
   rpc VerifyTokenByRPC(VerifyTokenReq) returns (VerifyResp) {}
   rpc RefreshTokenByRPC(RefreshTokenReq) returns (RefreshTokenResp) {}
+  rpc RevokeTokenByRPC(RevokeTokenReq) returns (RevokeResp) {}
 }
 
 message DeliverTokenReq {
@@ -41,4 +42,13 @@ message RefreshTokenResp {
   string status_msg = 2;
   string access_token = 3;
   string refresh_token = 4;
+}
+
+message RevokeTokenReq {
+  int32 user_id = 2;
+}
+
+message RevokeResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }

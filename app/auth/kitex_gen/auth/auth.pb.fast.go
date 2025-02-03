@@ -252,6 +252,66 @@ func (x *RefreshTokenResp) fastReadField4(buf []byte, _type int8) (offset int, e
 	return offset, err
 }
 
+func (x *RevokeTokenReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_RevokeTokenReq[number], err)
+}
+
+func (x *RevokeTokenReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *RevokeResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_RevokeResp[number], err)
+}
+
+func (x *RevokeResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *RevokeResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
 func (x *DeliverTokenReq) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -426,6 +486,47 @@ func (x *RefreshTokenResp) fastWriteField4(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 4, x.GetRefreshToken())
+	return offset
+}
+
+func (x *RevokeTokenReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *RevokeTokenReq) fastWriteField2(buf []byte) (offset int) {
+	if x.UserId == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetUserId())
+	return offset
+}
+
+func (x *RevokeResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *RevokeResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *RevokeResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
 	return offset
 }
 
@@ -606,6 +707,47 @@ func (x *RefreshTokenResp) sizeField4() (n int) {
 	return n
 }
 
+func (x *RevokeTokenReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField2()
+	return n
+}
+
+func (x *RevokeTokenReq) sizeField2() (n int) {
+	if x.UserId == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(2, x.GetUserId())
+	return n
+}
+
+func (x *RevokeResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	return n
+}
+
+func (x *RevokeResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *RevokeResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
 var fieldIDToName_DeliverTokenReq = map[int32]string{
 	1: "UserId",
 }
@@ -637,4 +779,13 @@ var fieldIDToName_RefreshTokenResp = map[int32]string{
 	2: "StatusMsg",
 	3: "AccessToken",
 	4: "RefreshToken",
+}
+
+var fieldIDToName_RevokeTokenReq = map[int32]string{
+	2: "UserId",
+}
+
+var fieldIDToName_RevokeResp = map[int32]string{
+	1: "StatusCode",
+	2: "StatusMsg",
 }

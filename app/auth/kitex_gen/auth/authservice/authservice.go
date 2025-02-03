@@ -36,6 +36,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"RevokeTokenByRPC": kitex.NewMethodInfo(
+		revokeTokenByRPCHandler,
+		newRevokeTokenByRPCArgs,
+		newRevokeTokenByRPCResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -561,6 +568,159 @@ func (p *RefreshTokenByRPCResult) GetResult() interface{} {
 	return p.Success
 }
 
+func revokeTokenByRPCHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(auth.RevokeTokenReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(auth.AuthService).RevokeTokenByRPC(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *RevokeTokenByRPCArgs:
+		success, err := handler.(auth.AuthService).RevokeTokenByRPC(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*RevokeTokenByRPCResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newRevokeTokenByRPCArgs() interface{} {
+	return &RevokeTokenByRPCArgs{}
+}
+
+func newRevokeTokenByRPCResult() interface{} {
+	return &RevokeTokenByRPCResult{}
+}
+
+type RevokeTokenByRPCArgs struct {
+	Req *auth.RevokeTokenReq
+}
+
+func (p *RevokeTokenByRPCArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(auth.RevokeTokenReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *RevokeTokenByRPCArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *RevokeTokenByRPCArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *RevokeTokenByRPCArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *RevokeTokenByRPCArgs) Unmarshal(in []byte) error {
+	msg := new(auth.RevokeTokenReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var RevokeTokenByRPCArgs_Req_DEFAULT *auth.RevokeTokenReq
+
+func (p *RevokeTokenByRPCArgs) GetReq() *auth.RevokeTokenReq {
+	if !p.IsSetReq() {
+		return RevokeTokenByRPCArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *RevokeTokenByRPCArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *RevokeTokenByRPCArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type RevokeTokenByRPCResult struct {
+	Success *auth.RevokeResp
+}
+
+var RevokeTokenByRPCResult_Success_DEFAULT *auth.RevokeResp
+
+func (p *RevokeTokenByRPCResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(auth.RevokeResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *RevokeTokenByRPCResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *RevokeTokenByRPCResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *RevokeTokenByRPCResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *RevokeTokenByRPCResult) Unmarshal(in []byte) error {
+	msg := new(auth.RevokeResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *RevokeTokenByRPCResult) GetSuccess() *auth.RevokeResp {
+	if !p.IsSetSuccess() {
+		return RevokeTokenByRPCResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *RevokeTokenByRPCResult) SetSuccess(x interface{}) {
+	p.Success = x.(*auth.RevokeResp)
+}
+
+func (p *RevokeTokenByRPCResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *RevokeTokenByRPCResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -596,6 +756,16 @@ func (p *kClient) RefreshTokenByRPC(ctx context.Context, Req *auth.RefreshTokenR
 	_args.Req = Req
 	var _result RefreshTokenByRPCResult
 	if err = p.c.Call(ctx, "RefreshTokenByRPC", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq) (r *auth.RevokeResp, err error) {
+	var _args RevokeTokenByRPCArgs
+	_args.Req = Req
+	var _result RevokeTokenByRPCResult
+	if err = p.c.Call(ctx, "RevokeTokenByRPC", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

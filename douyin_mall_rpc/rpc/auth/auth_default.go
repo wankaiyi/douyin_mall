@@ -2,33 +2,42 @@ package auth
 
 import (
 	"context"
-	user "douyin_mall/rpc/kitex_gen/user"
+	auth "douyin_mall/rpc/kitex_gen/auth"
 	"github.com/cloudwego/kitex/client/callopt"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
-func Register(ctx context.Context, req *user.RegisterReq, callOptions ...callopt.Option) (resp *user.RegisterResp, err error) {
-	resp, err = defaultClient.Register(ctx, req, callOptions...)
+func DeliverTokenByRPC(ctx context.Context, req *auth.DeliverTokenReq, callOptions ...callopt.Option) (resp *auth.DeliveryResp, err error) {
+	resp, err = defaultClient.DeliverTokenByRPC(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "Register call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "DeliverTokenByRPC call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
 }
 
-func Login(ctx context.Context, req *user.LoginReq, callOptions ...callopt.Option) (resp *user.LoginResp, err error) {
-	resp, err = defaultClient.Login(ctx, req, callOptions...)
+func VerifyTokenByRPC(ctx context.Context, req *auth.VerifyTokenReq, callOptions ...callopt.Option) (resp *auth.VerifyResp, err error) {
+	resp, err = defaultClient.VerifyTokenByRPC(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "Login call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "VerifyTokenByRPC call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
 }
 
-func GetUser(ctx context.Context, req *user.GetUserReq, callOptions ...callopt.Option) (resp *user.GetUserResp, err error) {
-	resp, err = defaultClient.GetUser(ctx, req, callOptions...)
+func RefreshTokenByRPC(ctx context.Context, req *auth.RefreshTokenReq, callOptions ...callopt.Option) (resp *auth.RefreshTokenResp, err error) {
+	resp, err = defaultClient.RefreshTokenByRPC(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "GetUser call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "RefreshTokenByRPC call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func RevokeTokenByRPC(ctx context.Context, req *auth.RevokeTokenReq, callOptions ...callopt.Option) (resp *auth.RevokeResp, err error) {
+	resp, err = defaultClient.RevokeTokenByRPC(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "RevokeTokenByRPC call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
