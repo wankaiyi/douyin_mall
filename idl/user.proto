@@ -9,6 +9,7 @@ service UserService {
   rpc Login(LoginReq) returns (LoginResp) {}
   rpc GetUser(GetUserReq) returns (GetUserResp) {}
   rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
+  rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
 }
 
 message RegisterReq {
@@ -59,6 +60,15 @@ message UpdateUserReq {
 }
 
 message UpdateUserResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message DeleteUserReq {
+  int32 user_id = 1;
+}
+
+message DeleteUserResp {
   int32 status_code = 1;
   string status_msg = 2;
 }

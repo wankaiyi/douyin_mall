@@ -43,6 +43,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"DeleteUser": kitex.NewMethodInfo(
+		deleteUserHandler,
+		newDeleteUserArgs,
+		newDeleteUserResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -721,6 +728,159 @@ func (p *UpdateUserResult) GetResult() interface{} {
 	return p.Success
 }
 
+func deleteUserHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(user.DeleteUserReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(user.UserService).DeleteUser(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *DeleteUserArgs:
+		success, err := handler.(user.UserService).DeleteUser(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*DeleteUserResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newDeleteUserArgs() interface{} {
+	return &DeleteUserArgs{}
+}
+
+func newDeleteUserResult() interface{} {
+	return &DeleteUserResult{}
+}
+
+type DeleteUserArgs struct {
+	Req *user.DeleteUserReq
+}
+
+func (p *DeleteUserArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(user.DeleteUserReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *DeleteUserArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *DeleteUserArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *DeleteUserArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *DeleteUserArgs) Unmarshal(in []byte) error {
+	msg := new(user.DeleteUserReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var DeleteUserArgs_Req_DEFAULT *user.DeleteUserReq
+
+func (p *DeleteUserArgs) GetReq() *user.DeleteUserReq {
+	if !p.IsSetReq() {
+		return DeleteUserArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *DeleteUserArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DeleteUserArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type DeleteUserResult struct {
+	Success *user.DeleteUserResp
+}
+
+var DeleteUserResult_Success_DEFAULT *user.DeleteUserResp
+
+func (p *DeleteUserResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(user.DeleteUserResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *DeleteUserResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *DeleteUserResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *DeleteUserResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *DeleteUserResult) Unmarshal(in []byte) error {
+	msg := new(user.DeleteUserResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *DeleteUserResult) GetSuccess() *user.DeleteUserResp {
+	if !p.IsSetSuccess() {
+		return DeleteUserResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *DeleteUserResult) SetSuccess(x interface{}) {
+	p.Success = x.(*user.DeleteUserResp)
+}
+
+func (p *DeleteUserResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DeleteUserResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -766,6 +926,16 @@ func (p *kClient) UpdateUser(ctx context.Context, Req *user.UpdateUserReq) (r *u
 	_args.Req = Req
 	var _result UpdateUserResult
 	if err = p.c.Call(ctx, "UpdateUser", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) DeleteUser(ctx context.Context, Req *user.DeleteUserReq) (r *user.DeleteUserResp, err error) {
+	var _args DeleteUserArgs
+	_args.Req = Req
+	var _result DeleteUserResult
+	if err = p.c.Call(ctx, "DeleteUser", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

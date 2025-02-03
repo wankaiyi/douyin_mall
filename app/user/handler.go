@@ -36,3 +36,10 @@ func (s *UserServiceImpl) UpdateUser(ctx context.Context, req *user.UpdateUserRe
 
 	return resp, err
 }
+
+// DeleteUser implements the UserServiceImpl interface.
+func (s *UserServiceImpl) DeleteUser(ctx context.Context, req *user.DeleteUserReq) (resp *user.DeleteUserResp, err error) {
+	resp, err = service.NewDeleteUserService(ctx).Run(req)
+
+	return resp, err
+}

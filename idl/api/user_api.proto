@@ -62,6 +62,11 @@ message UpdateUserInfoResponse {
   string status_msg = 2;
 }
 
+message DeleteUserResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+}
+
 message Empty {}
 
 service UserService {
@@ -88,5 +93,9 @@ service UserService {
 
   rpc UpdateUserInfo(UpdateUserInfoRequest) returns (UpdateUserInfoResponse) {
     option (api.post) = "/user";
+  }
+
+  rpc DeleteUser(Empty) returns (DeleteUserResponse) {
+    option (api.delete) = "/user";
   }
 }

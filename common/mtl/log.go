@@ -24,7 +24,7 @@ func (f *DouyinMallJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	entry.Time = entry.Time.In(f.TimeZone)
 
 	data := logrus.Fields{
-		"times":   entry.Time.Format(time.DateTime),
+		"time":    entry.Time.Format(time.DateTime),
 		"level":   entry.Level.String(),
 		"msg":     entry.Message,
 		"service": f.ServiceName,
@@ -49,13 +49,14 @@ func InitLog(logFileName string, logMaxSize int, logMaxBackups int, logMaxAge in
 	}
 
 	log := logrus.New()
-	// 使用自定义的格式化器，并设置时区
+	log.SetReportCaller(true)
 	log.SetFormatter(&DouyinMallJSONFormatter{
 		TimeZone:    location,
 		ServiceName: serviceName,
 	})
 	logger := kitexlogrus.NewLogger(kitexlogrus.WithLogger(log))
 	klog.SetLogger(logger)
+
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "dev" {
 		klog.SetLevel(klog.LevelDebug)
 		klog.SetOutput(os.Stdout)

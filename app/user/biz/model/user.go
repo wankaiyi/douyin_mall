@@ -68,3 +68,7 @@ func UpdateUser(db *gorm.DB, ctx context.Context, id int32, username string, ema
 		},
 	).Error
 }
+
+func DeleteUser(db *gorm.DB, id int32) error {
+	return db.Delete(&User{Base: Base{ID: id}}).Error
+}
