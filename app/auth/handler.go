@@ -29,3 +29,10 @@ func (s *AuthServiceImpl) RefreshTokenByRPC(ctx context.Context, req *auth.Refre
 
 	return resp, err
 }
+
+// RevokeTokenByRPC implements the AuthServiceImpl interface.
+func (s *AuthServiceImpl) RevokeTokenByRPC(ctx context.Context, req *auth.RevokeTokenReq) (resp *auth.RevokeResp, err error) {
+	resp, err = service.NewRevokeTokenByRPCService(ctx).Run(req)
+
+	return resp, err
+}

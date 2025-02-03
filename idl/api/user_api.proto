@@ -44,6 +44,24 @@ message GetUserInfoResponse {
 
 }
 
+message LogoutResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+}
+
+message UpdateUserInfoRequest {
+  string username = 1 [(api.form)= "username"];
+  string email = 2 [(api.form)= "email"];
+  string description = 3 [(api.form)= "description"];
+  int32 sex = 4 [(api.form)= "sex"];
+  string avatar = 5 [(api.form)= "avatar"];
+}
+
+message UpdateUserInfoResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+}
+
 message Empty {}
 
 service UserService {
@@ -62,5 +80,13 @@ service UserService {
 
   rpc RefreshToken(Empty) returns (LoginResponse) {
     option (api.post) = "/user/refresh_token";
+  }
+
+  rpc Logout(Empty) returns (LogoutResponse) {
+    option (api.post) = "/user/logout";
+  }
+
+  rpc UpdateUserInfo(UpdateUserInfoRequest) returns (UpdateUserInfoResponse) {
+    option (api.post) = "/user";
   }
 }

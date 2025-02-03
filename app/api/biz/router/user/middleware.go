@@ -35,3 +35,13 @@ func _refreshtokenMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _logoutMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _updateuserinfoMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

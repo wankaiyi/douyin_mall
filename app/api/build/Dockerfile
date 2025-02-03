@@ -10,6 +10,11 @@ COPY . .
 
 WORKDIR /app/api
 
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Shanghai
+RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo "$TZ" > /etc/timezone \
+
 ENV NACOS_ADDR=$NACOS_ADDR
 ENV NACOS_PASSWORD=$NACOS_PASSWORD
 
