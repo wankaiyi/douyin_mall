@@ -64,6 +64,7 @@ func kitexInit() (opts []server.Option) {
 		conf.GetConf().Kafka.ClsKafka.Usser,
 		conf.GetConf().Kafka.ClsKafka.Password,
 		conf.GetConf().Kafka.ClsKafka.TopicId,
+		"doubao-service",
 	)
 
 	return
