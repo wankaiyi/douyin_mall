@@ -10,7 +10,7 @@ import (
 	"douyin_mall/doubao_ai/conf"
 	"douyin_mall/doubao_ai/kitex_gen/doubao_ai"
 	redisUtils "douyin_mall/doubao_ai/utils/redis"
-	"encoding/json"
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/eino-ext/components/model/ark"
 	"github.com/cloudwego/eino/components/prompt"
 	"github.com/cloudwego/eino/schema"
@@ -70,7 +70,7 @@ func (s *AnalyzeSearchOrderQuestionService) Run(req *doubao_ai.SearchOrderQuesti
 		return nil, err
 	}
 
-	err = json.Unmarshal([]byte(aiResponseContent), &resp)
+	err = sonic.Unmarshal([]byte(aiResponseContent), &resp)
 	if err != nil {
 		klog.Errorf("智能购物助手：json解析查询订单对话结果失败，AI回复内容: %s, err: %v", aiResponseContent, err)
 		return nil, errors.WithStack(err)
@@ -93,7 +93,7 @@ func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory [
 		if len(cacheMessages) > 0 {
 			for _, value := range cacheMessages {
 				message := &schema.Message{}
-				err = json.Unmarshal([]byte(value), &message)
+				err = sonic.Unmarshal([]byte(value), &message)
 				if err != nil {
 					klog.Errorf("智能购物助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
 					err = errors.WithStack(err)
@@ -222,12 +222,12 @@ func generateAiResponse(requestAiParams *requestAiParams, ctx context.Context) (
 
 func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessage *model.Message, historyMessages []model.Message, uuid string) error {
 	// 将用户消息和AI回复消息存入缓存
-	userMsgStr, err := json.Marshal(userMessage)
+	userMsgStr, err := sonic.Marshal(userMessage)
 	if err != nil {
 		klog.Errorf("智能购物助手：json序列化用户消息失败，message: %s, err: %v", userMessage, err)
 		return errors.WithStack(err)
 	}
-	aiMsgStr, err := json.Marshal(aiMessage)
+	aiMsgStr, err := sonic.Marshal(aiMessage)
 	if err != nil {
 		klog.Errorf("智能购物助手：json序列化AI回复消息失败，message: %s, err: %v", aiMessage, err)
 		return errors.WithStack(err)
@@ -235,7 +235,7 @@ func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessag
 
 	preparedCacheMessages := make([]string, 0, len(historyMessages)+2)
 	for _, historyMessage := range historyMessages {
-		historyMsgStr, _ := json.Marshal(historyMessage)
+		historyMsgStr, _ := sonic.Marshal(historyMessage)
 		preparedCacheMessages = append(preparedCacheMessages, string(historyMsgStr))
 	}
 	preparedCacheMessages = append(preparedCacheMessages, string(userMsgStr), string(aiMsgStr))

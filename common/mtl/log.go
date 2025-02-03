@@ -3,8 +3,8 @@ package mtl
 import (
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/utils/env"
-	"encoding/json"
 	"fmt"
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
@@ -34,7 +34,7 @@ func (f *DouyinMallJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		data[k] = v
 	}
 
-	serialized, err := json.Marshal(data)
+	serialized, err := sonic.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal fields to JSON: %v", err)
 	}

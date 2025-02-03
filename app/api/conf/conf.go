@@ -3,7 +3,7 @@ package conf
 import (
 	"douyin_mall/api/biz/middleware"
 	nacosUtils "douyin_mall/common/infra/nacos"
-	"encoding/json"
+	"github.com/bytedance/sonic"
 	"github.com/kr/pretty"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
@@ -85,7 +85,7 @@ func initConf() {
 			Type:   vo.JSON,
 			UnmarshalFunc: func(data []byte) error {
 				middleware.Whitelist = make(map[string]struct{})
-				return json.Unmarshal(data, &middleware.Whitelist)
+				return sonic.Unmarshal(data, &middleware.Whitelist)
 			},
 		},
 	}
