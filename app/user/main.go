@@ -1,24 +1,17 @@
 package main
 
 import (
-	"context"
-	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/infra/nacos"
+	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
-	"douyin_mall/common/utils/feishu"
 	"douyin_mall/user/biz/dal"
 	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/conf"
 	"douyin_mall/user/kitex_gen/user/userservice"
-	"fmt"
-	"github.com/cloudwego/kitex/pkg/endpoint"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
-	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"net"
 	"os"
 	"time"
@@ -53,7 +46,7 @@ func kitexInit() (opts []server.Option) {
 		panic(err)
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
-	opts = append(opts, server.WithMiddleware(buildCoreMiddleware(&server.Options{})))
+	opts = append(opts, server.WithMiddleware(middleware.BuildRecoverPanicMiddleware(conf.GetConf().Alert.FeishuWebhook)))
 
 	// service info
 	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
@@ -64,53 +57,15 @@ func kitexInit() (opts []server.Option) {
 	opts = append(opts, server.WithRegistry(r))
 
 	// klog
-	logger := kitexlogrus.NewLogger()
-	klog.SetLogger(logger)
-	klog.SetLevel(conf.LogLevel())
-	fileWriter := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   conf.GetConf().Kitex.LogFileName,
-		MaxSize:    conf.GetConf().Kitex.LogMaxSize,
-		MaxBackups: conf.GetConf().Kitex.LogMaxBackups,
-		MaxAge:     conf.GetConf().Kitex.LogMaxAge,
-	})
-
-	kafkaWriter := kafka.NewKafkaWriter(
+	mtl.InitLog(
+		conf.GetConf().Kitex.LogFileName,
+		conf.GetConf().Kitex.LogMaxSize,
+		conf.GetConf().Kitex.LogMaxBackups,
+		conf.GetConf().Kitex.LogMaxAge,
+		conf.LogLevel(),
 		conf.GetConf().Kafka.ClsKafka.Usser,
 		conf.GetConf().Kafka.ClsKafka.Password,
 		conf.GetConf().Kafka.ClsKafka.TopicId,
 	)
-
-	writeSyncers := zapcore.NewMultiWriteSyncer(fileWriter, kafkaWriter)
-	asyncWriter := &zapcore.BufferedWriteSyncer{
-		WS:            writeSyncers,
-		FlushInterval: time.Second * 5,
-	}
-	klog.SetOutput(asyncWriter)
-	server.RegisterShutdownHook(func() {
-		asyncWriter.Sync()
-	})
 	return
-}
-
-func buildCoreMiddleware(opt *server.Options) endpoint.Middleware {
-	return RecoverPanic
-}
-
-func RecoverPanic(next endpoint.Endpoint) endpoint.Endpoint {
-	return func(ctx context.Context, req, resp interface{}) error {
-		err := next(ctx, req, resp)
-		ri := rpcinfo.GetRPCInfo(ctx)
-		endpointInfo := ri.To()
-		if err != nil {
-			currentEnv, getEnvErr := env.GetString("env")
-			if getEnvErr != nil {
-				klog.Error(getEnvErr.Error())
-			} else if currentEnv != "dev" {
-				feishuWebhook := conf.GetConf().Alert.FeishuWebhook
-				errMsg := fmt.Sprintf("服务**%s**接口**%s**发生异常，错误信息：%+v", endpointInfo.ServiceName(), endpointInfo.Method(), err)
-				feishu.SendFeishuAlert(ctx, feishuWebhook, errMsg)
-			}
-		}
-		return err
-	}
 }

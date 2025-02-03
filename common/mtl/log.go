@@ -1,38 +1,47 @@
 package mtl
 
-//
-//import (
-//	"io"
-//	"os"
-//	"time"
-//
-//	"github.com/cloudwego/kitex/server"
-//
-//	"github.com/cloudwego/kitex/pkg/klog"
-//	kitexzap "github.com/kitex-contrib/obs-opentelemetry/logging/zap"
-//	"go.uber.org/zap"
-//	"go.uber.org/zap/zapcore"
-//)
-//
-//func InitLog(ioWriter io.Writer) {
-//	var opts []kitexzap.Option
-//	var output zapcore.WriteSyncer
-//	if os.Getenv("GO_ENV") != "online" {
-//		opts = append(opts, kitexzap.WithCoreEnc(zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())))
-//		output = zapcore.AddSync(ioWriter)
-//	} else {
-//		opts = append(opts, kitexzap.WithCoreEnc(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())))
-//		// async log
-//		output = &zapcore.BufferedWriteSyncer{
-//			WS:            zapcore.AddSync(ioWriter),
-//			FlushInterval: time.Minute,
-//		}
-//	}
-//	server.RegisterShutdownHook(func() {
-//		output.Sync() //nolint:errcheck
-//	})
-//	log := kitexzap.NewLogger(opts...)
-//	klog.SetLogger(log)
-//	klog.SetLevel(klog.LevelTrace)
-//	klog.SetOutput(output)
-//}
+import (
+	"douyin_mall/common/infra/kafka"
+	"douyin_mall/common/utils/env"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/server"
+	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
+	"os"
+	"time"
+)
+
+func InitLog(logFileName string, logMaxSize int, logMaxBackups int, logMaxAge int, logLevel klog.Level, clsKafkaUser string, clsKafkaPassword string, clsKafkaTopicId string) {
+	logger := kitexlogrus.NewLogger()
+	klog.SetLogger(logger)
+	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "dev" {
+		klog.SetLevel(klog.LevelDebug)
+		klog.SetOutput(os.Stdout)
+	} else {
+		klog.SetLevel(logLevel)
+		fileWriter := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   logFileName,
+			MaxSize:    logMaxSize,
+			MaxBackups: logMaxBackups,
+			MaxAge:     logMaxAge,
+			LocalTime:  true,
+		})
+
+		kafkaWriter := kafka.NewKafkaWriter(
+			clsKafkaUser,
+			clsKafkaPassword,
+			clsKafkaTopicId,
+		)
+
+		writeSyncers := zapcore.NewMultiWriteSyncer(fileWriter, kafkaWriter)
+		asyncWriter := &zapcore.BufferedWriteSyncer{
+			WS:            writeSyncers,
+			FlushInterval: time.Second * 5,
+		}
+		klog.SetOutput(asyncWriter)
+		server.RegisterShutdownHook(func() {
+			asyncWriter.Sync()
+		})
+	}
+}
