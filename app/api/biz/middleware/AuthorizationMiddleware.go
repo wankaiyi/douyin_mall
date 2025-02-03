@@ -6,6 +6,7 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/rpc/kitex_gen/auth"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
@@ -22,8 +23,11 @@ func AuthorizationMiddleware() app.HandlerFunc {
 			verifyResp, err := authClient.VerifyTokenByRPC(ctx, &auth.VerifyTokenReq{
 				RefreshToken: c.Request.Header.Get("refresh_token"),
 				AccessToken:  c.Request.Header.Get("access_token"),
+				Path:         path,
+				Method:       string(c.Request.Method()),
 			})
 			if err != nil {
+				hlog.Errorf("rpc权限校验失败，err: %v", err)
 				c.JSON(consts.StatusOK, utils.H{
 					"status_code": 500,
 					"status_msg":  constant.GetMsg(500)})

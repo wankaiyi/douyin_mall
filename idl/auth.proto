@@ -13,11 +13,14 @@ service AuthService {
 
 message DeliverTokenReq {
   int32  user_id = 1;
+  string role = 2;
 }
 
 message VerifyTokenReq {
   string access_token = 1;
   string refresh_token = 2;
+  string path = 3;
+  string method = 4;
 }
 
 message DeliveryResp {

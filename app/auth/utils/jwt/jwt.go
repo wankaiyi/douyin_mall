@@ -27,8 +27,8 @@ const (
 	TokenExpired
 )
 
-func GenerateRefreshToken(userId int32) (string, error) {
-	s, err := generateJWT(userId, refreshTokenExpireDuration)
+func GenerateRefreshToken(userId int32, role string) (string, error) {
+	s, err := generateJWT(userId, role, refreshTokenExpireDuration)
 	if err == nil {
 		_, err = redis.SetVal(ctx, redis.GetRefreshTokenKey(userId), s, refreshTokenExpireDuration)
 		if err != nil {
@@ -38,8 +38,8 @@ func GenerateRefreshToken(userId int32) (string, error) {
 	return s, err
 }
 
-func GenerateAccessToken(userId int32) (string, error) {
-	s, err := generateJWT(userId, accessTokenExpireDuration)
+func GenerateAccessToken(userId int32, role string) (string, error) {
+	s, err := generateJWT(userId, role, accessTokenExpireDuration)
 	if err == nil {
 		_, err = redis.SetVal(ctx, redis.GetAccessTokenKey(userId), s, accessTokenExpireDuration)
 		if err != nil {
@@ -49,9 +49,10 @@ func GenerateAccessToken(userId int32) (string, error) {
 	return s, err
 }
 
-func generateJWT(userId int32, exp time.Duration) (string, error) {
+func generateJWT(userId int32, role string, exp time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"userId": userId,
+		"role":   role,
 		"exp":    time.Now().Add(exp).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -82,32 +83,27 @@ func ParseJWT(tokenStr string) (jwt.MapClaims, int) {
 // RefreshAccessToken 刷新access token，同时也要刷新refresh token
 func RefreshAccessToken(refreshToken string) (string, string, bool) {
 	// 解析refreshToken
-	userId, err := GetUserIdFromToken(refreshToken)
-	if err != nil {
-		klog.Error("userId转换为int失败，", err)
+	claims, status := ParseJWT(refreshToken)
+	if status != TokenValid {
+		klog.Error("refreshToken无效，解析失败，refreshToken: %s", refreshToken)
 		return "", "", false
 	}
+	userId := int32(claims["userId"].(float64))
+	// todo 重新查询用户的角色
+	role := claims["role"].(string)
+
 	savedRefreshToken, err := redis.GetVal(ctx, redis.GetRefreshTokenKey(userId))
 	if err != nil || savedRefreshToken != refreshToken {
 		return "", "", false
 	}
 
-	newAccessToken, err := GenerateAccessToken(userId)
+	newAccessToken, err := GenerateAccessToken(userId, role)
 	if err != nil {
 		return "", "", false
 	}
-	newRefreshToken, err := GenerateRefreshToken(userId)
+	newRefreshToken, err := GenerateRefreshToken(userId, role)
 	if err != nil {
 		return "", "", false
 	}
 	return newAccessToken, newRefreshToken, true
-}
-
-func GetUserIdFromToken(token string) (int32, error) {
-	claims, status := ParseJWT(token)
-	if status != TokenValid {
-		return 0, errors.New("token无效")
-	}
-	userId := int32(claims["userId"].(float64))
-	return userId, nil
 }

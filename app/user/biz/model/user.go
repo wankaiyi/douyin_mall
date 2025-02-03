@@ -6,6 +6,13 @@ import (
 	"gorm.io/plugin/soft_delete"
 )
 
+type Role string
+
+const (
+	RoleUser  Role = "user"
+	RoleAdmin Role = "admin"
+)
+
 type User struct {
 	Base
 	Username    string                `gorm:"not null;type:varchar(64);uniqueIndex:idx_username_deleted_at"`
@@ -14,6 +21,7 @@ type User struct {
 	Password    string                `gorm:"not null;type:varchar(255)"`
 	Description string                `gorm:"not null;type:varchar(255);default:''"`
 	Avatar      string                `gorm:"not null;type:varchar(255);default:''"`
+	Role        Role                  `gorm:"not null;type:varchar(64);default:'user'"`
 	DeletedAt   soft_delete.DeletedAt `gorm:"index;uniqueIndex:idx_username_deleted_at"`
 }
 
@@ -50,14 +58,7 @@ func SexToString(sex int32) string {
 }
 
 func UpdateUser(db *gorm.DB, ctx context.Context, id int32, username string, email string, sex int32, description string, avatar string) error {
-	user := User{
-		Base: Base{ID: id},
-		//Username:    username,
-		//Email:       email,
-		//Sex:         sex,
-		//Description: description,
-		//Avatar:      avatar,
-	}
+	user := User{Base: Base{ID: id}}
 	return db.WithContext(ctx).Model(&user). /*Save(&user).*/ Select("username", "email", "sex", "description", "avatar").Updates(
 		User{
 			Username:    username,

@@ -29,7 +29,7 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 	}
 	comparePwdErr := bcrypt.CompareHashAndPassword([]byte(loginUser.Password), []byte(req.Password))
 	if loginUser == nil || comparePwdErr != nil {
-		// 邮箱或密码错误
+		// 用户名或密码错误
 		resp = &user.LoginResp{
 			StatusCode: 1003,
 			StatusMsg:  constant.GetMsg(1003),
@@ -37,7 +37,10 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 		return
 	}
 	client := rpc.AuthClient
-	deliveryTokenResp, err := client.DeliverTokenByRPC(s.ctx, &auth.DeliverTokenReq{UserId: loginUser.ID})
+	deliveryTokenResp, err := client.DeliverTokenByRPC(s.ctx, &auth.DeliverTokenReq{
+		UserId: loginUser.ID,
+		Role:   string(loginUser.Role),
+	})
 	if err != nil {
 		klog.Error("调用用户授权服务发放令牌失败，UserId: %v, err: %v", loginUser.ID, err)
 		return nil, err
