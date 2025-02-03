@@ -86,7 +86,7 @@ func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory [
 	if exist {
 		// 历史对话存在
 		optional = false
-		cacheMessages, err := redis.RedisClient.LRange(ctx, redisUtils.GetChatHistoryKey(uuid), 0, 9).Result()
+		cacheMessages, err := redis.RedisClient.LRange(ctx, redisUtils.GetChatHistoryKey(uuid), 0, 19).Result()
 		if err != nil {
 			klog.Errorf("智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
 		}
@@ -104,16 +104,16 @@ func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory [
 		} else {
 			// 从数据库中获取历史对话
 			historyMessages, err = model.GetChatHistoryByUuid(mysql.DB, ctx, uuid)
-			for _, message := range historyMessages {
-				chatHistory = append(chatHistory, &schema.Message{
-					Role:    schema.RoleType(message.Role),
-					Content: message.Content,
-				})
-			}
 			if err != nil {
 				klog.Errorf("智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
-				err = errors.WithStack(err)
-				return nil, nil, false, err
+				return nil, nil, false, errors.WithStack(err)
+			}
+			chatHistory = make([]*schema.Message, len(historyMessages))
+			for i, message := range historyMessages {
+				chatHistory[i] = &schema.Message{
+					Role:    schema.RoleType(message.Role),
+					Content: message.Content,
+				}
 			}
 		}
 	}
@@ -233,13 +233,12 @@ func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessag
 		return errors.WithStack(err)
 	}
 
-	var preparedCacheMessages []string
+	preparedCacheMessages := make([]string, 0, len(historyMessages)+2)
 	for _, historyMessage := range historyMessages {
 		historyMsgStr, _ := json.Marshal(historyMessage)
 		preparedCacheMessages = append(preparedCacheMessages, string(historyMsgStr))
 	}
-	preparedCacheMessages = append(preparedCacheMessages, string(userMsgStr))
-	preparedCacheMessages = append(preparedCacheMessages, string(aiMsgStr))
+	preparedCacheMessages = append(preparedCacheMessages, string(userMsgStr), string(aiMsgStr))
 
 	err = redis.RedisClient.RPush(ctx, redisUtils.GetChatHistoryKey(uuid), preparedCacheMessages).Err()
 	if err != nil {

@@ -13,13 +13,11 @@ func TestCancelCharge_Run(t *testing.T) {
 	// init req and assert value
 
 	req := &payment.CancelChargeReq{
-		OrderId: "1634156123559",
+		OrderId: "1234567891",
 	}
 	resp, err := s.Run(req)
 	t.Logf("err: %v", err)
 	t.Logf("resp: %v", resp)
-
-	// todo: edit your unit test
 	klog.Infof("resp: %v", resp)
 
 }

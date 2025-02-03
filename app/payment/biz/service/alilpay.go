@@ -5,6 +5,7 @@ import (
 	"douyin_mall/payment/biz/util"
 	"errors"
 	"github.com/go-pay/gopay"
+	"time"
 )
 
 var (
@@ -26,6 +27,9 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string
 	bodyMap.Set("total_amount", totalAmount)
 	bodyMap.Set("subject", subject)
 	bodyMap.Set("product_code", product_code)
+	//定时关闭订单
+	expireTime := time.Now().Local().Add(time.Minute * 5).Format("2006-01-02 15:04:05")
+	bodyMap.Set("time_expire", expireTime)
 	paymentUrl, err := client.TradePagePay(ctx, bodyMap)
 	if err != nil {
 		return "", err
@@ -62,5 +66,28 @@ func CancelPay(ctx context.Context, orderId int64) (result bool, err error) {
 		return false, errors.New(aliRsp.Response.Msg)
 	}
 	return true, nil
+
+}
+
+// QueryPay 支付宝对账账单下载
+func QueryPay(ctx context.Context, orderId int64) (result string, err error) {
+	client, err := util.PayInit()
+	if err != nil {
+		return "", err
+
+	}
+	now := time.Now().Local().Format("2022-01-01")
+
+	bodyMap := make(gopay.BodyMap)
+	bodyMap.Set("bill_type", "trade")
+	bodyMap.Set("bill_date", now)
+	rsp, err := client.DataBillDownloadUrlQuery(ctx, bodyMap)
+	if err != nil {
+		return "", err
+	}
+	if rsp.Response.Code != "10000" {
+		return "", errors.New(rsp.Response.Msg)
+	}
+	return rsp.Response.BillDownloadUrl, nil
 
 }
