@@ -26,9 +26,18 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 		hlog.Error("商品搜索失败", err)
 		return nil, errors.New("商品搜索失败")
 	}
+	productList := []*product.Product{}
+	for i := range res.Results {
+		source := res.Results[i]
+		productList = append(productList, &product.Product{
+			Name:        source.Name,
+			Description: source.Description,
+		})
+	}
 	resp = &product.ProductResponse{
 		StatusCode: res.StatusCode,
 		StatusMsg:  res.StatusMsg,
+		Products:   productList,
 	}
 	return resp, err
 }
