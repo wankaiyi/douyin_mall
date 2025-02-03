@@ -2,6 +2,10 @@ package elastic
 
 import (
 	"context"
+	"douyin_mall/product/biz/dal/mysql"
+	"douyin_mall/product/biz/model"
+	"douyin_mall/product/biz/vo"
+	"encoding/json"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"strings"
@@ -42,6 +46,30 @@ func ProduceIndicesInit() {
 		}
 		if create.StatusCode != 200 {
 			hlog.Error("create product indices failed")
+			return
+		}
+		//将数据导入到product索引库中
+		//1 从数据库中获取数据
+		var products []model.Product
+		result := mysql.DB.Table("tb_product").Select("*").Find(&products)
+		if result.Error != nil {
+			hlog.Error(result.Error)
+			return
+		}
+		//2 遍历数据，将数据转换为json格式
+		for i := range products {
+			pro := products[i]
+			dataVo := vo.ProductSearchDataVo{
+				Name:        pro.Name,
+				Description: pro.Description,
+			}
+			jsonData, _ := json.Marshal(dataVo)
+			//3 调用esapi.BulkRequest将数据导入到product索引库中
+			_, _ = esapi.IndexRequest{
+				Index:   "product",
+				Body:    strings.NewReader(string(jsonData)),
+				Refresh: "true",
+			}.Do(context.Background(), &ElasticClient)
 		}
 	}
 }
