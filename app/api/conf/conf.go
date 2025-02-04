@@ -23,7 +23,8 @@ var (
 type Config struct {
 	Env string
 
-	Hertz Hertz `yaml:"hertz"`
+	Hertz  Hertz  `yaml:"hertz"`
+	Jaeger Jaeger `yaml:"jaeger"`
 }
 
 type Hertz struct {
@@ -38,6 +39,10 @@ type Hertz struct {
 	LogMaxBackups   int      `yaml:"log_max_backups"`
 	LogMaxAge       int      `yaml:"log_max_age"`
 	RegistryAddr    []string `yaml:"registry_addr"`
+}
+
+type Jaeger struct {
+	Endpoint string `yaml:"endpoint"`
 }
 
 // GetConf gets configuration instance

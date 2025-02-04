@@ -1,7 +1,6 @@
 package conf
 
 import (
-	//"douyin_mall/auth/biz/service"
 	nacosUtils "douyin_mall/common/infra/nacos"
 	"fmt"
 	"github.com/bytedance/sonic"
@@ -33,6 +32,7 @@ type Config struct {
 	Alert    Alert    `yaml:"alert"`
 	Kafka    Kafka    `yaml:"kafka"`
 	Casbin   Casbin   `yaml:"casbin"`
+	Jaeger   Jaeger   `yaml:"jaeger"`
 }
 
 type Mysql struct {
@@ -83,6 +83,10 @@ type ClsKafka struct {
 
 type Casbin struct {
 	ModelPath string `yaml:"model_path"`
+}
+
+type Jaeger struct {
+	Endpoint string `yaml:"endpoint"`
 }
 
 // GetConf gets configuration instance

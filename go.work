@@ -1,15 +1,17 @@
-go 1.21.0
+go 1.22.0
+
+toolchain go1.22.11
 
 use (
+	./app/api
+	./app/auth
 	./app/cart
 	./app/checkout
+	./app/doubao_ai
 	./app/order
 	./app/payment
 	./app/product
 	./app/user
-	./app/auth
-	./app/api
-	./app/doubao_ai
 	./common
 	douyin_mall_rpc
 )

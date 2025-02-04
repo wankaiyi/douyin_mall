@@ -14,7 +14,7 @@ import (
 
 var Registry *prometheus.Registry
 
-func InitMetric(serviceName string, metricsPort string) {
+func InitMetrics(serviceName string, metricsPort string) (registry.Registry, *registry.Info) {
 	Registry = prometheus.NewRegistry()
 	Registry.MustRegister(collectors.NewGoCollector())
 	Registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
@@ -38,4 +38,5 @@ func InitMetric(serviceName string, metricsPort string) {
 
 	http.Handle("/metrics", promhttp.HandlerFor(Registry, promhttp.HandlerOpts{}))
 	go http.ListenAndServe(metricsPort, nil)
+	return r, registryInfo
 }

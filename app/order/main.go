@@ -20,8 +20,21 @@ import (
 func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
+	serviceName := conf.GetConf().Kitex.Service
+	mtl.InitLog(
+		conf.GetConf().Kitex.LogFileName,
+		conf.GetConf().Kitex.LogMaxSize,
+		conf.GetConf().Kitex.LogMaxBackups,
+		conf.GetConf().Kitex.LogMaxAge,
+		conf.LogLevel(),
+		conf.GetConf().Kafka.ClsKafka.Usser,
+		conf.GetConf().Kafka.ClsKafka.Password,
+		conf.GetConf().Kafka.ClsKafka.TopicId,
+		serviceName,
+	)
+	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
+	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
-	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	opts := kitexInit()
 
 	svr := orderservice.NewServer(new(OrderServiceImpl), opts...)
@@ -55,17 +68,5 @@ func kitexInit() (opts []server.Option) {
 	r := nacos.RegisterService()
 	opts = append(opts, server.WithRegistry(r))
 
-	// klog
-	mtl.InitLog(
-		conf.GetConf().Kitex.LogFileName,
-		conf.GetConf().Kitex.LogMaxSize,
-		conf.GetConf().Kitex.LogMaxBackups,
-		conf.GetConf().Kitex.LogMaxAge,
-		conf.LogLevel(),
-		conf.GetConf().Kafka.ClsKafka.Usser,
-		conf.GetConf().Kafka.ClsKafka.Password,
-		conf.GetConf().Kafka.ClsKafka.TopicId,
-		"order-service",
-	)
 	return
 }

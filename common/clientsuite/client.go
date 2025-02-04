@@ -6,6 +6,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/transport"
+	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	"github.com/kitex-contrib/registry-nacos/resolver"
 )
 
@@ -20,13 +21,11 @@ func (s CommonGrpcClientSuite) Options() []client.Option {
 		client.WithResolver(r),
 		client.WithMetaHandler(transmeta.ClientHTTP2Handler),
 		client.WithTransportProtocol(transport.GRPC),
-	}
-
-	opts = append(opts,
+		client.WithSuite(tracing.NewClientSuite()),
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: s.CurrentServiceName,
 		}),
-	)
+	}
 
 	return opts
 }

@@ -26,6 +26,7 @@ type Config struct {
 	Alert    Alert    `yaml:"alert"`
 	Kafka    Kafka    `yaml:"kafka"`
 	Ark      Ark      `yaml:"ark"`
+	Jaeger   Jaeger   `yaml:"jaeger"`
 }
 
 type MySQL struct {
@@ -73,6 +74,10 @@ type ClsKafka struct {
 type Ark struct {
 	Model  string `yaml:"model"`
 	ApiKey string `yaml:"api_key"`
+}
+
+type Jaeger struct {
+	Endpoint string `yaml:"endpoint"`
 }
 
 // GetConf gets configuration instance

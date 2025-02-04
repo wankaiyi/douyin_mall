@@ -3,7 +3,9 @@ package service
 import (
 	"context"
 	"douyin_mall/common/utils"
+	"douyin_mall/rpc/kitex_gen/auth"
 	"douyin_mall/user/biz/dal/mysql"
+	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
 )
@@ -33,5 +35,8 @@ func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err 
 			CreatedAt:   utils.GetFormattedDateTime(userInfo.CreatedAt),
 		},
 	}
+	rpc.AuthClient.CheckIfUserBanned(s.ctx, &auth.CheckIfUserBannedReq{
+		UserId: req.UserId,
+	})
 	return
 }

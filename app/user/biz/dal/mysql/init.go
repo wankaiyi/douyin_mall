@@ -4,6 +4,7 @@ import (
 	"douyin_mall/user/biz/model"
 	"douyin_mall/user/conf"
 	"gorm.io/driver/mysql"
+	"gorm.io/plugin/opentelemetry/tracing"
 
 	"gorm.io/gorm"
 )
@@ -24,7 +25,10 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	err := DB.AutoMigrate(&model.User{})
+	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&model.User{})
 	if err != nil {
 		panic(err)
 	}

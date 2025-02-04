@@ -6,6 +6,7 @@ import (
 	"context"
 	"douyin_mall/api/biz/middleware"
 	"douyin_mall/api/infra/rpc"
+	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"os"
 	"time"
@@ -22,6 +23,8 @@ import (
 	"github.com/hertz-contrib/gzip"
 	"github.com/hertz-contrib/logger/accesslog"
 	hertzlogrus "github.com/hertz-contrib/logger/logrus"
+	"github.com/hertz-contrib/obs-opentelemetry/provider"
+	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -30,6 +33,20 @@ import (
 func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
+
+	serviceName := conf.GetConf().Hertz.Service
+	p := provider.NewOpenTelemetryProvider(
+		provider.WithEnableMetrics(false),
+		provider.WithServiceName(serviceName),
+		provider.WithExportEndpoint(conf.GetConf().Jaeger.Endpoint),
+		provider.WithInsecure(),
+	)
+	defer p.Shutdown(context.Background())
+	tracer, cfg := hertztracing.NewServerTracer()
+
+	registry, registryInfo := mtl.InitMetrics(serviceName, "9999")
+	defer registry.Deregister(registryInfo)
+
 	rpc.InitClient()
 	var address string
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {
@@ -37,7 +54,8 @@ func main() {
 	} else {
 		address = conf.GetConf().Hertz.Address
 	}
-	h := server.New(server.WithHostPorts(address))
+	h := server.New(server.WithHostPorts(address), tracer)
+	h.Use(hertztracing.ServerMiddleware(cfg))
 	h.Use(middleware.AuthorizationMiddleware())
 
 	registerMiddleware(h)

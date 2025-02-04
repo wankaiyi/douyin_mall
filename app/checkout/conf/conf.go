@@ -25,6 +25,7 @@ type Config struct {
 	Registry Registry `yaml:"registry"`
 	Alert    Alert    `yaml:"alert"`
 	Kafka    Kafka    `yaml:"kafka"`
+	Jaeger   Jaeger   `yaml:"jaeger"`
 }
 
 type MySQL struct {
@@ -67,6 +68,10 @@ type ClsKafka struct {
 	Usser    string `yaml:"user"`
 	Password string `yaml:"password"`
 	TopicId  string `yaml:"topic_id"`
+}
+
+type Jaeger struct {
+	Endpoint string `yaml:"endpoint"`
 }
 
 // GetConf gets configuration instance

@@ -1,8 +1,8 @@
 package rpc
 
 import (
+	"douyin_mall/auth/conf"
 	"douyin_mall/rpc/kitex_gen/user/userservice"
-	"douyin_mall/user/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 
