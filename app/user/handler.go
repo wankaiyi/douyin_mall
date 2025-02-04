@@ -43,3 +43,10 @@ func (s *UserServiceImpl) DeleteUser(ctx context.Context, req *user.DeleteUserRe
 
 	return resp, err
 }
+
+// GetUserRoleById implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetUserRoleById(ctx context.Context, req *user.GetUserRoleByIdReq) (resp *user.GetUserRoleByIdResp, err error) {
+	resp, err = service.NewGetUserRoleByIdService(ctx).Run(req)
+
+	return resp, err
+}

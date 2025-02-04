@@ -3,6 +3,7 @@ package main
 import (
 	"douyin_mall/auth/biz/dal"
 	"douyin_mall/auth/casbin"
+	"douyin_mall/auth/infra/rpc"
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
@@ -23,6 +24,7 @@ func main() {
 	time.Local, _ = time.LoadLocation("")
 	dal.Init()
 	casbin.Init()
+	rpc.InitClient()
 	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	opts := kitexInit()
 

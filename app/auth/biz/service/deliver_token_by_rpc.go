@@ -15,7 +15,7 @@ func NewDeliverTokenByRPCService(ctx context.Context) *DeliverTokenByRPCService 
 
 // Run create note info
 func (s *DeliverTokenByRPCService) Run(req *auth.DeliverTokenReq) (resp *auth.DeliveryResp, err error) {
-	refreshToken, err := jwt.GenerateRefreshToken(req.UserId, req.Role)
+	refreshToken, err := jwt.GenerateRefreshToken(req.UserId)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"douyin_mall/user/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
@@ -8,12 +9,11 @@ import (
 	"sync"
 
 	"douyin_mall/common/clientsuite"
-	"douyin_mall/rpc/kitex_gen/auth/authservice"
 	"github.com/cloudwego/kitex/client"
 )
 
 var (
-	AuthClient   authservice.Client
+	UserClient   userservice.Client
 	once         sync.Once
 	err          error
 	registryAddr string
@@ -27,13 +27,13 @@ func InitClient() {
 			RegistryAddr:       registryAddr,
 			CurrentServiceName: conf.GetConf().Kitex.Service,
 		})
-		initAuthClient()
+		initUserClient()
 	})
 }
 
-func initAuthClient() {
-	AuthClient, err = authservice.NewClient("auth-service", commonSuite)
+func initUserClient() {
+	UserClient, err = userservice.NewClient("user-service", commonSuite)
 	if err != nil {
-		klog.Fatal("init auth client failed: ", err)
+		klog.Fatal("init user client failed: ", err)
 	}
 }

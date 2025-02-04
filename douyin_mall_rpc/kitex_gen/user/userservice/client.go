@@ -16,6 +16,7 @@ type Client interface {
 	GetUser(ctx context.Context, Req *user.GetUserReq, callOptions ...callopt.Option) (r *user.GetUserResp, err error)
 	UpdateUser(ctx context.Context, Req *user.UpdateUserReq, callOptions ...callopt.Option) (r *user.UpdateUserResp, err error)
 	DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error)
+	GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -70,4 +71,9 @@ func (p *kUserServiceClient) UpdateUser(ctx context.Context, Req *user.UpdateUse
 func (p *kUserServiceClient) DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.DeleteUser(ctx, Req)
+}
+
+func (p *kUserServiceClient) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetUserRoleById(ctx, Req)
 }

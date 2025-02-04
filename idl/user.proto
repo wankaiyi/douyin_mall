@@ -10,6 +10,7 @@ service UserService {
   rpc GetUser(GetUserReq) returns (GetUserResp) {}
   rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
   rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
+  rpc GetUserRoleById(GetUserRoleByIdReq) returns (GetUserRoleByIdResp) {}
 }
 
 message RegisterReq {
@@ -71,6 +72,16 @@ message DeleteUserReq {
 message DeleteUserResp {
   int32 status_code = 1;
   string status_msg = 2;
+}
+
+message GetUserRoleByIdReq {
+  int32 user_id = 1;
+}
+
+message GetUserRoleByIdResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string role = 3;
 }
 
 message User {

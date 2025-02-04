@@ -73,3 +73,9 @@ func UpdateUser(db *gorm.DB, ctx context.Context, id int32, username string, ema
 func DeleteUser(db *gorm.DB, id int32) error {
 	return db.Delete(&User{Base: Base{ID: id}}).Error
 }
+
+func GetUserRoleById(ctx context.Context, db *gorm.DB, id int32) (role string, err error) {
+	var user *User
+	err = db.WithContext(ctx).Select("role").Where(User{Base: Base{ID: id}}).First(&user).Error
+	return string(user.Role), err
+}

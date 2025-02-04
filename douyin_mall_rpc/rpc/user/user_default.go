@@ -51,3 +51,12 @@ func DeleteUser(ctx context.Context, req *user.DeleteUserReq, callOptions ...cal
 	}
 	return resp, nil
 }
+
+func GetUserRoleById(ctx context.Context, req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (resp *user.GetUserRoleByIdResp, err error) {
+	resp, err = defaultClient.GetUserRoleById(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "GetUserRoleById call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

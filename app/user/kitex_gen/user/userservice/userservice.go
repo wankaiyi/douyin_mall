@@ -50,6 +50,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"GetUserRoleById": kitex.NewMethodInfo(
+		getUserRoleByIdHandler,
+		newGetUserRoleByIdArgs,
+		newGetUserRoleByIdResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -881,6 +888,159 @@ func (p *DeleteUserResult) GetResult() interface{} {
 	return p.Success
 }
 
+func getUserRoleByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(user.GetUserRoleByIdReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(user.UserService).GetUserRoleById(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *GetUserRoleByIdArgs:
+		success, err := handler.(user.UserService).GetUserRoleById(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*GetUserRoleByIdResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newGetUserRoleByIdArgs() interface{} {
+	return &GetUserRoleByIdArgs{}
+}
+
+func newGetUserRoleByIdResult() interface{} {
+	return &GetUserRoleByIdResult{}
+}
+
+type GetUserRoleByIdArgs struct {
+	Req *user.GetUserRoleByIdReq
+}
+
+func (p *GetUserRoleByIdArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(user.GetUserRoleByIdReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *GetUserRoleByIdArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *GetUserRoleByIdArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *GetUserRoleByIdArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *GetUserRoleByIdArgs) Unmarshal(in []byte) error {
+	msg := new(user.GetUserRoleByIdReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var GetUserRoleByIdArgs_Req_DEFAULT *user.GetUserRoleByIdReq
+
+func (p *GetUserRoleByIdArgs) GetReq() *user.GetUserRoleByIdReq {
+	if !p.IsSetReq() {
+		return GetUserRoleByIdArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *GetUserRoleByIdArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *GetUserRoleByIdArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type GetUserRoleByIdResult struct {
+	Success *user.GetUserRoleByIdResp
+}
+
+var GetUserRoleByIdResult_Success_DEFAULT *user.GetUserRoleByIdResp
+
+func (p *GetUserRoleByIdResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(user.GetUserRoleByIdResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *GetUserRoleByIdResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *GetUserRoleByIdResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *GetUserRoleByIdResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *GetUserRoleByIdResult) Unmarshal(in []byte) error {
+	msg := new(user.GetUserRoleByIdResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *GetUserRoleByIdResult) GetSuccess() *user.GetUserRoleByIdResp {
+	if !p.IsSetSuccess() {
+		return GetUserRoleByIdResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *GetUserRoleByIdResult) SetSuccess(x interface{}) {
+	p.Success = x.(*user.GetUserRoleByIdResp)
+}
+
+func (p *GetUserRoleByIdResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *GetUserRoleByIdResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -936,6 +1096,16 @@ func (p *kClient) DeleteUser(ctx context.Context, Req *user.DeleteUserReq) (r *u
 	_args.Req = Req
 	var _result DeleteUserResult
 	if err = p.c.Call(ctx, "DeleteUser", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq) (r *user.GetUserRoleByIdResp, err error) {
+	var _args GetUserRoleByIdArgs
+	_args.Req = Req
+	var _result GetUserRoleByIdResult
+	if err = p.c.Call(ctx, "GetUserRoleById", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

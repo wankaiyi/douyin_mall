@@ -17,6 +17,7 @@ type RPCClient interface {
 	GetUser(ctx context.Context, Req *user.GetUserReq, callOptions ...callopt.Option) (r *user.GetUserResp, err error)
 	UpdateUser(ctx context.Context, Req *user.UpdateUserReq, callOptions ...callopt.Option) (r *user.UpdateUserResp, err error)
 	DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error)
+	GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -63,4 +64,8 @@ func (c *clientImpl) UpdateUser(ctx context.Context, Req *user.UpdateUserReq, ca
 
 func (c *clientImpl) DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error) {
 	return c.kitexClient.DeleteUser(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error) {
+	return c.kitexClient.GetUserRoleById(ctx, Req, callOptions...)
 }
