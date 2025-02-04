@@ -4,9 +4,9 @@ import (
 	"douyin_mall/auth/biz/dal"
 	"douyin_mall/auth/casbin"
 	"douyin_mall/auth/infra/rpc"
-	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
+	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"net"
 	"os"
@@ -15,7 +15,6 @@ import (
 	"douyin_mall/auth/conf"
 	"douyin_mall/auth/kitex_gen/auth/authservice"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 )
 
@@ -63,14 +62,9 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
 	opts = append(opts, server.WithMiddleware(middleware.BuildRecoverPanicMiddleware(conf.GetConf().Alert.FeishuWebhook)))
-
-	// service info
-	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-		ServiceName: conf.GetConf().Kitex.Service,
+	opts = append(opts, server.WithSuite(serversuite.CommonServerSuite{
+		CurrentServiceName: conf.GetConf().Kitex.Service,
 	}))
-
-	r := nacos.RegisterService()
-	opts = append(opts, server.WithRegistry(r))
 
 	return
 }

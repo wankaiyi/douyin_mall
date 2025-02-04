@@ -1,15 +1,14 @@
 package main
 
 import (
-	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
+	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/doubao_ai/biz/dal"
 	"douyin_mall/doubao_ai/conf"
 	"douyin_mall/doubao_ai/kitex_gen/doubao_ai/doubaoaiservice"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
 	"net"
 	"os"
@@ -59,14 +58,9 @@ func kitexInit() (opts []server.Option) {
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
 	opts = append(opts, server.WithMiddleware(middleware.BuildRecoverPanicMiddleware(conf.GetConf().Alert.FeishuWebhook)))
-
-	// service info
-	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-		ServiceName: conf.GetConf().Kitex.Service,
+	opts = append(opts, server.WithSuite(serversuite.CommonServerSuite{
+		CurrentServiceName: conf.GetConf().Kitex.Service,
 	}))
-
-	r := nacos.RegisterService()
-	opts = append(opts, server.WithRegistry(r))
 
 	return
 }
