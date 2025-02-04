@@ -1,9 +1,11 @@
 package serversuite
 
 import (
+	"douyin_mall/common/mtl"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
+	prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 )
 
@@ -19,7 +21,7 @@ func (s CommonServerSuite) Options() []server.Option {
 			ServiceName: s.CurrentServiceName,
 		}),
 		server.WithSuite(tracing.NewServerSuite()),
-		//server.WithTracer(prometheus.NewServerTracer("", "", prometheus.WithDisableServer(true), prometheus.WithRegistry(mtl.Registry))),
+		server.WithTracer(prometheus.NewServerTracer("", "", prometheus.WithDisableServer(true), prometheus.WithRegistry(mtl.Registry))),
 	}
 
 	return opts
