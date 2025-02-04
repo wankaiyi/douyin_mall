@@ -51,3 +51,12 @@ func AddPermission(ctx context.Context, req *auth.AddPermissionReq, callOptions 
 	}
 	return resp, nil
 }
+
+func CheckIfUserBanned(ctx context.Context, req *auth.CheckIfUserBannedReq, callOptions ...callopt.Option) (resp *auth.CheckIfUserBannedResp, err error) {
+	resp, err = defaultClient.CheckIfUserBanned(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "CheckIfUserBanned call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

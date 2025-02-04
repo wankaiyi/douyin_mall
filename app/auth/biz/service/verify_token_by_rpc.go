@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	casbinUtil "douyin_mall/auth/casbin"
+	"douyin_mall/auth/conf"
 	auth "douyin_mall/auth/kitex_gen/auth"
 	"douyin_mall/auth/utils/jwt"
 	"douyin_mall/auth/utils/redis"
@@ -37,6 +38,15 @@ func (s *VerifyTokenByRPCService) Run(req *auth.VerifyTokenReq) (resp *auth.Veri
 		}, nil
 	}
 	userId := int32(claims["userId"].(float64))
+
+	if _, exist := conf.BannedUserList[userId]; exist {
+		// 黑名单用户
+		return &auth.VerifyResp{
+			StatusCode: 1006,
+			StatusMsg:  constant.GetMsg(1006),
+		}, nil
+	}
+
 	role := claims["role"].(string)
 
 	// 检查 Redis 中的 access token

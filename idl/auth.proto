@@ -10,6 +10,7 @@ service AuthService {
   rpc RefreshTokenByRPC(RefreshTokenReq) returns (RefreshTokenResp) {}
   rpc RevokeTokenByRPC(RevokeTokenReq) returns (RevokeResp) {}
   rpc AddPermission(AddPermissionReq) returns (Empty) {}
+  rpc CheckIfUserBanned(CheckIfUserBannedReq) returns (CheckIfUserBannedResp) {}
 }
 
 message Empty {}
@@ -63,4 +64,14 @@ message AddPermissionReq {
   string role = 1;
   string path = 2;
   string method = 3;
+}
+
+message CheckIfUserBannedReq {
+  int32 user_id = 1;
+}
+
+message CheckIfUserBannedResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  bool is_banned = 3;
 }

@@ -43,3 +43,10 @@ func (s *AuthServiceImpl) AddPermission(ctx context.Context, req *auth.AddPermis
 
 	return resp, err
 }
+
+// CheckIfUserBanned implements the AuthServiceImpl interface.
+func (s *AuthServiceImpl) CheckIfUserBanned(ctx context.Context, req *auth.CheckIfUserBannedReq) (resp *auth.CheckIfUserBannedResp, err error) {
+	resp, err = service.NewCheckIfUserBannedService(ctx).Run(req)
+
+	return resp, err
+}

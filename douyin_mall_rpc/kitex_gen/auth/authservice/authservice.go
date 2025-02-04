@@ -50,6 +50,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"CheckIfUserBanned": kitex.NewMethodInfo(
+		checkIfUserBannedHandler,
+		newCheckIfUserBannedArgs,
+		newCheckIfUserBannedResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -881,6 +888,159 @@ func (p *AddPermissionResult) GetResult() interface{} {
 	return p.Success
 }
 
+func checkIfUserBannedHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(auth.CheckIfUserBannedReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(auth.AuthService).CheckIfUserBanned(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *CheckIfUserBannedArgs:
+		success, err := handler.(auth.AuthService).CheckIfUserBanned(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*CheckIfUserBannedResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newCheckIfUserBannedArgs() interface{} {
+	return &CheckIfUserBannedArgs{}
+}
+
+func newCheckIfUserBannedResult() interface{} {
+	return &CheckIfUserBannedResult{}
+}
+
+type CheckIfUserBannedArgs struct {
+	Req *auth.CheckIfUserBannedReq
+}
+
+func (p *CheckIfUserBannedArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(auth.CheckIfUserBannedReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *CheckIfUserBannedArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *CheckIfUserBannedArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *CheckIfUserBannedArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *CheckIfUserBannedArgs) Unmarshal(in []byte) error {
+	msg := new(auth.CheckIfUserBannedReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var CheckIfUserBannedArgs_Req_DEFAULT *auth.CheckIfUserBannedReq
+
+func (p *CheckIfUserBannedArgs) GetReq() *auth.CheckIfUserBannedReq {
+	if !p.IsSetReq() {
+		return CheckIfUserBannedArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *CheckIfUserBannedArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *CheckIfUserBannedArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type CheckIfUserBannedResult struct {
+	Success *auth.CheckIfUserBannedResp
+}
+
+var CheckIfUserBannedResult_Success_DEFAULT *auth.CheckIfUserBannedResp
+
+func (p *CheckIfUserBannedResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(auth.CheckIfUserBannedResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *CheckIfUserBannedResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *CheckIfUserBannedResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *CheckIfUserBannedResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *CheckIfUserBannedResult) Unmarshal(in []byte) error {
+	msg := new(auth.CheckIfUserBannedResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *CheckIfUserBannedResult) GetSuccess() *auth.CheckIfUserBannedResp {
+	if !p.IsSetSuccess() {
+		return CheckIfUserBannedResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *CheckIfUserBannedResult) SetSuccess(x interface{}) {
+	p.Success = x.(*auth.CheckIfUserBannedResp)
+}
+
+func (p *CheckIfUserBannedResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *CheckIfUserBannedResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -936,6 +1096,16 @@ func (p *kClient) AddPermission(ctx context.Context, Req *auth.AddPermissionReq)
 	_args.Req = Req
 	var _result AddPermissionResult
 	if err = p.c.Call(ctx, "AddPermission", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) CheckIfUserBanned(ctx context.Context, Req *auth.CheckIfUserBannedReq) (r *auth.CheckIfUserBannedResp, err error) {
+	var _args CheckIfUserBannedArgs
+	_args.Req = Req
+	var _result CheckIfUserBannedResult
+	if err = p.c.Call(ctx, "CheckIfUserBanned", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

@@ -16,6 +16,7 @@ type Client interface {
 	RefreshTokenByRPC(ctx context.Context, Req *auth.RefreshTokenReq, callOptions ...callopt.Option) (r *auth.RefreshTokenResp, err error)
 	RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq, callOptions ...callopt.Option) (r *auth.RevokeResp, err error)
 	AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error)
+	CheckIfUserBanned(ctx context.Context, Req *auth.CheckIfUserBannedReq, callOptions ...callopt.Option) (r *auth.CheckIfUserBannedResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -70,4 +71,9 @@ func (p *kAuthServiceClient) RevokeTokenByRPC(ctx context.Context, Req *auth.Rev
 func (p *kAuthServiceClient) AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.AddPermission(ctx, Req)
+}
+
+func (p *kAuthServiceClient) CheckIfUserBanned(ctx context.Context, Req *auth.CheckIfUserBannedReq, callOptions ...callopt.Option) (r *auth.CheckIfUserBannedResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.CheckIfUserBanned(ctx, Req)
 }

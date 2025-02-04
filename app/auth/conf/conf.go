@@ -1,9 +1,14 @@
 package conf
 
 import (
+	//"douyin_mall/auth/biz/service"
+	nacosUtils "douyin_mall/common/infra/nacos"
 	"fmt"
+	"github.com/bytedance/sonic"
 	"github.com/kitex-contrib/config-nacos/nacos"
 	"github.com/kr/pretty"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -13,8 +18,9 @@ import (
 )
 
 var (
-	conf *Config
-	once sync.Once
+	conf           *Config
+	once           sync.Once
+	BannedUserList map[int32]struct{}
 )
 
 type Config struct {
@@ -124,15 +130,95 @@ func initConf() {
 		}
 		err := yaml.Unmarshal([]byte(data), &conf)
 		if err != nil {
-			klog.Error("Error parsing YAML: %v\n", err)
+			klog.Errorf("Error parsing YAML: %v\n", err)
 			return
 		}
 		_, err = pretty.Printf("%+v\n", conf)
 		if err != nil {
-			klog.Error("pretty print error - %v", err)
+			klog.Errorf("pretty print error - %v", err)
 		}
 	}, 5000)
 	conf.Env = GetEnv()
+
+	// 用户黑白名单配置
+	clientConfig, serverConfigs := nacosUtils.GetNacosConfig()
+
+	configClient, err := clients.CreateConfigClient(map[string]interface{}{
+		"serverConfigs": serverConfigs,
+		"clientConfig":  clientConfig,
+	})
+	if err != nil {
+		klog.Fatalf("初始化nacos配置客户端失败: %v", err)
+	}
+
+	// 定义配置项
+	configs := []struct {
+		DataId        string
+		Group         string
+		Type          vo.ConfigType
+		UnmarshalFunc func([]byte) error
+	}{
+		{
+			DataId: "user_blacklist_config",
+			Group:  "DEFAULT_GROUP",
+			Type:   vo.JSON,
+			UnmarshalFunc: func(data []byte) error {
+				BannedUserList = make(map[int32]struct{})
+				return sonic.Unmarshal(data, &BannedUserList)
+			},
+		},
+	}
+
+	// 监听与初始化配置
+	for _, cfg := range configs {
+		listenAndLoadConfig(configClient, cfg)
+	}
+}
+
+func listenAndLoadConfig(client config_client.IConfigClient, cfg struct {
+	DataId        string
+	Group         string
+	Type          vo.ConfigType
+	UnmarshalFunc func([]byte) error
+}) {
+	// 监听配置
+	err := client.ListenConfig(vo.ConfigParam{
+		DataId: cfg.DataId,
+		Group:  cfg.Group,
+		Type:   cfg.Type,
+		OnChange: func(namespace, group, dataId, data string) {
+			if err := cfg.UnmarshalFunc([]byte(data)); err != nil {
+				klog.Errorf("解析配置 %s 失败: %v", cfg.DataId, err)
+				return
+			}
+			prettyPrint(data)
+		},
+	})
+	if err != nil {
+		klog.Errorf("监听配置 %s 失败: %v", cfg.DataId, err)
+	}
+
+	// 初始化配置
+	content, err := client.GetConfig(vo.ConfigParam{
+		DataId: cfg.DataId,
+		Group:  cfg.Group,
+		Type:   cfg.Type,
+	})
+	if err != nil {
+		klog.Fatalf("获取配置 %s 失败: %v", cfg.DataId, err)
+	}
+
+	if err := cfg.UnmarshalFunc([]byte(content)); err != nil {
+		klog.Fatalf("解析配置 %s 失败: %v", cfg.DataId, err)
+	}
+
+	prettyPrint(BannedUserList)
+}
+
+func prettyPrint(data interface{}) {
+	if _, err := pretty.Printf("%+v\n", data); err != nil {
+		klog.Errorf("pretty print error: %v", err)
+	}
 }
 
 func GetEnv() string {

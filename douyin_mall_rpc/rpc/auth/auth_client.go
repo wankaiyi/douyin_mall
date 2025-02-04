@@ -17,6 +17,7 @@ type RPCClient interface {
 	RefreshTokenByRPC(ctx context.Context, Req *auth.RefreshTokenReq, callOptions ...callopt.Option) (r *auth.RefreshTokenResp, err error)
 	RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq, callOptions ...callopt.Option) (r *auth.RevokeResp, err error)
 	AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error)
+	CheckIfUserBanned(ctx context.Context, Req *auth.CheckIfUserBannedReq, callOptions ...callopt.Option) (r *auth.CheckIfUserBannedResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -63,4 +64,8 @@ func (c *clientImpl) RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeToken
 
 func (c *clientImpl) AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error) {
 	return c.kitexClient.AddPermission(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) CheckIfUserBanned(ctx context.Context, Req *auth.CheckIfUserBannedReq, callOptions ...callopt.Option) (r *auth.CheckIfUserBannedResp, err error) {
+	return c.kitexClient.CheckIfUserBanned(ctx, Req, callOptions...)
 }
