@@ -42,3 +42,12 @@ func RevokeTokenByRPC(ctx context.Context, req *auth.RevokeTokenReq, callOptions
 	}
 	return resp, nil
 }
+
+func AddPermission(ctx context.Context, req *auth.AddPermissionReq, callOptions ...callopt.Option) (resp *auth.Empty, err error) {
+	resp, err = defaultClient.AddPermission(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "AddPermission call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

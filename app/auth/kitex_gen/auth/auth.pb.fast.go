@@ -12,6 +12,19 @@ var (
 	_ = fastpb.Skip
 )
 
+func (x *Empty) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+}
+
 func (x *DeliverTokenReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
 	switch number {
 	case 1:
@@ -342,6 +355,58 @@ func (x *RevokeResp) fastReadField2(buf []byte, _type int8) (offset int, err err
 	return offset, err
 }
 
+func (x *AddPermissionReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_AddPermissionReq[number], err)
+}
+
+func (x *AddPermissionReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.Role, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddPermissionReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.Path, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddPermissionReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.Method, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *Empty) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	return offset
+}
+
 func (x *DeliverTokenReq) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -585,6 +650,47 @@ func (x *RevokeResp) fastWriteField2(buf []byte) (offset int) {
 	}
 	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
 	return offset
+}
+
+func (x *AddPermissionReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	return offset
+}
+
+func (x *AddPermissionReq) fastWriteField1(buf []byte) (offset int) {
+	if x.Role == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 1, x.GetRole())
+	return offset
+}
+
+func (x *AddPermissionReq) fastWriteField2(buf []byte) (offset int) {
+	if x.Path == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetPath())
+	return offset
+}
+
+func (x *AddPermissionReq) fastWriteField3(buf []byte) (offset int) {
+	if x.Method == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetMethod())
+	return offset
+}
+
+func (x *Empty) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	return n
 }
 
 func (x *DeliverTokenReq) Size() (n int) {
@@ -832,6 +938,42 @@ func (x *RevokeResp) sizeField2() (n int) {
 	return n
 }
 
+func (x *AddPermissionReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	return n
+}
+
+func (x *AddPermissionReq) sizeField1() (n int) {
+	if x.Role == "" {
+		return n
+	}
+	n += fastpb.SizeString(1, x.GetRole())
+	return n
+}
+
+func (x *AddPermissionReq) sizeField2() (n int) {
+	if x.Path == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetPath())
+	return n
+}
+
+func (x *AddPermissionReq) sizeField3() (n int) {
+	if x.Method == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetMethod())
+	return n
+}
+
+var fieldIDToName_Empty = map[int32]string{}
+
 var fieldIDToName_DeliverTokenReq = map[int32]string{
 	1: "UserId",
 	2: "Role",
@@ -875,4 +1017,10 @@ var fieldIDToName_RevokeTokenReq = map[int32]string{
 var fieldIDToName_RevokeResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
+}
+
+var fieldIDToName_AddPermissionReq = map[int32]string{
+	1: "Role",
+	2: "Path",
+	3: "Method",
 }

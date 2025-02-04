@@ -50,3 +50,13 @@ func _deleteuserMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _addpermissionMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _user0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

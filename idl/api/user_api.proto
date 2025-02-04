@@ -67,6 +67,12 @@ message DeleteUserResponse {
   string status_msg = 2;
 }
 
+message AddPermissionRequest {
+  string role = 1 [(api.form)= "role"];
+  string path = 2 [(api.form)= "path"];
+  string method = 3 [(api.form)= "method"];
+}
+
 message Empty {}
 
 service UserService {
@@ -97,5 +103,9 @@ service UserService {
 
   rpc DeleteUser(Empty) returns (DeleteUserResponse) {
     option (api.delete) = "/user";
+  }
+
+  rpc AddPermission(AddPermissionRequest) returns (Empty) {
+    option (api.post) = "/user/permission";
   }
 }

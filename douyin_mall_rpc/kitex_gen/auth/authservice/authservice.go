@@ -43,6 +43,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"AddPermission": kitex.NewMethodInfo(
+		addPermissionHandler,
+		newAddPermissionArgs,
+		newAddPermissionResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -721,6 +728,159 @@ func (p *RevokeTokenByRPCResult) GetResult() interface{} {
 	return p.Success
 }
 
+func addPermissionHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(auth.AddPermissionReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(auth.AuthService).AddPermission(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *AddPermissionArgs:
+		success, err := handler.(auth.AuthService).AddPermission(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*AddPermissionResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newAddPermissionArgs() interface{} {
+	return &AddPermissionArgs{}
+}
+
+func newAddPermissionResult() interface{} {
+	return &AddPermissionResult{}
+}
+
+type AddPermissionArgs struct {
+	Req *auth.AddPermissionReq
+}
+
+func (p *AddPermissionArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(auth.AddPermissionReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *AddPermissionArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *AddPermissionArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *AddPermissionArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *AddPermissionArgs) Unmarshal(in []byte) error {
+	msg := new(auth.AddPermissionReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var AddPermissionArgs_Req_DEFAULT *auth.AddPermissionReq
+
+func (p *AddPermissionArgs) GetReq() *auth.AddPermissionReq {
+	if !p.IsSetReq() {
+		return AddPermissionArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *AddPermissionArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AddPermissionArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type AddPermissionResult struct {
+	Success *auth.Empty
+}
+
+var AddPermissionResult_Success_DEFAULT *auth.Empty
+
+func (p *AddPermissionResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(auth.Empty)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *AddPermissionResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *AddPermissionResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *AddPermissionResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *AddPermissionResult) Unmarshal(in []byte) error {
+	msg := new(auth.Empty)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *AddPermissionResult) GetSuccess() *auth.Empty {
+	if !p.IsSetSuccess() {
+		return AddPermissionResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *AddPermissionResult) SetSuccess(x interface{}) {
+	p.Success = x.(*auth.Empty)
+}
+
+func (p *AddPermissionResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AddPermissionResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -766,6 +926,16 @@ func (p *kClient) RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq
 	_args.Req = Req
 	var _result RevokeTokenByRPCResult
 	if err = p.c.Call(ctx, "RevokeTokenByRPC", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AddPermission(ctx context.Context, Req *auth.AddPermissionReq) (r *auth.Empty, err error) {
+	var _args AddPermissionArgs
+	_args.Req = Req
+	var _result AddPermissionResult
+	if err = p.c.Call(ctx, "AddPermission", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

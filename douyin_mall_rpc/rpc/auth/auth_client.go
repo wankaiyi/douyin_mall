@@ -16,6 +16,7 @@ type RPCClient interface {
 	VerifyTokenByRPC(ctx context.Context, Req *auth.VerifyTokenReq, callOptions ...callopt.Option) (r *auth.VerifyResp, err error)
 	RefreshTokenByRPC(ctx context.Context, Req *auth.RefreshTokenReq, callOptions ...callopt.Option) (r *auth.RefreshTokenResp, err error)
 	RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq, callOptions ...callopt.Option) (r *auth.RevokeResp, err error)
+	AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -58,4 +59,8 @@ func (c *clientImpl) RefreshTokenByRPC(ctx context.Context, Req *auth.RefreshTok
 
 func (c *clientImpl) RevokeTokenByRPC(ctx context.Context, Req *auth.RevokeTokenReq, callOptions ...callopt.Option) (r *auth.RevokeResp, err error) {
 	return c.kitexClient.RevokeTokenByRPC(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) AddPermission(ctx context.Context, Req *auth.AddPermissionReq, callOptions ...callopt.Option) (r *auth.Empty, err error) {
+	return c.kitexClient.AddPermission(ctx, Req, callOptions...)
 }

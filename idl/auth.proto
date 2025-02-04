@@ -9,7 +9,10 @@ service AuthService {
   rpc VerifyTokenByRPC(VerifyTokenReq) returns (VerifyResp) {}
   rpc RefreshTokenByRPC(RefreshTokenReq) returns (RefreshTokenResp) {}
   rpc RevokeTokenByRPC(RevokeTokenReq) returns (RevokeResp) {}
+  rpc AddPermission(AddPermissionReq) returns (Empty) {}
 }
+
+message Empty {}
 
 message DeliverTokenReq {
   int32  user_id = 1;
@@ -54,4 +57,10 @@ message RevokeTokenReq {
 message RevokeResp {
   int32 status_code = 1;
   string status_msg = 2;
+}
+
+message AddPermissionReq {
+  string role = 1;
+  string path = 2;
+  string method = 3;
 }

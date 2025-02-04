@@ -23,7 +23,7 @@ func main() {
 	os.Setenv("TZ", "Asia/Shanghai")
 	time.Local, _ = time.LoadLocation("")
 	dal.Init()
-	casbin.Init()
+	casbin.InitCasbin()
 	rpc.InitClient()
 	mtl.InitMetric(conf.GetConf().Kitex.Service, conf.GetConf().Kitex.MetricsPort)
 	opts := kitexInit()

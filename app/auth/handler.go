@@ -36,3 +36,10 @@ func (s *AuthServiceImpl) RevokeTokenByRPC(ctx context.Context, req *auth.Revoke
 
 	return resp, err
 }
+
+// AddPermission implements the AuthServiceImpl interface.
+func (s *AuthServiceImpl) AddPermission(ctx context.Context, req *auth.AddPermissionReq) (resp *auth.Empty, err error) {
+	resp, err = service.NewAddPermissionService(ctx).Run(req)
+
+	return resp, err
+}
