@@ -44,7 +44,7 @@ func main() {
 	defer p.Shutdown(context.Background())
 	tracer, cfg := hertztracing.NewServerTracer()
 
-	registry, registryInfo := mtl.InitMetrics(serviceName, "9999")
+	registry, registryInfo := mtl.InitMetrics(serviceName, conf.GetConf().Hertz.MetricsPort)
 	defer registry.Deregister(registryInfo)
 
 	rpc.InitClient()
