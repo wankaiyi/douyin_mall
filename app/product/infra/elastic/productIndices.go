@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
 	"encoding/json"
+	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"strings"
@@ -37,9 +38,13 @@ func ProduceIndicesInit() {
 	}
 	//如果product不存在，就创建这个索引库
 	if productIndicesExist.StatusCode != 200 {
+		SettingData, err := sonic.Marshal(vo.ProductSearchMappingSetting)
+		if err != nil {
+			return
+		}
 		create, err := esapi.IndicesCreateRequest{
 			Index: "product",
-			Body:  strings.NewReader(mapping),
+			Body:  strings.NewReader(string(SettingData)),
 		}.Do(context.Background(), &ElasticClient)
 		if err != nil {
 			hlog.Info(err)
