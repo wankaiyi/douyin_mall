@@ -57,6 +57,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"UpdateProduct": kitex.NewMethodInfo(
+		updateProductHandler,
+		newUpdateProductArgs,
+		newUpdateProductResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -1041,6 +1048,159 @@ func (p *DeleteProductResult) GetResult() interface{} {
 	return p.Success
 }
 
+func updateProductHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.UpdateProductReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).UpdateProduct(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *UpdateProductArgs:
+		success, err := handler.(product.ProductCatalogService).UpdateProduct(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*UpdateProductResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newUpdateProductArgs() interface{} {
+	return &UpdateProductArgs{}
+}
+
+func newUpdateProductResult() interface{} {
+	return &UpdateProductResult{}
+}
+
+type UpdateProductArgs struct {
+	Req *product.UpdateProductReq
+}
+
+func (p *UpdateProductArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.UpdateProductReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *UpdateProductArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *UpdateProductArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *UpdateProductArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *UpdateProductArgs) Unmarshal(in []byte) error {
+	msg := new(product.UpdateProductReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var UpdateProductArgs_Req_DEFAULT *product.UpdateProductReq
+
+func (p *UpdateProductArgs) GetReq() *product.UpdateProductReq {
+	if !p.IsSetReq() {
+		return UpdateProductArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *UpdateProductArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UpdateProductArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type UpdateProductResult struct {
+	Success *product.UpdateProductResp
+}
+
+var UpdateProductResult_Success_DEFAULT *product.UpdateProductResp
+
+func (p *UpdateProductResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.UpdateProductResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *UpdateProductResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *UpdateProductResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *UpdateProductResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *UpdateProductResult) Unmarshal(in []byte) error {
+	msg := new(product.UpdateProductResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *UpdateProductResult) GetSuccess() *product.UpdateProductResp {
+	if !p.IsSetSuccess() {
+		return UpdateProductResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *UpdateProductResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.UpdateProductResp)
+}
+
+func (p *UpdateProductResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UpdateProductResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -1106,6 +1266,16 @@ func (p *kClient) DeleteProduct(ctx context.Context, Req *product.DeleteProductR
 	_args.Req = Req
 	var _result DeleteProductResult
 	if err = p.c.Call(ctx, "DeleteProduct", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateProduct(ctx context.Context, Req *product.UpdateProductReq) (r *product.UpdateProductResp, err error) {
+	var _args UpdateProductArgs
+	_args.Req = Req
+	var _result UpdateProductResult
+	if err = p.c.Call(ctx, "UpdateProduct", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

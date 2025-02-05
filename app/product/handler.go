@@ -50,3 +50,10 @@ func (s *ProductCatalogServiceImpl) DeleteProduct(ctx context.Context, req *prod
 
 	return resp, err
 }
+
+// UpdateProduct implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) UpdateProduct(ctx context.Context, req *product.UpdateProductReq) (resp *product.UpdateProductResp, err error) {
+	resp, err = service.NewUpdateProductService(ctx).Run(req)
+
+	return resp, err
+}

@@ -40,3 +40,8 @@ func _productdeleteMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _productupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

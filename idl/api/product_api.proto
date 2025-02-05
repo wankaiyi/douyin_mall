@@ -60,7 +60,22 @@ message ProductDeleteResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
+message ProductUpdateRequest {
+  int64 id = 1[(api.form)= "id"];
+  string name = 2[(api.form)= "name"];
+  string description = 3[(api.form)= "description"];
+  string picture = 4[(api.form)= "picture"];
+  string price = 5[(api.form)= "price"];
+  repeated string categories = 6[(api.form)= "categories"];
+  int64 stock=7[(api.form)= "stock"];
+  int64 sale=8[(api.form)= "sale"];
+  int64 publish_status=9[(api.form)= "publish_status"];
+}
 
+message ProductUpdateResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+}
 service ProductService {
 
   rpc Search(ProductRequest) returns (ProductResponse) {
@@ -77,6 +92,10 @@ service ProductService {
 
   rpc ProductDelete(ProductDeleteRequest) returns (ProductDeleteResponse) {
     option (api.post) = "/product/delete";
+  }
+
+  rpc ProductUpdate(ProductUpdateRequest) returns (ProductUpdateResponse) {
+    option (api.post) = "/product/update";
   }
 
 }
