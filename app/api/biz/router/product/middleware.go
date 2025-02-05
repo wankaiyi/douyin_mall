@@ -35,3 +35,8 @@ func _productselectMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _productdeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

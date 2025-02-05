@@ -10,6 +10,7 @@ service ProductCatalogService {
   rpc SearchProducts(SearchProductsReq) returns (SearchProductsResp) {}
   rpc InsertProduct(InsertProductReq) returns (InsertProductResp) {}
   rpc SelectProduct(SelectProductReq) returns (SelectProductResp) {}
+  rpc DeleteProduct(DeleteProductReq) returns (DeleteProductResp) {}
 }
 
 message ListProductsReq{
@@ -79,4 +80,13 @@ message SelectProductResp {
   int32 status_code = 1;
   string status_msg = 2;
   Product product = 3;
+}
+
+message DeleteProductReq {
+  int64 id = 1;
+}
+
+message DeleteProductResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }

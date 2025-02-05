@@ -14,6 +14,9 @@ type Client interface {
 	ListProducts(ctx context.Context, Req *product.ListProductsReq, callOptions ...callopt.Option) (r *product.ListProductsResp, err error)
 	GetProduct(ctx context.Context, Req *product.GetProductReq, callOptions ...callopt.Option) (r *product.GetProductResp, err error)
 	SearchProducts(ctx context.Context, Req *product.SearchProductsReq, callOptions ...callopt.Option) (r *product.SearchProductsResp, err error)
+	InsertProduct(ctx context.Context, Req *product.InsertProductReq, callOptions ...callopt.Option) (r *product.InsertProductResp, err error)
+	SelectProduct(ctx context.Context, Req *product.SelectProductReq, callOptions ...callopt.Option) (r *product.SelectProductResp, err error)
+	DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -58,4 +61,19 @@ func (p *kProductCatalogServiceClient) GetProduct(ctx context.Context, Req *prod
 func (p *kProductCatalogServiceClient) SearchProducts(ctx context.Context, Req *product.SearchProductsReq, callOptions ...callopt.Option) (r *product.SearchProductsResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.SearchProducts(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) InsertProduct(ctx context.Context, Req *product.InsertProductReq, callOptions ...callopt.Option) (r *product.InsertProductResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.InsertProduct(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) SelectProduct(ctx context.Context, Req *product.SelectProductReq, callOptions ...callopt.Option) (r *product.SelectProductResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.SelectProduct(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.DeleteProduct(ctx, Req)
 }

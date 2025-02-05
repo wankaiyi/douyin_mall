@@ -52,7 +52,14 @@ message ProductSelectResponse {
   Product product = 3;
 }
 
+message ProductDeleteRequest {
+  int64 id = 1;
+}
 
+message ProductDeleteResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+}
 
 service ProductService {
 
@@ -66,6 +73,10 @@ service ProductService {
 
   rpc ProductSelect(ProductSelectRequest) returns (ProductSelectResponse) {
     option (api.post) = "/product/select";
+  }
+
+  rpc ProductDelete(ProductDeleteRequest) returns (ProductDeleteResponse) {
+    option (api.post) = "/product/delete";
   }
 
 }
