@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"fmt"
@@ -17,8 +18,7 @@ import (
 
 var AsyncWriter *zapcore.BufferedWriteSyncer
 
-// todo 接腾讯云日志服务
-func InitLog(serviceName string, logLevel hlog.Level, logFileName string, maxSize int, maxBackups int, maxAge int, h *server.Hertz) {
+func InitLog(serviceName string, logLevel hlog.Level, logFileName string, maxSize int, maxBackups int, maxAge int, h *server.Hertz, clsKafkaUser, clsKafkaPassword, clsKafkaTopicId string) {
 	location, err := time.LoadLocation("Asia/Shanghai")
 	if err != nil {
 		fmt.Println("Error loading location:", err)
@@ -33,19 +33,30 @@ func InitLog(serviceName string, logLevel hlog.Level, logFileName string, maxSiz
 	})
 	logger := hertzlogrus.NewLogger(hertzlogrus.WithLogger(log))
 	hlog.SetLogger(logger)
-	hlog.SetLevel(logLevel)
 	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "dev" {
+		hlog.SetLevel(hlog.LevelDebug)
 		logger.SetOutput(os.Stdout)
 	} else {
+		hlog.SetLevel(logLevel)
+		fileWriter := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   logFileName,
+			MaxSize:    maxSize,
+			MaxBackups: maxBackups,
+			MaxAge:     maxAge,
+		})
+
+		kafkaWriter := kafka.NewKafkaWriter(
+			clsKafkaUser,
+			clsKafkaPassword,
+			clsKafkaTopicId,
+		)
+
+		writeSyncers := zapcore.NewMultiWriteSyncer(fileWriter, kafkaWriter)
 		AsyncWriter = &zapcore.BufferedWriteSyncer{
-			WS: zapcore.AddSync(&lumberjack.Logger{
-				Filename:   logFileName,
-				MaxSize:    maxSize,
-				MaxBackups: maxBackups,
-				MaxAge:     maxAge,
-			}),
-			FlushInterval: time.Minute,
+			WS:            writeSyncers,
+			FlushInterval: time.Second * 5,
 		}
+
 		hlog.SetOutput(AsyncWriter)
 		h.OnShutdown = append(h.OnShutdown, func(ctx context.Context) {
 			AsyncWriter.Sync()

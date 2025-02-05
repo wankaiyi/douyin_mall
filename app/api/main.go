@@ -9,6 +9,10 @@ import (
 	"douyin_mall/api/mtl/log"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
+	"douyin_mall/common/utils/feishu"
+	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"time"
 
@@ -55,7 +59,10 @@ func main() {
 		address = conf.GetConf().Hertz.Address
 	}
 	h := server.New(server.WithHostPorts(address), tracer)
-	log.InitLog(ServiceName, conf.LogLevel(), conf.GetConf().Hertz.LogFileName, conf.GetConf().Hertz.LogMaxSize, conf.GetConf().Hertz.LogMaxBackups, conf.GetConf().Hertz.LogMaxAge, h)
+	log.InitLog(ServiceName,
+		conf.LogLevel(), conf.GetConf().Hertz.LogFileName, conf.GetConf().Hertz.LogMaxSize, conf.GetConf().Hertz.LogMaxBackups, conf.GetConf().Hertz.LogMaxAge,
+		h,
+		conf.GetConf().Kafka.ClsKafka.Usser, conf.GetConf().Kafka.ClsKafka.Password, conf.GetConf().Kafka.ClsKafka.TopicId)
 	h.Use(hertztracing.ServerMiddleware(cfg))
 	h.Use(middleware.TraceLogMiddleware())
 	h.Use(middleware.AuthorizationMiddleware())
@@ -90,8 +97,22 @@ func registerMiddleware(h *server.Hertz) {
 	}
 
 	// recovery
-	h.Use(recovery.Recovery())
+	h.Use(recovery.Recovery(recovery.WithRecoveryHandler(FeishuAlertRecoveryHandler)))
 
 	// cores
 	h.Use(cors.Default())
+}
+
+func FeishuAlertRecoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
+	currentEnv, getEnvErr := env.GetString("env")
+	if getEnvErr != nil {
+		klog.CtxErrorf(ctx, getEnvErr.Error())
+	} else if currentEnv != "dev" {
+		errMsg := fmt.Sprintf("接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
+		feishu.SendFeishuAlert(ctx, conf.GetConf().Alert.FeishuWebhook, errMsg)
+	} else {
+		// dev环境打印日志
+		hlog.CtxErrorf(ctx, "接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
+	}
+	c.AbortWithStatusJSON(500, utils.H{"code": 500, "message": "Internal Server Error"})
 }
