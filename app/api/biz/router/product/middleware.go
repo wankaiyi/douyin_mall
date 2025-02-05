@@ -25,3 +25,8 @@ func _searchMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _productinsertMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

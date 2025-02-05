@@ -31,10 +31,28 @@ message ProductResponse {
   repeated Product products=3;//定义产品数组
 }
 
+message ProductInsertRequest {
+  string name = 1 [(api.form)= "name"];
+  string description = 2 [(api.form)= "description"];
+  string picture = 3 [(api.form)= "picture"];
+  string price = 4 [(api.form)= "price"];
+  int64 stock = 5 [(api.form)= "stock"];
+}
+message ProductInsertResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+}
+
+
+
 service ProductService {
 
   rpc Search(ProductRequest) returns (ProductResponse) {
     option (api.post) = "/product/search";
+  }
+
+  rpc ProductInsert(ProductInsertRequest) returns (ProductInsertResponse) {
+    option (api.post) = "/product/insert";
   }
 
 }
