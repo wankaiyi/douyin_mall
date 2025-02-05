@@ -36,3 +36,10 @@ func (s *ProductCatalogServiceImpl) InsertProduct(ctx context.Context, req *prod
 
 	return resp, err
 }
+
+// SelectProduct implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) SelectProduct(ctx context.Context, req *product.SelectProductReq) (resp *product.SelectProductResp, err error) {
+	resp, err = service.NewSelectProductService(ctx).Run(req)
+
+	return resp, err
+}

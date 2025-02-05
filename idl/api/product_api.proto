@@ -9,16 +9,16 @@ import "api.proto";
 //import "common.proto";
 
 message Product {
-  uint32 id = 1;
+  int64 id = 1;
   string name = 2;
   string description = 3;
   string picture = 4;
-  float price = 5;
+  string price = 5;
 
   repeated string categories = 6;
   int64 stock=7;
   int64 sale=8;
-  uint32 publish_status=9;
+  int64 publish_status=9;
 }
 
 message ProductRequest {
@@ -43,6 +43,15 @@ message ProductInsertResponse {
   string status_msg = 2;
 }
 
+message ProductSelectRequest {
+  int64 id = 1;
+}
+message ProductSelectResponse {
+  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  string status_msg = 2;
+  Product product = 3;
+}
+
 
 
 service ProductService {
@@ -53,6 +62,10 @@ service ProductService {
 
   rpc ProductInsert(ProductInsertRequest) returns (ProductInsertResponse) {
     option (api.post) = "/product/insert";
+  }
+
+  rpc ProductSelect(ProductSelectRequest) returns (ProductSelectResponse) {
+    option (api.post) = "/product/select";
   }
 
 }

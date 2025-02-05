@@ -9,8 +9,8 @@ type Product struct {
 	Picture     string    `json:"picture"`
 	Price       string    `json:"price"`
 	Stock       int64     `json:"stock"`
-	Sale        float32   `json:"sale"`
-	PublicState int8      `json:"public_state"`
+	Sale        int64     `json:"sale"`
+	PublicState int64     `json:"public_state"`
 	LockStock   int64     `json:"lock_stock"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

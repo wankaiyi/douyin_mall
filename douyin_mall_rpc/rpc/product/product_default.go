@@ -42,3 +42,12 @@ func InsertProduct(ctx context.Context, req *product.InsertProductReq, callOptio
 	}
 	return resp, nil
 }
+
+func SelectProduct(ctx context.Context, req *product.SelectProductReq, callOptions ...callopt.Option) (resp *product.SelectProductResp, err error) {
+	resp, err = defaultClient.SelectProduct(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "SelectProduct call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
