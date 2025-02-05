@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
+	user "douyin_mall/api/hertz_gen/api/user"
 	"douyin_mall/api/infra/rpc"
 	rpcuser "douyin_mall/rpc/kitex_gen/user"
-	"github.com/cloudwego/kitex/pkg/klog"
-
-	user "douyin_mall/api/hertz_gen/api/user"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/pkg/errors"
 )
 
 type LoginService struct {
@@ -26,11 +26,8 @@ func (h *LoginService) Run(req *user.LoginRequest) (resp *user.LoginResponse, er
 		Password: req.Password,
 	})
 	if err != nil {
-		klog.Error("登录失败, err: ", err)
-		return &user.LoginResponse{
-			StatusCode: 500,
-			StatusMsg:  "登录失败，请稍后再试",
-		}, nil
+		hlog.CtxErrorf(h.Context, "登录失败, err: %v", err)
+		return nil, errors.New("登录失败，请稍后再试")
 	}
 	resp = &user.LoginResponse{
 		StatusCode:   res.StatusCode,

@@ -14,7 +14,6 @@ import (
 )
 
 var (
-	ctx                        = context.Background()
 	jwtSecret                  = []byte(conf.GetConf().Jwt.Secret)
 	accessTokenExpireDuration  = time.Hour * 2
 	refreshTokenExpireDuration = time.Hour * 24 * 7
@@ -29,7 +28,7 @@ const (
 	TokenExpired
 )
 
-func GenerateRefreshToken(userId int32) (string, error) {
+func GenerateRefreshToken(ctx context.Context, userId int32) (string, error) {
 	claims := jwt.MapClaims{
 		"userId": userId,
 		"exp":    time.Now().Add(refreshTokenExpireDuration).Unix(),
@@ -44,7 +43,7 @@ func GenerateRefreshToken(userId int32) (string, error) {
 	return s, err
 }
 
-func GenerateAccessToken(userId int32, role string) (string, error) {
+func GenerateAccessToken(ctx context.Context, userId int32, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"userId": userId,
 		"role":   role,
@@ -88,7 +87,7 @@ func ParseJWT(tokenStr string) (jwt.MapClaims, int) {
 
 // RefreshAccessToken 刷新access token，同时也要刷新refresh token;；
 // 调用场景：1. access token 过期，需要刷新；2. 用户角色变更，后端将access token删除，让前端主动刷新access token
-func RefreshAccessToken(refreshToken string) (string, string, bool) {
+func RefreshAccessToken(ctx context.Context, refreshToken string) (string, string, bool) {
 	// 解析refreshToken
 	claims, status := ParseJWT(refreshToken)
 	if status != TokenValid {
@@ -110,11 +109,11 @@ func RefreshAccessToken(refreshToken string) (string, string, bool) {
 		return "", "", false
 	}
 
-	newAccessToken, err := GenerateAccessToken(userId, role)
+	newAccessToken, err := GenerateAccessToken(ctx, userId, role)
 	if err != nil {
 		return "", "", false
 	}
-	newRefreshToken, err := GenerateRefreshToken(userId)
+	newRefreshToken, err := GenerateRefreshToken(ctx, userId)
 	if err != nil {
 		return "", "", false
 	}

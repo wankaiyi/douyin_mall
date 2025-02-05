@@ -35,7 +35,7 @@ func (s *RegisterService) Run(req *user.RegisterReq) (resp *user.RegisterResp, e
 		Avatar:      req.Avatar,
 	}
 	if err = model.CreateUser(mysql.DB, s.ctx, newUser); err != nil {
-		klog.Error(err)
+		klog.CtxInfof(s.ctx, "创建用户失败, err: %v", err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			// 用户已存在
 			resp = &user.RegisterResp{StatusCode: 1002, StatusMsg: constant.GetMsg(1002)}

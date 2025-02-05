@@ -16,7 +16,7 @@ func NewRefreshTokenByRPCService(ctx context.Context) *RefreshTokenByRPCService 
 
 // Run create note info
 func (s *RefreshTokenByRPCService) Run(req *auth.RefreshTokenReq) (resp *auth.RefreshTokenResp, err error) {
-	newAccessToken, newRefreshToken, success := jwt.RefreshAccessToken(req.RefreshToken)
+	newAccessToken, newRefreshToken, success := jwt.RefreshAccessToken(s.ctx, req.RefreshToken)
 	if success {
 		resp = &auth.RefreshTokenResp{
 			StatusCode:   0,

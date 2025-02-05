@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"douyin_mall/common/middleware"
 	"douyin_mall/rpc/kitex_gen/auth/authservice"
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"douyin_mall/rpc/kitex_gen/product/productcatalogservice"
@@ -43,27 +44,27 @@ func InitClient() {
 }
 
 func initUserClient() {
-	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithRPCTimeout(3*time.Second))
+	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init user client failed: ", err)
 	}
 }
 
 func initAuthClient() {
-	AuthClient, err = authservice.NewClient("auth-service", commonSuite, client.WithRPCTimeout(3*time.Second))
+	AuthClient, err = authservice.NewClient("auth-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init auth client failed: ", err)
 	}
 }
 func initPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithRPCTimeout(3*time.Second))
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
 	}
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithRPCTimeout(3*time.Second))
+	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init auth client failed: ", err)
 	}

@@ -1,9 +1,11 @@
 package mtl
 
 import (
+	"douyin_mall/common/constant"
 	"douyin_mall/common/infra/kafka"
 	"douyin_mall/common/utils/env"
 	"fmt"
+	"github.com/bytedance/gopkg/cloud/metainfo"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
@@ -20,6 +22,12 @@ type DouyinMallJSONFormatter struct {
 	ServiceName string
 }
 
+var logMap = map[string]struct{}{
+	"trace_id":    {},
+	"span_id":     {},
+	"trace_flags": {},
+}
+
 func (f *DouyinMallJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	entry.Time = entry.Time.In(f.TimeZone)
 
@@ -30,7 +38,32 @@ func (f *DouyinMallJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		"service": f.ServiceName,
 	}
 
+	ctx := entry.Context
+	if ctx != nil {
+		traceId := ctx.Value(constant.TraceId)
+		if traceId != nil {
+			data["traceId"] = traceId.(string)
+		} else {
+			traceId, ok := metainfo.GetPersistentValue(ctx, constant.TraceId)
+			if ok {
+				data["traceId"] = traceId
+			}
+		}
+		userId := ctx.Value(constant.UserId)
+		if userId != nil {
+			data["userId"] = userId.(int32)
+		} else {
+			userId, ok := metainfo.GetPersistentValue(ctx, constant.UserId)
+			if ok {
+				data["userId"] = userId
+			}
+		}
+	}
+
 	for k, v := range entry.Data {
+		if _, exist := logMap[k]; exist {
+			continue
+		}
 		data[k] = v
 	}
 

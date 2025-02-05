@@ -7,6 +7,7 @@ import (
 	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type GetUserRoleByIdService struct {
@@ -20,8 +21,8 @@ func NewGetUserRoleByIdService(ctx context.Context) *GetUserRoleByIdService {
 func (s *GetUserRoleByIdService) Run(req *user.GetUserRoleByIdReq) (resp *user.GetUserRoleByIdResp, err error) {
 	role, err := model.GetUserRoleById(s.ctx, mysql.DB, req.UserId)
 	if err != nil {
-		klog.Errorf("查询用户角色失败，userId: %d, err: %v", req.UserId, err)
-		return nil, err
+		klog.CtxErrorf(s.ctx, "查询用户角色失败，userId: %d, err: %v", req.UserId, err)
+		return nil, errors.WithStack(err)
 	}
 	return &user.GetUserRoleByIdResp{
 		StatusCode: 0,

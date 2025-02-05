@@ -27,7 +27,7 @@ func AuthorizationMiddleware() app.HandlerFunc {
 				Method:       string(c.Request.Method()),
 			})
 			if err != nil {
-				hlog.Errorf("rpc权限校验失败，err: %v", err)
+				hlog.CtxErrorf(ctx, "rpc权限校验失败，err: %v", err)
 				c.JSON(consts.StatusOK, utils.H{
 					"status_code": 500,
 					"status_msg":  constant.GetMsg(500)})
@@ -37,7 +37,7 @@ func AuthorizationMiddleware() app.HandlerFunc {
 					c.JSON(consts.StatusOK, verifyResp)
 					c.Abort()
 				}
-				ctx = context.WithValue(ctx, "user_id", verifyResp.UserId)
+				ctx = context.WithValue(ctx, constant.UserId, verifyResp.UserId)
 			}
 		}
 		c.Next(ctx)

@@ -23,14 +23,14 @@ func RecoverPanic(feishuWebhook string) func(next endpoint.Endpoint) endpoint.En
 			if err != nil {
 				currentEnv, getEnvErr := env.GetString("env")
 				if getEnvErr != nil {
-					klog.Error(getEnvErr.Error())
+					klog.CtxErrorf(ctx, getEnvErr.Error())
 				} else if currentEnv != "dev" {
 					// 使用传入的 feishuWebhook
 					errMsg := fmt.Sprintf("服务**%s**接口**%s**发生异常，错误信息：%+v", endpointInfo.ServiceName(), endpointInfo.Method(), err)
-					klog.Error(errMsg)
+					klog.CtxErrorf(ctx, errMsg)
 					feishu.SendFeishuAlert(ctx, feishuWebhook, errMsg)
 				} else {
-					klog.Error(err.Error())
+					klog.CtxErrorf(ctx, err.Error())
 				}
 			}
 			return err

@@ -25,7 +25,7 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 	loginUser, err := model.GetUserByUsername(mysql.DB, s.ctx, req.Username)
 	if err != nil {
 		// 数据库的错误
-		klog.Error("用户登录失败，req: %v, err: %v", req, err)
+		klog.CtxErrorf(s.ctx, "用户登录失败，req: %v, err: %v", req, err)
 		return nil, errors.WithStack(err)
 	}
 
@@ -33,7 +33,7 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 		UserId: loginUser.ID,
 	})
 	if err != nil {
-		klog.Errorf("rpc鉴权服务查询用户是否封禁失败，userId: %d, err: %v", loginUser.ID, err)
+		klog.CtxErrorf(s.ctx, "rpc鉴权服务查询用户是否封禁失败，userId: %d, err: %v", loginUser.ID, err)
 		return nil, errors.WithStack(err)
 	}
 	if bannedResp.IsBanned {
@@ -59,7 +59,7 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 		Role:   string(loginUser.Role),
 	})
 	if err != nil {
-		klog.Error("调用用户授权服务发放令牌失败，UserId: %v, err: %v", loginUser.ID, err)
+		klog.CtxErrorf(s.ctx, "调用用户授权服务发放令牌失败，UserId: %v, err: %v", loginUser.ID, err)
 		return nil, errors.WithStack(err)
 	}
 	resp = &user.LoginResp{
