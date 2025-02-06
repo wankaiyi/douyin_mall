@@ -547,6 +547,136 @@ func (x *GetUserRoleByIdResp) fastReadField3(buf []byte, _type int8) (offset int
 	return offset, err
 }
 
+func (x *AddReceiveAddressReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 5:
+		offset, err = x.fastReadField5(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 6:
+		offset, err = x.fastReadField6(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 7:
+		offset, err = x.fastReadField7(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 8:
+		offset, err = x.fastReadField8(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_AddReceiveAddressReq[number], err)
+}
+
+func (x *AddReceiveAddressReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.Name, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.PhoneNumber, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.DefaultStatus, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField5(buf []byte, _type int8) (offset int, err error) {
+	x.Province, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField6(buf []byte, _type int8) (offset int, err error) {
+	x.City, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField7(buf []byte, _type int8) (offset int, err error) {
+	x.Region, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressReq) fastReadField8(buf []byte, _type int8) (offset int, err error) {
+	x.DetailAddress, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_AddReceiveAddressResp[number], err)
+}
+
+func (x *AddReceiveAddressResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *AddReceiveAddressResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
 func (x *User) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
 	switch number {
 	case 1:
@@ -1031,6 +1161,110 @@ func (x *GetUserRoleByIdResp) fastWriteField3(buf []byte) (offset int) {
 	return offset
 }
 
+func (x *AddReceiveAddressReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
+	offset += x.fastWriteField5(buf[offset:])
+	offset += x.fastWriteField6(buf[offset:])
+	offset += x.fastWriteField7(buf[offset:])
+	offset += x.fastWriteField8(buf[offset:])
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField1(buf []byte) (offset int) {
+	if x.UserId == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetUserId())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField2(buf []byte) (offset int) {
+	if x.Name == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetName())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField3(buf []byte) (offset int) {
+	if x.PhoneNumber == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetPhoneNumber())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField4(buf []byte) (offset int) {
+	if x.DefaultStatus == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 4, x.GetDefaultStatus())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField5(buf []byte) (offset int) {
+	if x.Province == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 5, x.GetProvince())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField6(buf []byte) (offset int) {
+	if x.City == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 6, x.GetCity())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField7(buf []byte) (offset int) {
+	if x.Region == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 7, x.GetRegion())
+	return offset
+}
+
+func (x *AddReceiveAddressReq) fastWriteField8(buf []byte) (offset int) {
+	if x.DetailAddress == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 8, x.GetDetailAddress())
+	return offset
+}
+
+func (x *AddReceiveAddressResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *AddReceiveAddressResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *AddReceiveAddressResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
 func (x *User) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -1500,6 +1734,110 @@ func (x *GetUserRoleByIdResp) sizeField3() (n int) {
 	return n
 }
 
+func (x *AddReceiveAddressReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	n += x.sizeField4()
+	n += x.sizeField5()
+	n += x.sizeField6()
+	n += x.sizeField7()
+	n += x.sizeField8()
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField1() (n int) {
+	if x.UserId == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetUserId())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField2() (n int) {
+	if x.Name == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetName())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField3() (n int) {
+	if x.PhoneNumber == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetPhoneNumber())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField4() (n int) {
+	if x.DefaultStatus == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(4, x.GetDefaultStatus())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField5() (n int) {
+	if x.Province == "" {
+		return n
+	}
+	n += fastpb.SizeString(5, x.GetProvince())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField6() (n int) {
+	if x.City == "" {
+		return n
+	}
+	n += fastpb.SizeString(6, x.GetCity())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField7() (n int) {
+	if x.Region == "" {
+		return n
+	}
+	n += fastpb.SizeString(7, x.GetRegion())
+	return n
+}
+
+func (x *AddReceiveAddressReq) sizeField8() (n int) {
+	if x.DetailAddress == "" {
+		return n
+	}
+	n += fastpb.SizeString(8, x.GetDetailAddress())
+	return n
+}
+
+func (x *AddReceiveAddressResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	return n
+}
+
+func (x *AddReceiveAddressResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *AddReceiveAddressResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
 func (x *User) Size() (n int) {
 	if x == nil {
 		return n
@@ -1639,6 +1977,22 @@ var fieldIDToName_GetUserRoleByIdResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
 	3: "Role",
+}
+
+var fieldIDToName_AddReceiveAddressReq = map[int32]string{
+	1: "UserId",
+	2: "Name",
+	3: "PhoneNumber",
+	4: "DefaultStatus",
+	5: "Province",
+	6: "City",
+	7: "Region",
+	8: "DetailAddress",
+}
+
+var fieldIDToName_AddReceiveAddressResp = map[int32]string{
+	1: "StatusCode",
+	2: "StatusMsg",
 }
 
 var fieldIDToName_User = map[int32]string{

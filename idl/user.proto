@@ -11,6 +11,7 @@ service UserService {
   rpc UpdateUser(UpdateUserReq) returns (UpdateUserResp) {}
   rpc DeleteUser(DeleteUserReq) returns (DeleteUserResp) {}
   rpc GetUserRoleById(GetUserRoleByIdReq) returns (GetUserRoleByIdResp) {}
+  rpc AddReceiveAddress(AddReceiveAddressReq) returns (AddReceiveAddressResp) {}
 }
 
 message RegisterReq {
@@ -82,6 +83,22 @@ message GetUserRoleByIdResp {
   int32 status_code = 1;
   string status_msg = 2;
   string role = 3;
+}
+
+message AddReceiveAddressReq {
+  int32 user_id = 1;
+  string name = 2;
+  string phone_number = 3;
+  int32 default_status = 4;
+  string province = 5;
+  string city = 6;
+  string region = 7;
+  string detail_address = 8;
+}
+
+message AddReceiveAddressResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }
 
 message User {

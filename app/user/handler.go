@@ -50,3 +50,10 @@ func (s *UserServiceImpl) GetUserRoleById(ctx context.Context, req *user.GetUser
 
 	return resp, err
 }
+
+// AddReceiveAddress implements the UserServiceImpl interface.
+func (s *UserServiceImpl) AddReceiveAddress(ctx context.Context, req *user.AddReceiveAddressReq) (resp *user.AddReceiveAddressResp, err error) {
+	resp, err = service.NewAddReceiveAddressService(ctx).Run(req)
+
+	return resp, err
+}

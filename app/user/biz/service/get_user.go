@@ -22,7 +22,7 @@ func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err 
 	ctx := s.ctx
 	userInfo, err := model.GetUserById(mysql.DB, ctx, req.UserId)
 	if err != nil {
-		klog.CtxErrorf(ctx, "查询用户信息失败, error: %v", err)
+		klog.CtxErrorf(ctx, "查询用户信息失败, req: %v,error: %v", req, err)
 		return nil, errors.WithStack(err)
 	}
 	resp = &user.GetUserResp{

@@ -28,7 +28,7 @@ func Init() {
 	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
 	}
-	err = DB.AutoMigrate(&model.User{})
+	err = DB.AutoMigrate(&model.User{}, &model.Address{})
 	if err != nil {
 		panic(err)
 	}

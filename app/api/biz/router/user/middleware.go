@@ -60,3 +60,8 @@ func _user0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _addreceiveaddressMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

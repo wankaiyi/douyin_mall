@@ -60,3 +60,12 @@ func GetUserRoleById(ctx context.Context, req *user.GetUserRoleByIdReq, callOpti
 	}
 	return resp, nil
 }
+
+func AddReceiveAddress(ctx context.Context, req *user.AddReceiveAddressReq, callOptions ...callopt.Option) (resp *user.AddReceiveAddressResp, err error) {
+	resp, err = defaultClient.AddReceiveAddress(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "AddReceiveAddress call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

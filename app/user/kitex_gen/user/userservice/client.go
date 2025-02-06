@@ -17,6 +17,7 @@ type Client interface {
 	UpdateUser(ctx context.Context, Req *user.UpdateUserReq, callOptions ...callopt.Option) (r *user.UpdateUserResp, err error)
 	DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error)
 	GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error)
+	AddReceiveAddress(ctx context.Context, Req *user.AddReceiveAddressReq, callOptions ...callopt.Option) (r *user.AddReceiveAddressResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -76,4 +77,9 @@ func (p *kUserServiceClient) DeleteUser(ctx context.Context, Req *user.DeleteUse
 func (p *kUserServiceClient) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUserRoleById(ctx, Req)
+}
+
+func (p *kUserServiceClient) AddReceiveAddress(ctx context.Context, Req *user.AddReceiveAddressReq, callOptions ...callopt.Option) (r *user.AddReceiveAddressResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.AddReceiveAddress(ctx, Req)
 }

@@ -57,6 +57,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"AddReceiveAddress": kitex.NewMethodInfo(
+		addReceiveAddressHandler,
+		newAddReceiveAddressArgs,
+		newAddReceiveAddressResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -1041,6 +1048,159 @@ func (p *GetUserRoleByIdResult) GetResult() interface{} {
 	return p.Success
 }
 
+func addReceiveAddressHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(user.AddReceiveAddressReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(user.UserService).AddReceiveAddress(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *AddReceiveAddressArgs:
+		success, err := handler.(user.UserService).AddReceiveAddress(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*AddReceiveAddressResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newAddReceiveAddressArgs() interface{} {
+	return &AddReceiveAddressArgs{}
+}
+
+func newAddReceiveAddressResult() interface{} {
+	return &AddReceiveAddressResult{}
+}
+
+type AddReceiveAddressArgs struct {
+	Req *user.AddReceiveAddressReq
+}
+
+func (p *AddReceiveAddressArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(user.AddReceiveAddressReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *AddReceiveAddressArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *AddReceiveAddressArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *AddReceiveAddressArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *AddReceiveAddressArgs) Unmarshal(in []byte) error {
+	msg := new(user.AddReceiveAddressReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var AddReceiveAddressArgs_Req_DEFAULT *user.AddReceiveAddressReq
+
+func (p *AddReceiveAddressArgs) GetReq() *user.AddReceiveAddressReq {
+	if !p.IsSetReq() {
+		return AddReceiveAddressArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *AddReceiveAddressArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AddReceiveAddressArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type AddReceiveAddressResult struct {
+	Success *user.AddReceiveAddressResp
+}
+
+var AddReceiveAddressResult_Success_DEFAULT *user.AddReceiveAddressResp
+
+func (p *AddReceiveAddressResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(user.AddReceiveAddressResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *AddReceiveAddressResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *AddReceiveAddressResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *AddReceiveAddressResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *AddReceiveAddressResult) Unmarshal(in []byte) error {
+	msg := new(user.AddReceiveAddressResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *AddReceiveAddressResult) GetSuccess() *user.AddReceiveAddressResp {
+	if !p.IsSetSuccess() {
+		return AddReceiveAddressResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *AddReceiveAddressResult) SetSuccess(x interface{}) {
+	p.Success = x.(*user.AddReceiveAddressResp)
+}
+
+func (p *AddReceiveAddressResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AddReceiveAddressResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -1106,6 +1266,16 @@ func (p *kClient) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleById
 	_args.Req = Req
 	var _result GetUserRoleByIdResult
 	if err = p.c.Call(ctx, "GetUserRoleById", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AddReceiveAddress(ctx context.Context, Req *user.AddReceiveAddressReq) (r *user.AddReceiveAddressResp, err error) {
+	var _args AddReceiveAddressArgs
+	_args.Req = Req
+	var _result AddReceiveAddressResult
+	if err = p.c.Call(ctx, "AddReceiveAddress", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

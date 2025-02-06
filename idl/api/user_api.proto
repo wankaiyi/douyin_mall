@@ -11,29 +11,29 @@ message LoginRequest {
   string password = 2 [(api.form) = "password"];
 }
 message LoginResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"']; // 0-success, other values-failure
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"']; // 0-success, other values-failure
   string status_msg = 2;
   string access_token = 3;
   string refresh_token = 4;
 }
 
 message RegisterRequest {
-  string username = 1 [(api.form)= "username"];
-  string password = 2 [(api.form)= "password"];
-  string confirm_password = 3 [(api.form)= "confirm_password"];
-  string email = 4 [(api.form)= "email"];
-  string description = 5 [(api.form)= "description"];
-  int32 sex = 6 [(api.form)= "sex"];
-  string avatar = 7 [(api.form)= "avatar"];
+  string username = 1 [(api.form) = "username", (api.go_tag) = 'json:"username,required"'];
+  string password = 2 [(api.form) = "password", (api.go_tag) = 'json:"password,required"'];
+  string confirm_password = 3 [(api.form) = "confirm_password", (api.go_tag) = 'json:"confirm_password,required"'];
+  string email = 4 [(api.form) = "email"];
+  string description = 5 [(api.form) = "description"];
+  int32 sex = 6 [(api.form) = "sex"];
+  string avatar = 7 [(api.form) = "avatar"];
 }
 
 message RegisterResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"']; // 0-success, other values-failure
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"']; // 0-success, other values-failure
   string status_msg = 2;
 }
 
 message GetUserInfoResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
   string email = 3;
   string username = 4;
@@ -45,32 +45,47 @@ message GetUserInfoResponse {
 }
 
 message LogoutResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
 
 message UpdateUserInfoRequest {
-  string username = 1 [(api.form)= "username"];
-  string email = 2 [(api.form)= "email"];
-  string description = 3 [(api.form)= "description"];
-  int32 sex = 4 [(api.form)= "sex"];
-  string avatar = 5 [(api.form)= "avatar"];
+  string username = 1 [(api.form) = "username", (api.go_tag) = 'json:"username,required"'];
+  string email = 2 [(api.form) = "email"];
+  string description = 3 [(api.form) = "description"];
+  int32 sex = 4 [(api.form) = "sex"];
+  string avatar = 5 [(api.form) = "avatar"];
 }
 
 message UpdateUserInfoResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
 
 message DeleteUserResponse {
-  int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
 
 message AddPermissionRequest {
-  string role = 1 [(api.form)= "role"];
-  string path = 2 [(api.form)= "path"];
-  string method = 3 [(api.form)= "method"];
+  string role = 1 [(api.form) = "role", (api.go_tag) = 'json:"role,required"'];
+  string path = 2 [(api.form) = "path", (api.go_tag) = 'json:"path,required"'];
+  string method = 3 [(api.form) = "method", (api.go_tag) = 'json:"method,required"'];
+}
+
+message AddReceiveAddressRequest {
+  string name = 1 [(api.form) = "name", (api.go_tag) = 'json:"name,required"'];
+  string phone_number = 2 [(api.form) = "phone_number", (api.go_tag) = 'json:"phone_number,required"'];
+  int32 default_status = 3 [(api.form) = "default_status", (api.go_tag) = 'json:"default_status,required" vd:"($==0||$==1)"'];
+  string province = 4 [(api.form) = "province", (api.go_tag) = 'json:"province,required"'];
+  string city = 5 [(api.form) = "city", (api.go_tag) = 'json:"city,required"'];
+  string region = 6 [(api.form) = "region", (api.go_tag) = 'json:"region,required"'];
+  string detail_address = 7 [(api.form) = "detail_address", (api.go_tag) = 'json:"detail_address,required"'];
+}
+
+message AddReceiveAddressResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
 }
 
 message Empty {}
@@ -107,5 +122,9 @@ service UserService {
 
   rpc AddPermission(AddPermissionRequest) returns (Empty) {
     option (api.post) = "/user/permission";
+  }
+
+  rpc AddReceiveAddress(AddReceiveAddressRequest) returns (AddReceiveAddressResponse) {
+    option (api.post) = "/user/address";
   }
 }
