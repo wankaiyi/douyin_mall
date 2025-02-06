@@ -46,7 +46,7 @@ func (s *AnalyzeSearchOrderQuestionService) Run(req *doubao_ai.SearchOrderQuesti
 	// 获取这个会话中用户的历史对话
 	exist, err := model.ConversionExist(mysql.DB, ctx, uuid)
 	if err != nil {
-		klog.Errorf("智能购物助手：查询会话是否存在失败，会话id: %s, err: %v", uuid, err)
+		klog.CtxErrorf(ctx, "智能购物助手：查询会话是否存在失败，会话id: %s, err: %v", uuid, err)
 		return nil, errors.WithStack(err)
 	}
 
@@ -88,14 +88,14 @@ func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory [
 		optional = false
 		cacheMessages, err := redis.RedisClient.LRange(ctx, redisUtils.GetChatHistoryKey(uuid), 0, 19).Result()
 		if err != nil {
-			klog.Errorf("智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
+			klog.CtxErrorf(ctx, "智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
 		}
 		if len(cacheMessages) > 0 {
 			for _, value := range cacheMessages {
 				message := &schema.Message{}
 				err = sonic.Unmarshal([]byte(value), &message)
 				if err != nil {
-					klog.Errorf("智能购物助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
+					klog.CtxErrorf(ctx, "智能购物助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
 					err = errors.WithStack(err)
 					return nil, nil, false, err
 				}
@@ -105,7 +105,7 @@ func getChatHistory(exist bool, uuid string, ctx context.Context) (chatHistory [
 			// 从数据库中获取历史对话
 			historyMessages, err = model.GetChatHistoryByUuid(mysql.DB, ctx, uuid)
 			if err != nil {
-				klog.Errorf("智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
+				klog.CtxErrorf(ctx, "智能购物助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
 				return nil, nil, false, errors.WithStack(err)
 			}
 			chatHistory = make([]*schema.Message, len(historyMessages))
@@ -140,7 +140,7 @@ func processTransaction(ctx context.Context, params *transactionParams) (aiRespo
 		}
 		// 先插数据库再存缓存，防止事务回滚导致redis缓存不一致
 		if err := model.CreateMessage(tx, ctx, userMessage); err != nil {
-			klog.Errorf("智能购物助手：用户消息写入数据库失败，message: %s, err: %v", userMessage, err)
+			klog.CtxErrorf(ctx, "智能购物助手：用户消息写入数据库失败，message: %s, err: %v", userMessage, err)
 			return errors.WithStack(err)
 		}
 
@@ -158,7 +158,7 @@ func processTransaction(ctx context.Context, params *transactionParams) (aiRespo
 		aiResponseContent = aiMessage.Content
 		err = model.CreateMessage(mysql.DB, ctx, aiMessage)
 		if err != nil {
-			klog.Errorf("智能购物助手：AI回复消息写入数据库失败，message: %s, err: %v", aiMessage, err)
+			klog.CtxErrorf(ctx, "智能购物助手：AI回复消息写入数据库失败，message: %s, err: %v", aiMessage, err)
 			return errors.WithStack(err)
 		}
 
@@ -206,7 +206,7 @@ func generateAiResponse(requestAiParams *requestAiParams, ctx context.Context) (
 	})
 	result, err := chatModel.Generate(ctx, messages)
 	if err != nil {
-		klog.Errorf("智能购物助手：查询订单生成对话失败：result: %s, err: %v", result, err)
+		klog.CtxErrorf(ctx, "智能购物助手：查询订单生成对话失败：result: %s, err: %v", result, err)
 		return nil, errors.WithStack(err)
 	}
 
@@ -224,12 +224,12 @@ func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessag
 	// 将用户消息和AI回复消息存入缓存
 	userMsgStr, err := sonic.Marshal(userMessage)
 	if err != nil {
-		klog.Errorf("智能购物助手：json序列化用户消息失败，message: %s, err: %v", userMessage, err)
+		klog.CtxErrorf(ctx, "智能购物助手：json序列化用户消息失败，message: %s, err: %v", userMessage, err)
 		return errors.WithStack(err)
 	}
 	aiMsgStr, err := sonic.Marshal(aiMessage)
 	if err != nil {
-		klog.Errorf("智能购物助手：json序列化AI回复消息失败，message: %s, err: %v", aiMessage, err)
+		klog.CtxErrorf(ctx, "智能购物助手：json序列化AI回复消息失败，message: %s, err: %v", aiMessage, err)
 		return errors.WithStack(err)
 	}
 
@@ -242,7 +242,7 @@ func cacheChatMessages(ctx context.Context, userMessage *model.Message, aiMessag
 
 	err = redis.RedisClient.RPush(ctx, redisUtils.GetChatHistoryKey(uuid), preparedCacheMessages).Err()
 	if err != nil {
-		klog.Errorf("智能购物助手：保存消息到缓存失败，message: %s, err: %v", userMessage, err)
+		klog.CtxErrorf(ctx, "智能购物助手：保存消息到缓存失败，message: %s, err: %v", userMessage, err)
 		return errors.WithStack(err)
 	}
 	redis.RedisClient.Expire(ctx, redisUtils.GetChatHistoryKey(uuid), time.Minute*10)

@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 	"douyin_mall/common/utils"
-	"douyin_mall/rpc/kitex_gen/auth"
 	"douyin_mall/user/biz/dal/mysql"
-	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/biz/model"
 	user "douyin_mall/user/kitex_gen/user"
+	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type GetUserService struct {
@@ -19,9 +19,11 @@ func NewGetUserService(ctx context.Context) *GetUserService {
 
 // Run create note info
 func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err error) {
-	userInfo, err := model.GetUserById(mysql.DB, s.ctx, req.UserId)
+	ctx := s.ctx
+	userInfo, err := model.GetUserById(mysql.DB, ctx, req.UserId)
 	if err != nil {
-		return nil, err
+		klog.CtxErrorf(ctx, "查询用户信息失败, error: %v", err)
+		return nil, errors.WithStack(err)
 	}
 	resp = &user.GetUserResp{
 		StatusCode: 0,
@@ -35,8 +37,5 @@ func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err 
 			CreatedAt:   utils.GetFormattedDateTime(userInfo.CreatedAt),
 		},
 	}
-	rpc.AuthClient.CheckIfUserBanned(s.ctx, &auth.CheckIfUserBannedReq{
-		UserId: req.UserId,
-	})
 	return
 }

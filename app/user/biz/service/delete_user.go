@@ -22,24 +22,25 @@ func NewDeleteUserService(ctx context.Context) *DeleteUserService {
 
 // Run create note info
 func (s *DeleteUserService) Run(req *user.DeleteUserReq) (resp *user.DeleteUserResp, err error) {
+	ctx := s.ctx
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
 		err = model.DeleteUser(tx, req.UserId)
 		if err != nil {
-			klog.Errorf("数据库删除用户失败，userId：%d, err：%v", req.UserId, err)
+			klog.CtxErrorf(ctx, "数据库删除用户失败，userId：%d, err：%v", req.UserId, err)
 			return errors.WithStack(err)
 		}
 		// 删除用户的登录信息
-		_, err := rpc.AuthClient.RevokeTokenByRPC(s.ctx, &auth.RevokeTokenReq{
+		_, err := rpc.AuthClient.RevokeTokenByRPC(ctx, &auth.RevokeTokenReq{
 			UserId: req.UserId,
 		})
 		if err != nil {
-			klog.Errorf("删除用户登录信息失败，userId：%d, err：%v", req.UserId, err)
+			klog.CtxErrorf(ctx, "删除用户登录信息失败，userId：%d, err：%v", req.UserId, err)
 			return errors.WithStack(err)
 		}
 		return nil
 	})
 	if err != nil {
-		klog.Errorf("删除用户事务出错，userId：%d, err：%v", req.UserId, err)
+		klog.CtxErrorf(ctx, "删除用户事务出错，userId：%d, err：%v", req.UserId, err)
 		return nil, errors.WithStack(err)
 	}
 	return &user.DeleteUserResp{

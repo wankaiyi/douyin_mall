@@ -60,6 +60,7 @@ func kitexInit() (opts []server.Option) {
 		panic(err)
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
+	opts = append(opts, server.WithMiddleware(middleware.ServerInterceptor))
 	opts = append(opts, server.WithMiddleware(middleware.BuildRecoverPanicMiddleware(conf.GetConf().Alert.FeishuWebhook)))
 	opts = append(opts, server.WithSuite(serversuite.CommonServerSuite{
 		CurrentServiceName: conf.GetConf().Kitex.Service,

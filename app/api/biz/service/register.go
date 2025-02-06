@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
-	"douyin_mall/api/infra/rpc"
-	"errors"
-	"github.com/cloudwego/kitex/pkg/klog"
-
 	user "douyin_mall/api/hertz_gen/api/user"
+	"douyin_mall/api/infra/rpc"
 	rpcuser "douyin_mall/rpc/kitex_gen/user"
+	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 type RegisterService struct {
@@ -32,7 +31,7 @@ func (h *RegisterService) Run(req *user.RegisterRequest) (resp *user.RegisterRes
 		Avatar:          req.Avatar,
 	})
 	if err != nil {
-		klog.Error("register failed, err: ", err)
+		hlog.CtxErrorf(h.Context, "register failed, err: %v", err)
 		return nil, errors.New("注册失败，请稍后再试")
 	}
 	resp = &user.RegisterResponse{

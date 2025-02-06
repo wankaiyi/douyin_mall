@@ -21,7 +21,7 @@ func NewUpdateUserService(ctx context.Context) *UpdateUserService {
 // Run create note info
 func (s *UpdateUserService) Run(req *user.UpdateUserReq) (resp *user.UpdateUserResp, err error) {
 	if err = model.UpdateUser(mysql.DB, s.ctx, req.UserId, req.Username, req.Email, req.Sex, req.Description, req.Avatar); err != nil {
-		klog.Errorf("更新用户信息失败: req: %v, err: %v", req, err)
+		klog.CtxErrorf(s.ctx, "更新用户信息失败: req: %v, err: %v", req, err)
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			resp.StatusCode = 1008
 			resp.StatusMsg = constant.GetMsg(1008)

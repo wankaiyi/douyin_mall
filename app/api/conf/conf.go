@@ -25,6 +25,8 @@ type Config struct {
 
 	Hertz  Hertz  `yaml:"hertz"`
 	Jaeger Jaeger `yaml:"jaeger"`
+	Kafka  Kafka  `yaml:"kafka"`
+	Alert  Alert  `yaml:"alert"`
 }
 
 type Hertz struct {
@@ -44,6 +46,20 @@ type Hertz struct {
 
 type Jaeger struct {
 	Endpoint string `yaml:"endpoint"`
+}
+
+type Kafka struct {
+	ClsKafka ClsKafka `yaml:"cls_kafka"`
+}
+
+type ClsKafka struct {
+	Usser    string `yaml:"user"`
+	Password string `yaml:"password"`
+	TopicId  string `yaml:"topic_id"`
+}
+
+type Alert struct {
+	FeishuWebhook string `yaml:"feishu_webhook"`
 }
 
 // GetConf gets configuration instance

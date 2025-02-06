@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/api/hertz_gen/api/user"
 	"douyin_mall/api/infra/rpc"
+	"douyin_mall/common/constant"
 	rpcUser "douyin_mall/rpc/kitex_gen/user"
 	"errors"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -23,7 +24,7 @@ func NewUpdateUserInfoService(Context context.Context, RequestContext *app.Reque
 func (h *UpdateUserInfoService) Run(req *user.UpdateUserInfoRequest) (resp *user.UpdateUserInfoResponse, err error) {
 	ctx := h.Context
 	updateUserResp, err := rpc.UserClient.UpdateUser(ctx, &rpcUser.UpdateUserReq{
-		UserId:      ctx.Value("user_id").(int32),
+		UserId:      ctx.Value(constant.UserId).(int32),
 		Username:    req.Username,
 		Email:       req.Email,
 		Sex:         req.Sex,

@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 var Enforcer *casbin.Enforcer
@@ -21,6 +22,9 @@ func InitCasbin() {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		klog.Errorf("连接数据库失败: %v", err)
+		panic(err)
+	}
+	if err := db.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
 	}
 

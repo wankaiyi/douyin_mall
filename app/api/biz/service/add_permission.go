@@ -4,7 +4,7 @@ import (
 	"context"
 	"douyin_mall/api/infra/rpc"
 	"douyin_mall/rpc/kitex_gen/auth"
-	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/pkg/errors"
 
 	user "douyin_mall/api/hertz_gen/api/user"
@@ -27,8 +27,8 @@ func (h *AddPermissionService) Run(req *user.AddPermissionRequest) (resp *user.E
 		Method: req.Method,
 	})
 	if err != nil {
-		klog.Errorf("添加权限失败，req: %v, err: %v", req, err)
-		return nil, errors.WithStack(err)
+		hlog.CtxErrorf(h.Context, "添加权限失败，req: %v, err: %v", req, err)
+		return nil, errors.New("添加权限失败")
 	}
 	return &user.Empty{}, nil
 }

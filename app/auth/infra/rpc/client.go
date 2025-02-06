@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"douyin_mall/auth/conf"
+	"douyin_mall/common/middleware"
 	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
@@ -32,7 +33,7 @@ func InitClient() {
 }
 
 func initUserClient() {
-	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init user client failed: ", err)
 	}
