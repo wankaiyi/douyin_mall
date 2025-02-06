@@ -32,4 +32,16 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+	err = DB.AutoMigrate(&model.PaymentOrder{})
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&model.PaymentTransaction{})
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&model.IdempotentControl{})
+	if err != nil {
+		panic(err)
+	}
 }

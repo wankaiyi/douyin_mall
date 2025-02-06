@@ -13,6 +13,9 @@ import (
 type Client interface {
 	Charge(ctx context.Context, Req *payment.ChargeReq, callOptions ...callopt.Option) (r *payment.ChargeResp, err error)
 	CancelCharge(ctx context.Context, Req *payment.CancelChargeReq, callOptions ...callopt.Option) (r *payment.CancelChargeResp, err error)
+	PaymentOrderRecord(ctx context.Context, Req *payment.PaymentOrderRecordReq, callOptions ...callopt.Option) (r *payment.PaymentOrderRecordResp, err error)
+	PaymentTransactionRecord(ctx context.Context, Req *payment.PaymentTransactionRecordReq, callOptions ...callopt.Option) (r *payment.PaymentTransactionRecordResp, err error)
+	IdempotentControl(ctx context.Context, Req *payment.IdempotentControlReq, callOptions ...callopt.Option) (r *payment.IdempotentControlResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,4 +55,19 @@ func (p *kPaymentServiceClient) Charge(ctx context.Context, Req *payment.ChargeR
 func (p *kPaymentServiceClient) CancelCharge(ctx context.Context, Req *payment.CancelChargeReq, callOptions ...callopt.Option) (r *payment.CancelChargeResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.CancelCharge(ctx, Req)
+}
+
+func (p *kPaymentServiceClient) PaymentOrderRecord(ctx context.Context, Req *payment.PaymentOrderRecordReq, callOptions ...callopt.Option) (r *payment.PaymentOrderRecordResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.PaymentOrderRecord(ctx, Req)
+}
+
+func (p *kPaymentServiceClient) PaymentTransactionRecord(ctx context.Context, Req *payment.PaymentTransactionRecordReq, callOptions ...callopt.Option) (r *payment.PaymentTransactionRecordResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.PaymentTransactionRecord(ctx, Req)
+}
+
+func (p *kPaymentServiceClient) IdempotentControl(ctx context.Context, Req *payment.IdempotentControlReq, callOptions ...callopt.Option) (r *payment.IdempotentControlResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.IdempotentControl(ctx, Req)
 }
