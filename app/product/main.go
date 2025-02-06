@@ -7,6 +7,7 @@ import (
 	"douyin_mall/common/utils/env"
 	"douyin_mall/product/biz/dal"
 	"douyin_mall/product/infra/elastic"
+	"douyin_mall/product/infra/kafka"
 	"net"
 	"os"
 	"time"
@@ -37,6 +38,7 @@ func main() {
 	dal.Init()
 
 	elastic.InitClient()
+	kafka.InitClient()
 	opts := kitexInit()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
