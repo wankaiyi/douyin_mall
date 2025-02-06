@@ -17,7 +17,7 @@ type User struct {
 	Base
 	Username    string                `gorm:"not null;type:varchar(64);uniqueIndex:idx_username_deleted_at"`
 	Email       string                `gorm:"not null;type:varchar(64)"`
-	Sex         int32                 `gorm:"not null;type:tinyint;common:性别：0-未知，1-男，2-女;default:0"`
+	Sex         int32                 `gorm:"not null;type:tinyint;comment:性别：0-未知，1-男，2-女;default:0"`
 	Password    string                `gorm:"not null;type:varchar(255)"`
 	Description string                `gorm:"not null;type:varchar(255);default:''"`
 	Avatar      string                `gorm:"not null;type:varchar(255);default:''"`
@@ -35,7 +35,7 @@ func GetUserByUsername(db *gorm.DB, ctx context.Context, username string) (user 
 }
 
 func CreateUser(db *gorm.DB, ctx context.Context, user *User) error {
-	result := db.Create(user)
+	result := db.WithContext(ctx).Create(user)
 	return result.Error
 }
 

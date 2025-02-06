@@ -39,15 +39,16 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	var req user.RegisterRequest
 	err = c.BindAndValidate(&req)
 
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
 	resp := &user.RegisterResponse{}
 	if req.Sex < 0 || req.Sex > 2 {
 		resp.StatusCode = 1007
 		resp.StatusMsg = constant.GetMsg(1007)
 		utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
-		return
-	}
-	if err != nil {
-		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
 		return
 	}
 
@@ -180,6 +181,26 @@ func AddPermission(ctx context.Context, c *app.RequestContext) {
 	}
 
 	resp, err := service.NewAddPermissionService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
+
+// AddReceiveAddress .
+// @router /user/address [POST]
+func AddReceiveAddress(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req user.AddReceiveAddressRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewAddReceiveAddressService(ctx, c).Run(&req)
 
 	if err != nil {
 		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
