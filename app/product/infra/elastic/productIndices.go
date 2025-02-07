@@ -7,7 +7,7 @@ import (
 	"douyin_mall/product/biz/vo"
 	"encoding/json"
 	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"strings"
 )
@@ -33,7 +33,7 @@ func ProduceIndicesInit() {
 		Index: []string{"product"},
 	}.Do(context.Background(), &ElasticClient)
 	if err != nil {
-		hlog.Error(err)
+		klog.Error(err)
 		return
 	}
 	//如果product不存在，就创建这个索引库
@@ -47,10 +47,10 @@ func ProduceIndicesInit() {
 			Body:  strings.NewReader(string(SettingData)),
 		}.Do(context.Background(), &ElasticClient)
 		if err != nil {
-			hlog.Info(err)
+			klog.Info(err)
 		}
 		if create.StatusCode != 200 {
-			hlog.Error("create product indices failed")
+			klog.Error("create product indices failed")
 			return
 		}
 		//将数据导入到product索引库中
@@ -58,7 +58,7 @@ func ProduceIndicesInit() {
 		var products []model.Product
 		result := mysql.DB.Table("tb_product").Select("*").Find(&products)
 		if result.Error != nil {
-			hlog.Error(result.Error)
+			klog.Error(result.Error)
 			return
 		}
 		//2 遍历数据，将数据转换为json格式

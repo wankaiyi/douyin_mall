@@ -8,6 +8,7 @@ import (
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -34,7 +35,7 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 	//调用插入数据库的方法
 	insertErr := model.CreateProduct(mysql.DB, s.ctx, &pro)
 	if insertErr != nil {
-		hlog.Error("insert product error:%v", insertErr)
+		klog.Error("insert product error:%v", insertErr)
 		return nil, insertErr
 	}
 	//TODO 发送到kafka
@@ -54,6 +55,6 @@ func sendToKafka(ctx context.Context, pro *model.Product) {
 			Value: productData,
 		})
 	if kfErr != nil {
-		hlog.CtxErrorf(ctx, "发送kafka失败:%v error:%v", pro, kfErr)
+		klog.CtxErrorf(ctx, "发送kafka失败:%v error:%v", pro, kfErr)
 	}
 }

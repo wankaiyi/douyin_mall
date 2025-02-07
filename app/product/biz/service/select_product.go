@@ -5,7 +5,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type SelectProductService struct {
@@ -20,7 +20,7 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 	// 创建实体类
 	pro, err := model.SelectProduct(mysql.DB, s.ctx, req.Id)
 	if err != nil {
-		hlog.Error("mysql error:%v", err)
+		klog.Error("mysql error:%v", err)
 		return nil, err
 	}
 	return &product.SelectProductResp{

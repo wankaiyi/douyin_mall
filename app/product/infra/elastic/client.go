@@ -2,7 +2,7 @@ package elastic
 
 import (
 	"douyin_mall/product/conf"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	elasticsearch7 "github.com/elastic/go-elasticsearch/v7"
 )
 
@@ -20,7 +20,7 @@ func InitClient() {
 	})
 	ElasticClient = *client
 	if err != nil {
-		hlog.Error(err)
+		klog.Error(err)
 		return
 	}
 	ProduceIndicesInit()
