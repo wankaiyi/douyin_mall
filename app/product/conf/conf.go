@@ -27,6 +27,7 @@ type Config struct {
 	Kafka         Kafka         `yaml:"kafka"`
 	Elasticsearch Elasticsearch `yaml:"elasticsearch"`
 	Jaeger        Jaeger        `yaml:"jaeger"`
+	KafkaEs       KafkaEs       `yaml:"kafka_es"`
 }
 
 type MySQL struct {
@@ -76,6 +77,22 @@ type Elasticsearch struct {
 	Port     string `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+}
+
+type KafkaEs struct {
+	KafkaWriter KafkaWriter `yaml:"kafka_writer"`
+	KafkaReader KafkaReader `yaml:"kafka_reader"`
+}
+
+type KafkaWriter struct {
+	Addr  string `yaml:"addr"`
+	Topic string `yaml:"topic"`
+}
+
+type KafkaReader struct {
+	Addr    string `yaml:"addr"`
+	Topic   string `yaml:"topic"`
+	GroupID string `yaml:"groupId"`
 }
 
 type Jaeger struct {

@@ -60,3 +60,15 @@ var ProductSearchMappingSetting = ProductSearchMapping{
 		},
 	},
 }
+
+type ProductSearchQueryBody struct {
+	Query ProductSearchQuery `json:"query"`
+}
+type ProductSearchQuery struct {
+	MultiMatch ProductSearchMultiMatchQuery `json:"multi_match"`
+}
+
+type ProductSearchMultiMatchQuery struct {
+	Query  string   `json:"query"`
+	Fields []string `json:"fields"`
+}
