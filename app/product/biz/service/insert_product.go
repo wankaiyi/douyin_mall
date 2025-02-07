@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	kf "douyin_mall/product/infra/kafka"
@@ -33,15 +34,23 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 		LockStock:   req.Stock,
 	}
 	//调用插入数据库的方法
-	insertErr := model.CreateProduct(mysql.DB, s.ctx, &pro)
-	if insertErr != nil {
-		klog.Error("insert product error:%v", insertErr)
-		return nil, insertErr
+	err = model.CreateProduct(mysql.DB, s.ctx, &pro)
+	if err != nil {
+		klog.Error("insert product error:%v", err)
+		resp = &product.InsertProductResp{
+			StatusCode: 6000,
+			StatusMsg:  constant.GetMsg(6000),
+		}
+		return
 	}
 	//TODO 发送到kafka
 	defer sendToKafka(s.ctx, &pro)
 	//返回响应
-	return &product.InsertProductResp{StatusCode: 0, StatusMsg: "success"}, nil
+	resp = &product.InsertProductResp{
+		StatusCode: 0,
+		StatusMsg:  constant.GetMsg(0),
+	}
+	return
 }
 
 func sendToKafka(ctx context.Context, pro *model.Product) {

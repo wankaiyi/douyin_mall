@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
@@ -17,7 +18,7 @@ func NewUpdateProductService(ctx context.Context) *UpdateProductService {
 // Run create note info
 func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product.UpdateProductResp, err error) {
 	// 根据id删除商品
-	updateErr := model.UpdateProduct(mysql.DB, s.ctx, &model.Product{
+	err = model.UpdateProduct(mysql.DB, s.ctx, &model.Product{
 		ID:          req.Id,
 		Name:        req.Name,
 		Description: req.Description,
@@ -28,11 +29,16 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 		PublicState: req.PublishStatus,
 		LockStock:   req.Stock,
 	})
-	if updateErr != nil {
-		err = updateErr
-		resp = &product.UpdateProductResp{StatusCode: 1, StatusMsg: "update product failed"}
+	if err != nil {
+		resp = &product.UpdateProductResp{
+			StatusCode: 6001,
+			StatusMsg:  constant.GetMsg(6001),
+		}
 		return
 	}
-	resp = &product.UpdateProductResp{StatusCode: 0, StatusMsg: "success"}
+	resp = &product.UpdateProductResp{
+		StatusCode: 0,
+		StatusMsg:  constant.GetMsg(6001),
+	}
 	return
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/vo"
 	"douyin_mall/product/infra/elastic"
 	product "douyin_mall/product/kitex_gen/product"
@@ -38,12 +39,16 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	//解析数据
 	searchData, _ := io.ReadAll(search.Body)
 	elasticSearchVo := vo.ProductSearchAllDataVo{}
-	convertErr := json.Unmarshal(searchData, &elasticSearchVo)
-	if convertErr != nil {
-		return nil, convertErr
+	err = json.Unmarshal(searchData, &elasticSearchVo)
+	if err != nil {
+		resp = &product.SearchProductsResp{
+			StatusCode: 6013,
+			StatusMsg:  constant.GetMsg(6013),
+		}
+		return
 	}
 	productHitsList := elasticSearchVo.Hits.Hits
-	var products = []*product.Product{}
+	var products []*product.Product
 	for i := range productHitsList {
 		productData := productHitsList[i].Source
 		pro := product.Product{
@@ -52,11 +57,11 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		}
 		products = append(products, &pro)
 	}
-	//TODO 将返回的数据返回到前端
+	//将返回的数据返回到前端
 	resp = &product.SearchProductsResp{
 		StatusCode: 0,
-		StatusMsg:  "success",
+		StatusMsg:  constant.GetMsg(6013),
 		Results:    products,
 	}
-	return resp, nil
+	return
 }

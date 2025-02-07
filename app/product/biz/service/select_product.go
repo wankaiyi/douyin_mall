@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
@@ -21,11 +22,15 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 	pro, err := model.SelectProduct(mysql.DB, s.ctx, req.Id)
 	if err != nil {
 		klog.Error("mysql error:%v", err)
-		return nil, err
+		resp = &product.SelectProductResp{
+			StatusCode: 6003,
+			StatusMsg:  constant.GetMsg(6003),
+		}
+		return
 	}
-	return &product.SelectProductResp{
+	resp = &product.SelectProductResp{
 		StatusCode: 0,
-		StatusMsg:  "success",
+		StatusMsg:  constant.GetMsg(0),
 		Product: &product.Product{
 			Id:            pro.ID,
 			Name:          pro.Name,
@@ -36,5 +41,6 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 			Sale:          pro.Sale,
 			PublishStatus: pro.PublicState,
 		},
-	}, nil
+	}
+	return
 }
