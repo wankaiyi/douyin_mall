@@ -32,10 +32,10 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 		LockStock:   req.Stock,
 	}
 	//调用插入数据库的方法
-	result := mysql.DB.Table("tb_product").Create(&pro)
-	if result.Error != nil {
-		hlog.Error("insert product error:%v", result.Error)
-		return nil, result.Error
+	insertErr := model.CreateProduct(mysql.DB, s.ctx, &pro)
+	if insertErr != nil {
+		hlog.Error("insert product error:%v", insertErr)
+		return nil, insertErr
 	}
 	//TODO 发送到kafka
 	defer sendToKafka(s.ctx, &pro)

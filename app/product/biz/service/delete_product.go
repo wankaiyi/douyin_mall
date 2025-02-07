@@ -17,10 +17,10 @@ func NewDeleteProductService(ctx context.Context) *DeleteProductService {
 // Run create note info
 func (s *DeleteProductService) Run(req *product.DeleteProductReq) (resp *product.DeleteProductResp, err error) {
 	// 根据id删除商品
-	result := mysql.DB.Table("tb_product").Delete(&model.Product{ID: req.Id})
-	if result.Error != nil {
-		err = result.Error
-		return &product.DeleteProductResp{StatusCode: 1, StatusMsg: "error"}, result.Error
+	deleteErr := model.DeleteProduct(mysql.DB, s.ctx, req.Id)
+	if deleteErr != nil {
+		err = deleteErr
+		return &product.DeleteProductResp{StatusCode: 1, StatusMsg: "error"}, deleteErr
 	}
 	return &product.DeleteProductResp{StatusCode: 0, StatusMsg: "success"}, nil
 }

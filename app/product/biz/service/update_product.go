@@ -17,7 +17,7 @@ func NewUpdateProductService(ctx context.Context) *UpdateProductService {
 // Run create note info
 func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product.UpdateProductResp, err error) {
 	// 根据id删除商品
-	result := mysql.DB.Table("tb_product").Updates(&model.Product{
+	updateErr := model.UpdateProduct(mysql.DB, s.ctx, &model.Product{
 		ID:          req.Id,
 		Name:        req.Name,
 		Description: req.Description,
@@ -28,13 +28,9 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 		PublicState: req.PublishStatus,
 		LockStock:   req.Stock,
 	})
-	if result.Error != nil {
-		err = result.Error
+	if updateErr != nil {
+		err = updateErr
 		resp = &product.UpdateProductResp{StatusCode: 1, StatusMsg: "update product failed"}
-		return
-	}
-	if result.RowsAffected == 0 {
-		resp = &product.UpdateProductResp{StatusCode: 0, StatusMsg: "not found product"}
 		return
 	}
 	resp = &product.UpdateProductResp{StatusCode: 0, StatusMsg: "success"}

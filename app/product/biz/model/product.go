@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"context"
+	"gorm.io/gorm"
+	"time"
+)
 
 type Product struct {
 	ID          int64     `gorm:"primary_key" json:"id"`
@@ -14,4 +18,31 @@ type Product struct {
 	LockStock   int64     `json:"lock_stock"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+func (p *Product) TableName() string {
+	return "tb_product"
+}
+
+func SelectProduct(db *gorm.DB, ctx context.Context, id int64) (product Product, err error) {
+	product = Product{}
+	result := db.WithContext(ctx).Where("id=?", id).First(&product)
+	err = result.Error
+	return
+}
+
+func UpdateProduct(db *gorm.DB, ctx context.Context, product *Product) (err error) {
+	result := db.WithContext(ctx).Updates(&product)
+	err = result.Error
+	return
+}
+func DeleteProduct(db *gorm.DB, ctx context.Context, id int64) (err error) {
+	result := db.WithContext(ctx).Delete(&Product{ID: id})
+	err = result.Error
+	return
+}
+func CreateProduct(db *gorm.DB, ctx context.Context, product *Product) (err error) {
+	result := db.WithContext(ctx).Create(product)
+	err = result.Error
+	return
 }

@@ -18,11 +18,10 @@ func NewSelectProductService(ctx context.Context) *SelectProductService {
 // Run create note info
 func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product.SelectProductResp, err error) {
 	// 创建实体类
-	pro := model.Product{}
-	result := mysql.DB.Table("tb_product").Where("id = ?", req.Id).First(&pro)
-	if result.Error != nil {
-		hlog.Error("mysql error:%v", result.Error)
-		return nil, result.Error
+	pro, err := model.SelectProduct(mysql.DB, s.ctx, req.Id)
+	if err != nil {
+		hlog.Error("mysql error:%v", err)
+		return nil, err
 	}
 	return &product.SelectProductResp{
 		StatusCode: 0,
