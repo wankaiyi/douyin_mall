@@ -29,6 +29,27 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"PaymentOrderRecord": kitex.NewMethodInfo(
+		paymentOrderRecordHandler,
+		newPaymentOrderRecordArgs,
+		newPaymentOrderRecordResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"PaymentTransactionRecord": kitex.NewMethodInfo(
+		paymentTransactionRecordHandler,
+		newPaymentTransactionRecordArgs,
+		newPaymentTransactionRecordResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"idempotentControl": kitex.NewMethodInfo(
+		idempotentControlHandler,
+		newIdempotentControlArgs,
+		newIdempotentControlResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -401,6 +422,465 @@ func (p *CancelChargeResult) GetResult() interface{} {
 	return p.Success
 }
 
+func paymentOrderRecordHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(payment.PaymentOrderRecordReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(payment.PaymentService).PaymentOrderRecord(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *PaymentOrderRecordArgs:
+		success, err := handler.(payment.PaymentService).PaymentOrderRecord(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*PaymentOrderRecordResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newPaymentOrderRecordArgs() interface{} {
+	return &PaymentOrderRecordArgs{}
+}
+
+func newPaymentOrderRecordResult() interface{} {
+	return &PaymentOrderRecordResult{}
+}
+
+type PaymentOrderRecordArgs struct {
+	Req *payment.PaymentOrderRecordReq
+}
+
+func (p *PaymentOrderRecordArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(payment.PaymentOrderRecordReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *PaymentOrderRecordArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *PaymentOrderRecordArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *PaymentOrderRecordArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *PaymentOrderRecordArgs) Unmarshal(in []byte) error {
+	msg := new(payment.PaymentOrderRecordReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var PaymentOrderRecordArgs_Req_DEFAULT *payment.PaymentOrderRecordReq
+
+func (p *PaymentOrderRecordArgs) GetReq() *payment.PaymentOrderRecordReq {
+	if !p.IsSetReq() {
+		return PaymentOrderRecordArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *PaymentOrderRecordArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PaymentOrderRecordArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type PaymentOrderRecordResult struct {
+	Success *payment.PaymentOrderRecordResp
+}
+
+var PaymentOrderRecordResult_Success_DEFAULT *payment.PaymentOrderRecordResp
+
+func (p *PaymentOrderRecordResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(payment.PaymentOrderRecordResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *PaymentOrderRecordResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *PaymentOrderRecordResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *PaymentOrderRecordResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *PaymentOrderRecordResult) Unmarshal(in []byte) error {
+	msg := new(payment.PaymentOrderRecordResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *PaymentOrderRecordResult) GetSuccess() *payment.PaymentOrderRecordResp {
+	if !p.IsSetSuccess() {
+		return PaymentOrderRecordResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *PaymentOrderRecordResult) SetSuccess(x interface{}) {
+	p.Success = x.(*payment.PaymentOrderRecordResp)
+}
+
+func (p *PaymentOrderRecordResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PaymentOrderRecordResult) GetResult() interface{} {
+	return p.Success
+}
+
+func paymentTransactionRecordHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(payment.PaymentTransactionRecordReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(payment.PaymentService).PaymentTransactionRecord(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *PaymentTransactionRecordArgs:
+		success, err := handler.(payment.PaymentService).PaymentTransactionRecord(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*PaymentTransactionRecordResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newPaymentTransactionRecordArgs() interface{} {
+	return &PaymentTransactionRecordArgs{}
+}
+
+func newPaymentTransactionRecordResult() interface{} {
+	return &PaymentTransactionRecordResult{}
+}
+
+type PaymentTransactionRecordArgs struct {
+	Req *payment.PaymentTransactionRecordReq
+}
+
+func (p *PaymentTransactionRecordArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(payment.PaymentTransactionRecordReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *PaymentTransactionRecordArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *PaymentTransactionRecordArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *PaymentTransactionRecordArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *PaymentTransactionRecordArgs) Unmarshal(in []byte) error {
+	msg := new(payment.PaymentTransactionRecordReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var PaymentTransactionRecordArgs_Req_DEFAULT *payment.PaymentTransactionRecordReq
+
+func (p *PaymentTransactionRecordArgs) GetReq() *payment.PaymentTransactionRecordReq {
+	if !p.IsSetReq() {
+		return PaymentTransactionRecordArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *PaymentTransactionRecordArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PaymentTransactionRecordArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type PaymentTransactionRecordResult struct {
+	Success *payment.PaymentTransactionRecordResp
+}
+
+var PaymentTransactionRecordResult_Success_DEFAULT *payment.PaymentTransactionRecordResp
+
+func (p *PaymentTransactionRecordResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(payment.PaymentTransactionRecordResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *PaymentTransactionRecordResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *PaymentTransactionRecordResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *PaymentTransactionRecordResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *PaymentTransactionRecordResult) Unmarshal(in []byte) error {
+	msg := new(payment.PaymentTransactionRecordResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *PaymentTransactionRecordResult) GetSuccess() *payment.PaymentTransactionRecordResp {
+	if !p.IsSetSuccess() {
+		return PaymentTransactionRecordResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *PaymentTransactionRecordResult) SetSuccess(x interface{}) {
+	p.Success = x.(*payment.PaymentTransactionRecordResp)
+}
+
+func (p *PaymentTransactionRecordResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PaymentTransactionRecordResult) GetResult() interface{} {
+	return p.Success
+}
+
+func idempotentControlHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(payment.IdempotentControlReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(payment.PaymentService).IdempotentControl(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *IdempotentControlArgs:
+		success, err := handler.(payment.PaymentService).IdempotentControl(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*IdempotentControlResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newIdempotentControlArgs() interface{} {
+	return &IdempotentControlArgs{}
+}
+
+func newIdempotentControlResult() interface{} {
+	return &IdempotentControlResult{}
+}
+
+type IdempotentControlArgs struct {
+	Req *payment.IdempotentControlReq
+}
+
+func (p *IdempotentControlArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(payment.IdempotentControlReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *IdempotentControlArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *IdempotentControlArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *IdempotentControlArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *IdempotentControlArgs) Unmarshal(in []byte) error {
+	msg := new(payment.IdempotentControlReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var IdempotentControlArgs_Req_DEFAULT *payment.IdempotentControlReq
+
+func (p *IdempotentControlArgs) GetReq() *payment.IdempotentControlReq {
+	if !p.IsSetReq() {
+		return IdempotentControlArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *IdempotentControlArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *IdempotentControlArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type IdempotentControlResult struct {
+	Success *payment.IdempotentControlResp
+}
+
+var IdempotentControlResult_Success_DEFAULT *payment.IdempotentControlResp
+
+func (p *IdempotentControlResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(payment.IdempotentControlResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *IdempotentControlResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *IdempotentControlResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *IdempotentControlResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *IdempotentControlResult) Unmarshal(in []byte) error {
+	msg := new(payment.IdempotentControlResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *IdempotentControlResult) GetSuccess() *payment.IdempotentControlResp {
+	if !p.IsSetSuccess() {
+		return IdempotentControlResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *IdempotentControlResult) SetSuccess(x interface{}) {
+	p.Success = x.(*payment.IdempotentControlResp)
+}
+
+func (p *IdempotentControlResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *IdempotentControlResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -426,6 +906,36 @@ func (p *kClient) CancelCharge(ctx context.Context, Req *payment.CancelChargeReq
 	_args.Req = Req
 	var _result CancelChargeResult
 	if err = p.c.Call(ctx, "CancelCharge", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) PaymentOrderRecord(ctx context.Context, Req *payment.PaymentOrderRecordReq) (r *payment.PaymentOrderRecordResp, err error) {
+	var _args PaymentOrderRecordArgs
+	_args.Req = Req
+	var _result PaymentOrderRecordResult
+	if err = p.c.Call(ctx, "PaymentOrderRecord", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) PaymentTransactionRecord(ctx context.Context, Req *payment.PaymentTransactionRecordReq) (r *payment.PaymentTransactionRecordResp, err error) {
+	var _args PaymentTransactionRecordArgs
+	_args.Req = Req
+	var _result PaymentTransactionRecordResult
+	if err = p.c.Call(ctx, "PaymentTransactionRecord", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IdempotentControl(ctx context.Context, Req *payment.IdempotentControlReq) (r *payment.IdempotentControlResp, err error) {
+	var _args IdempotentControlArgs
+	_args.Req = Req
+	var _result IdempotentControlResult
+	if err = p.c.Call(ctx, "idempotentControl", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

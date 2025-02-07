@@ -61,7 +61,8 @@ func PayInit() (client *alipay.Client, err error) {
 	client.SetLocation(alipay.LocationShanghai). // 设置时区，不设置或出错均为默认服务器时间
 							SetCharset(alipay.UTF8).  // 设置字符编码，不设置默认 utf-8
 							SetSignType(alipay.RSA2). // 设置签名类型，不设置默认 RSA2
-							SetNotifyUrl(notifyUrl)   // 设置异步通知URL
+							SetNotifyUrl(notifyUrl).  // 设置异步通知URL
+							SetCharset(alipay.UTF8)
 	//SetReturnUrl("https://www.fmm.ink"). // 设置返回URL
 	// 设置biz_content加密KEY，设置此参数默认开启加密（目前不可用，设置后会报错）
 	//client.SetAESKey("1234567890123456")

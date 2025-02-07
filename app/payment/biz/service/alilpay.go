@@ -69,18 +69,19 @@ func CancelPay(ctx context.Context, orderId int64) (result bool, err error) {
 
 }
 
-// QueryPay 支付宝对账账单下载
-func QueryPay(ctx context.Context, orderId int64) (result string, err error) {
+// QueryPay 昨日支付宝对账账单下载
+func QueryPay(ctx context.Context) (billDownloadUrl string, err error) {
 	client, err := util.PayInit()
 	if err != nil {
 		return "", err
 
 	}
-	now := time.Now().Local().Format("2022-01-01")
+	now := time.Now().Local()
+	yesterday := now.Add(-time.Hour * 24).Format("2006-01-02")
 
 	bodyMap := make(gopay.BodyMap)
 	bodyMap.Set("bill_type", "trade")
-	bodyMap.Set("bill_date", now)
+	bodyMap.Set("bill_date", yesterday)
 	rsp, err := client.DataBillDownloadUrlQuery(ctx, bodyMap)
 	if err != nil {
 		return "", err

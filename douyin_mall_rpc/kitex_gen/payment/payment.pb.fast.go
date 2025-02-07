@@ -53,7 +53,7 @@ func (x *ChargeReq) fastReadField2(buf []byte, _type int8) (offset int, err erro
 }
 
 func (x *ChargeReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	x.UserId, offset, err = fastpb.ReadUint32(buf, _type)
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
 	return offset, err
 }
 
@@ -172,6 +172,256 @@ func (x *CancelChargeResp) fastReadField2(buf []byte, _type int8) (offset int, e
 	return offset, err
 }
 
+func (x *PaymentOrderRecordReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_PaymentOrderRecordReq[number], err)
+}
+
+func (x *PaymentOrderRecordReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.OrderId, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentOrderRecordReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentOrderRecordReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.Amount, offset, err = fastpb.ReadFloat(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentOrderRecordReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.Status, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentOrderRecordResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_PaymentOrderRecordResp[number], err)
+}
+
+func (x *PaymentOrderRecordResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentOrderRecordResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 5:
+		offset, err = x.fastReadField5(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_PaymentTransactionRecordReq[number], err)
+}
+
+func (x *PaymentTransactionRecordReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.OrderId, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.AlipayTradeNo, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.TradeStatus, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.Callback, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordReq) fastReadField5(buf []byte, _type int8) (offset int, err error) {
+	x.RequestParams, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_PaymentTransactionRecordResp[number], err)
+}
+
+func (x *PaymentTransactionRecordResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *PaymentTransactionRecordResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *IdempotentControlReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_IdempotentControlReq[number], err)
+}
+
+func (x *IdempotentControlReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.OrderId, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *IdempotentControlResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_IdempotentControlResp[number], err)
+}
+
+func (x *IdempotentControlResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *IdempotentControlResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
 func (x *ChargeReq) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -202,7 +452,7 @@ func (x *ChargeReq) fastWriteField3(buf []byte) (offset int) {
 	if x.UserId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteUint32(buf[offset:], 3, x.GetUserId())
+	offset += fastpb.WriteInt32(buf[offset:], 3, x.GetUserId())
 	return offset
 }
 
@@ -290,6 +540,192 @@ func (x *CancelChargeResp) fastWriteField2(buf []byte) (offset int) {
 	return offset
 }
 
+func (x *PaymentOrderRecordReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
+	return offset
+}
+
+func (x *PaymentOrderRecordReq) fastWriteField1(buf []byte) (offset int) {
+	if x.OrderId == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 1, x.GetOrderId())
+	return offset
+}
+
+func (x *PaymentOrderRecordReq) fastWriteField2(buf []byte) (offset int) {
+	if x.UserId == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetUserId())
+	return offset
+}
+
+func (x *PaymentOrderRecordReq) fastWriteField3(buf []byte) (offset int) {
+	if x.Amount == 0 {
+		return offset
+	}
+	offset += fastpb.WriteFloat(buf[offset:], 3, x.GetAmount())
+	return offset
+}
+
+func (x *PaymentOrderRecordReq) fastWriteField4(buf []byte) (offset int) {
+	if x.Status == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 4, x.GetStatus())
+	return offset
+}
+
+func (x *PaymentOrderRecordResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *PaymentOrderRecordResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *PaymentOrderRecordResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
+	offset += x.fastWriteField5(buf[offset:])
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) fastWriteField1(buf []byte) (offset int) {
+	if x.OrderId == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 1, x.GetOrderId())
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) fastWriteField2(buf []byte) (offset int) {
+	if x.AlipayTradeNo == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetAlipayTradeNo())
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) fastWriteField3(buf []byte) (offset int) {
+	if x.TradeStatus == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetTradeStatus())
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) fastWriteField4(buf []byte) (offset int) {
+	if x.Callback == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 4, x.GetCallback())
+	return offset
+}
+
+func (x *PaymentTransactionRecordReq) fastWriteField5(buf []byte) (offset int) {
+	if x.RequestParams == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 5, x.GetRequestParams())
+	return offset
+}
+
+func (x *PaymentTransactionRecordResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *PaymentTransactionRecordResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *PaymentTransactionRecordResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
+func (x *IdempotentControlReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	return offset
+}
+
+func (x *IdempotentControlReq) fastWriteField1(buf []byte) (offset int) {
+	if x.OrderId == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 1, x.GetOrderId())
+	return offset
+}
+
+func (x *IdempotentControlResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	return offset
+}
+
+func (x *IdempotentControlResp) fastWriteField1(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
+	return offset
+}
+
+func (x *IdempotentControlResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
+	return offset
+}
+
 func (x *ChargeReq) Size() (n int) {
 	if x == nil {
 		return n
@@ -320,7 +756,7 @@ func (x *ChargeReq) sizeField3() (n int) {
 	if x.UserId == 0 {
 		return n
 	}
-	n += fastpb.SizeUint32(3, x.GetUserId())
+	n += fastpb.SizeInt32(3, x.GetUserId())
 	return n
 }
 
@@ -408,6 +844,192 @@ func (x *CancelChargeResp) sizeField2() (n int) {
 	return n
 }
 
+func (x *PaymentOrderRecordReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	n += x.sizeField4()
+	return n
+}
+
+func (x *PaymentOrderRecordReq) sizeField1() (n int) {
+	if x.OrderId == "" {
+		return n
+	}
+	n += fastpb.SizeString(1, x.GetOrderId())
+	return n
+}
+
+func (x *PaymentOrderRecordReq) sizeField2() (n int) {
+	if x.UserId == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(2, x.GetUserId())
+	return n
+}
+
+func (x *PaymentOrderRecordReq) sizeField3() (n int) {
+	if x.Amount == 0 {
+		return n
+	}
+	n += fastpb.SizeFloat(3, x.GetAmount())
+	return n
+}
+
+func (x *PaymentOrderRecordReq) sizeField4() (n int) {
+	if x.Status == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(4, x.GetStatus())
+	return n
+}
+
+func (x *PaymentOrderRecordResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	return n
+}
+
+func (x *PaymentOrderRecordResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *PaymentOrderRecordResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	n += x.sizeField4()
+	n += x.sizeField5()
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) sizeField1() (n int) {
+	if x.OrderId == "" {
+		return n
+	}
+	n += fastpb.SizeString(1, x.GetOrderId())
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) sizeField2() (n int) {
+	if x.AlipayTradeNo == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetAlipayTradeNo())
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) sizeField3() (n int) {
+	if x.TradeStatus == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetTradeStatus())
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) sizeField4() (n int) {
+	if x.Callback == "" {
+		return n
+	}
+	n += fastpb.SizeString(4, x.GetCallback())
+	return n
+}
+
+func (x *PaymentTransactionRecordReq) sizeField5() (n int) {
+	if x.RequestParams == "" {
+		return n
+	}
+	n += fastpb.SizeString(5, x.GetRequestParams())
+	return n
+}
+
+func (x *PaymentTransactionRecordResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	return n
+}
+
+func (x *PaymentTransactionRecordResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *PaymentTransactionRecordResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
+func (x *IdempotentControlReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	return n
+}
+
+func (x *IdempotentControlReq) sizeField1() (n int) {
+	if x.OrderId == "" {
+		return n
+	}
+	n += fastpb.SizeString(1, x.GetOrderId())
+	return n
+}
+
+func (x *IdempotentControlResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	return n
+}
+
+func (x *IdempotentControlResp) sizeField1() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetStatusCode())
+	return n
+}
+
+func (x *IdempotentControlResp) sizeField2() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetStatusMsg())
+	return n
+}
+
 var fieldIDToName_ChargeReq = map[int32]string{
 	1: "Amount",
 	2: "OrderId",
@@ -426,6 +1048,40 @@ var fieldIDToName_CancelChargeReq = map[int32]string{
 }
 
 var fieldIDToName_CancelChargeResp = map[int32]string{
+	1: "StatusCode",
+	2: "StatusMsg",
+}
+
+var fieldIDToName_PaymentOrderRecordReq = map[int32]string{
+	1: "OrderId",
+	2: "UserId",
+	3: "Amount",
+	4: "Status",
+}
+
+var fieldIDToName_PaymentOrderRecordResp = map[int32]string{
+	1: "StatusCode",
+	2: "StatusMsg",
+}
+
+var fieldIDToName_PaymentTransactionRecordReq = map[int32]string{
+	1: "OrderId",
+	2: "AlipayTradeNo",
+	3: "TradeStatus",
+	4: "Callback",
+	5: "RequestParams",
+}
+
+var fieldIDToName_PaymentTransactionRecordResp = map[int32]string{
+	1: "StatusCode",
+	2: "StatusMsg",
+}
+
+var fieldIDToName_IdempotentControlReq = map[int32]string{
+	1: "OrderId",
+}
+
+var fieldIDToName_IdempotentControlResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
 }

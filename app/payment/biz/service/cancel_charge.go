@@ -5,6 +5,7 @@ import (
 	"douyin_mall/common/constant"
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 	"strconv"
 )
 
@@ -20,16 +21,16 @@ func (s *CancelChargeService) Run(req *payment.CancelChargeReq) (resp *payment.C
 	// Finish your business logic.
 	orderId, err := strconv.ParseInt(req.OrderId, 0, 64)
 	if err != nil {
-		klog.Errorf("parse order id error: %s", err.Error())
+		klog.CtxErrorf(s.ctx, "parse order id error: %s", err.Error())
 		return nil, err
 	}
 	result, err := CancelPay(s.ctx, orderId)
 	if err != nil {
-		klog.Errorf("cancel charge error: %s", err.Error())
-		return nil, err
+		klog.CtxErrorf(s.ctx, "cancel charge error: %s", err.Error())
+		return nil, errors.WithStack(err)
 	}
 	if !result {
-		klog.Error("cancel charge failed")
+		klog.CtxErrorf(s.ctx, "cancel charge failed")
 
 		resp = &payment.CancelChargeResp{
 			StatusCode: 5004,

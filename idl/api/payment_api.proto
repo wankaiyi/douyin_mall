@@ -28,7 +28,7 @@ message Empty {}
 message ChargeRequest {
   float amount = 1[(api.form) = "amount"];
   string order_id = 2[(api.form) = "order_id"];
-  uint32 user_id = 3[(api.form) = "user_id"];
+  int32 user_id = 3[(api.form) = "user_id"];
 }
 
 message ChargeResponse {
