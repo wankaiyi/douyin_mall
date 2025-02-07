@@ -26,6 +26,8 @@ type Config struct {
 	Alert    Alert    `yaml:"alert"`
 	Kafka    Kafka    `yaml:"kafka"`
 	Jaeger   Jaeger   `yaml:"jaeger"`
+	AliPay   AliPay   `yaml:"alipay"`
+	XxlJob   XxlJob   `yaml:"xxl_job"`
 }
 
 type MySQL struct {
@@ -72,6 +74,19 @@ type ClsKafka struct {
 
 type Jaeger struct {
 	Endpoint string `yaml:"endpoint"`
+}
+
+type AliPay struct {
+	AppId                   string `yaml:"app_id"`
+	PrivateKey              string `yaml:"private_key"`
+	NotifyUrl               string `yaml:"notify_url"`
+	AliPayPublicContentPath string `yaml:"alipay_public_content_path"`
+	AliPayRootContentPath   string `yaml:"alipay_private_content_path"`
+	AppPublicContentPath    string `yaml:"app_public_content_path"`
+}
+type XxlJob struct {
+	XxlJobAddress string `yaml:"xxl_job_address"`
+	AccessToken   string `yaml:"access_token"`
 }
 
 // GetConf gets configuration instance

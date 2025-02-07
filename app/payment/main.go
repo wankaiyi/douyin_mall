@@ -76,12 +76,12 @@ func kitexInit() (opts []server.Option) {
 }
 
 func xxljobInit() {
-	xxljobAddr := os.Getenv("XXL_JOB_ADDRESS")
+	xxljobAddr := conf.GetConf().XxlJob.XxlJobAddress
 	exec := xxl.NewExecutor(
 		xxl.ServerAddr(xxljobAddr+"/xxl-job-admin"),
-		xxl.AccessToken("default_token"),               //请求令牌(默认为空)
-		xxl.ExecutorIp("127.0.0.1"),                    //可自动获取
-		xxl.ExecutorPort("8999"),                       //默认9999（非必填）
+		xxl.AccessToken(conf.GetConf().XxlJob.AccessToken), //请求令牌(默认为空)
+		//xxl.ExecutorIp("127.0.0.1"),                        //可自动获取
+		//xxl.ExecutorPort("8999"),                           //默认9999（非必填）
 		xxl.RegistryKey("douyin-mall-payment-service"), //执行器名称
 		xxl.SetLogger(&logger{}),                       //自定义日志
 	)

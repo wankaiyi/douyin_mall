@@ -1,6 +1,7 @@
 package util
 
 import (
+	"douyin_mall/payment/conf"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
 	"github.com/go-pay/xlog"
@@ -24,16 +25,16 @@ var (
 )
 
 func init() {
-	AlipayPublicContentPath, _ := os.Open(os.Getenv("ALIPAY_PUBLIC_CONTENT_PATH"))
-	AlipayRootContentPath, _ := os.Open(os.Getenv("ALIPAY_ROOT_CONTENT_PATH"))
-	AppPublicContentPath, _ := os.Open(os.Getenv("APP_PUBLIC_CONTENT_PATH"))
+	AlipayPublicContentPath, _ := os.Open(conf.GetConf().AliPay.AliPayPublicContentPath)
+	AlipayRootContentPath, _ := os.Open(conf.GetConf().AliPay.AliPayRootContentPath)
+	AppPublicContentPath, _ := os.Open(conf.GetConf().AliPay.AppPublicContentPath)
 	defer AlipayPublicContentPath.Close()
 	defer AlipayRootContentPath.Close()
 	defer AppPublicContentPath.Close()
 
-	appid = os.Getenv("APPID")
-	notifyUrl = os.Getenv("NOTIFY_URL")
-	privateKey = os.Getenv("PRIVATE_KEY")
+	appid = conf.GetConf().AliPay.AppId
+	notifyUrl = conf.GetConf().AliPay.NotifyUrl
+	privateKey = conf.GetConf().AliPay.PrivateKey
 
 	AlipayPublicContent, _ = io.ReadAll(AlipayPublicContentPath)
 	AlipayRootContent, _ = io.ReadAll(AlipayRootContentPath)
