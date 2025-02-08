@@ -103,4 +103,8 @@ service ProductService {
     option (api.post) = "/category/select";
   }
 
+  rpc CategoryInsert (CategoryInsertRequest) returns (CategoryInsertResponse) {
+    option (api.post) = "/category/insert";
+  }
+
 }

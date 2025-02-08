@@ -23,3 +23,9 @@ func SelectCategory(db *gorm.DB, ctx context.Context, id int64) (category Catego
 	err = result.Error
 	return
 }
+
+func CreateCategory(db *gorm.DB, ctx context.Context, category *Category) (err error) {
+	result := db.WithContext(ctx).Create(&category)
+	err = result.Error
+	return
+}

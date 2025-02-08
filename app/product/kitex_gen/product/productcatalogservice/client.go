@@ -19,6 +19,7 @@ type Client interface {
 	DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error)
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
+	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -88,4 +89,9 @@ func (p *kProductCatalogServiceClient) UpdateProduct(ctx context.Context, Req *p
 func (p *kProductCatalogServiceClient) SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.SelectCategory(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.InsertCategory(ctx, Req)
 }

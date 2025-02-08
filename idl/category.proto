@@ -22,3 +22,13 @@ message Category {
   string name = 2;
   string description = 3;
 }
+
+message CategoryInsertReq{
+  string name = 1;
+  string description = 2;
+}
+
+message CategoryInsertResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}

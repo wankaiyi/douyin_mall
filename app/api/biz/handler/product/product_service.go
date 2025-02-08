@@ -130,3 +130,23 @@ func CategorySelect(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// CategoryInsert .
+// @router /category/insert [POST]
+func CategoryInsert(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.CategoryInsertRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewCategoryInsertService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

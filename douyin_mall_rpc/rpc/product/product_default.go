@@ -78,3 +78,12 @@ func SelectCategory(ctx context.Context, req *product.CategorySelectReq, callOpt
 	}
 	return resp, nil
 }
+
+func InsertCategory(ctx context.Context, req *product.CategoryInsertReq, callOptions ...callopt.Option) (resp *product.CategoryInsertResp, err error) {
+	resp, err = defaultClient.InsertCategory(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "InsertCategory call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

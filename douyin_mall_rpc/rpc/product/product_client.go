@@ -20,6 +20,7 @@ type RPCClient interface {
 	DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error)
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
+	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -78,4 +79,8 @@ func (c *clientImpl) UpdateProduct(ctx context.Context, Req *product.UpdateProdu
 
 func (c *clientImpl) SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error) {
 	return c.kitexClient.SelectCategory(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error) {
+	return c.kitexClient.InsertCategory(ctx, Req, callOptions...)
 }

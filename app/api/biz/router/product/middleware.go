@@ -55,3 +55,8 @@ func _categoryselectMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _categoryinsertMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -64,3 +64,10 @@ func (s *ProductCatalogServiceImpl) SelectCategory(ctx context.Context, req *pro
 
 	return resp, err
 }
+
+// InsertCategory implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) InsertCategory(ctx context.Context, req *product.CategoryInsertReq) (resp *product.CategoryInsertResp, err error) {
+	resp, err = service.NewInsertCategoryService(ctx).Run(req)
+
+	return resp, err
+}

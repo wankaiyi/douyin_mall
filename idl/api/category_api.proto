@@ -20,3 +20,13 @@ message Category {
     string name = 2;
     string description = 3;
 }
+
+message CategoryInsertRequest {
+    string name = 1[(api.form)= "name"];
+    string description = 2[(api.form)= "description"];
+}
+
+message CategoryInsertResponse {
+    int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+    string status_msg = 2;
+}
