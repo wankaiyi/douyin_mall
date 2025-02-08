@@ -32,3 +32,23 @@ message CategoryInsertResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
+
+message CategoryDeleteReq{
+  int64 category_id = 1;
+}
+
+message CategoryDeleteResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message CategoryUpdateReq{
+  int64 category_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message CategoryUpdateResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}

@@ -150,3 +150,43 @@ func CategoryInsert(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// CategoryDelete .
+// @router /category/delete [POST]
+func CategoryDelete(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.CategoryDeleteRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewCategoryDeleteService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
+
+// CategoryUpdate .
+// @router /category/update [POST]
+func CategoryUpdate(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.CategoryUpdateRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewCategoryUpdateService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

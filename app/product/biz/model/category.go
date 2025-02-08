@@ -29,3 +29,15 @@ func CreateCategory(db *gorm.DB, ctx context.Context, category *Category) (err e
 	err = result.Error
 	return
 }
+
+func DeleteCategory(db *gorm.DB, ctx context.Context, id int64) (err error) {
+	result := db.WithContext(ctx).Where("id=?", id).Delete(&Category{})
+	err = result.Error
+	return
+}
+
+func UpdateCategory(db *gorm.DB, ctx context.Context, category *Category) (err error) {
+	result := db.WithContext(ctx).Updates(&category)
+	err = result.Error
+	return
+}

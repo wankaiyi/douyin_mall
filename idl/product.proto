@@ -16,6 +16,8 @@ service ProductCatalogService {
 
   rpc SelectCategory(CategorySelectReq) returns (CategorySelectResp) {}
   rpc InsertCategory(CategoryInsertReq) returns (CategoryInsertResp) {}
+  rpc DeleteCategory(CategoryDeleteReq) returns (CategoryDeleteResp) {}
+  rpc UpdateCategory(CategoryUpdateReq) returns (CategoryUpdateResp) {}
 }
 
 message ListProductsReq{

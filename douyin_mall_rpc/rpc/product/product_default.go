@@ -87,3 +87,21 @@ func InsertCategory(ctx context.Context, req *product.CategoryInsertReq, callOpt
 	}
 	return resp, nil
 }
+
+func DeleteCategory(ctx context.Context, req *product.CategoryDeleteReq, callOptions ...callopt.Option) (resp *product.CategoryDeleteResp, err error) {
+	resp, err = defaultClient.DeleteCategory(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "DeleteCategory call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func UpdateCategory(ctx context.Context, req *product.CategoryUpdateReq, callOptions ...callopt.Option) (resp *product.CategoryUpdateResp, err error) {
+	resp, err = defaultClient.UpdateCategory(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "UpdateCategory call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

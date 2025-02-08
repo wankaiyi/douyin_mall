@@ -30,3 +30,22 @@ message CategoryInsertResponse {
     int32 status_code = 1[(api.go_tag)='json:"status_code"'];
     string status_msg = 2;
 }
+message CategoryDeleteRequest {
+    int64 categoryId = 1[(api.form)= "categoryId"];
+}
+
+message CategoryDeleteResponse {
+    int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+    string status_msg = 2;
+}
+
+message CategoryUpdateRequest {
+    int64 categoryId = 1[(api.form)= "categoryId"];
+    string name = 2[(api.form)= "name"];
+    string description = 3[(api.form)= "description"];
+}
+
+message CategoryUpdateResponse {
+    int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+    string status_msg = 2;
+}

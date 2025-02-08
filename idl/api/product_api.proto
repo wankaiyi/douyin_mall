@@ -107,4 +107,12 @@ service ProductService {
     option (api.post) = "/category/insert";
   }
 
+  rpc CategoryDelete (CategoryDeleteRequest) returns (CategoryDeleteResponse) {
+    option (api.post) = "/category/delete";
+  }
+
+  rpc CategoryUpdate (CategoryUpdateRequest) returns (CategoryUpdateResponse) {
+    option (api.post) = "/category/update";
+  }
+
 }

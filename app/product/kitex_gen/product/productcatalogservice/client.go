@@ -20,6 +20,8 @@ type Client interface {
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
 	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
+	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
+	UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -94,4 +96,14 @@ func (p *kProductCatalogServiceClient) SelectCategory(ctx context.Context, Req *
 func (p *kProductCatalogServiceClient) InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.InsertCategory(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.DeleteCategory(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateCategory(ctx, Req)
 }

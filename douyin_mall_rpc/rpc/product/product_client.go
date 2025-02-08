@@ -21,6 +21,8 @@ type RPCClient interface {
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
 	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
+	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
+	UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -83,4 +85,12 @@ func (c *clientImpl) SelectCategory(ctx context.Context, Req *product.CategorySe
 
 func (c *clientImpl) InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error) {
 	return c.kitexClient.InsertCategory(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error) {
+	return c.kitexClient.DeleteCategory(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error) {
+	return c.kitexClient.UpdateCategory(ctx, Req, callOptions...)
 }
