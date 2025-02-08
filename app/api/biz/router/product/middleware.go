@@ -70,3 +70,28 @@ func _categoryupdateMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _brandMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _branddeleteMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _brandinsertMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _brandselectMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _brandupdateMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

@@ -190,3 +190,83 @@ func CategoryUpdate(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// BrandSelect .
+// @router /brand/select [POST]
+func BrandSelect(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.BrandSelectRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewBrandSelectService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
+
+// BrandInsert .
+// @router /brand/insert [POST]
+func BrandInsert(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.BrandInsertRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewBrandInsertService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
+
+// BrandDelete .
+// @router /brand/delete [POST]
+func BrandDelete(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.BrandDeleteRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewBrandDeleteService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
+
+// BrandUpdate .
+// @router /brand/update [POST]
+func BrandUpdate(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.BrandUpdateRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewBrandUpdateService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

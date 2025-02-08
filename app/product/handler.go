@@ -85,3 +85,31 @@ func (s *ProductCatalogServiceImpl) UpdateCategory(ctx context.Context, req *pro
 
 	return resp, err
 }
+
+// SelectBrand implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) SelectBrand(ctx context.Context, req *product.BrandSelectReq) (resp *product.BrandSelectResp, err error) {
+	resp, err = service.NewSelectBrandService(ctx).Run(req)
+
+	return resp, err
+}
+
+// InsertBrand implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) InsertBrand(ctx context.Context, req *product.BrandInsertReq) (resp *product.BrandInsertResp, err error) {
+	resp, err = service.NewInsertBrandService(ctx).Run(req)
+
+	return resp, err
+}
+
+// DeleteBrand implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) DeleteBrand(ctx context.Context, req *product.BrandDeleteReq) (resp *product.BrandDeleteResp, err error) {
+	resp, err = service.NewDeleteBrandService(ctx).Run(req)
+
+	return resp, err
+}
+
+// UpdateBrand implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) UpdateBrand(ctx context.Context, req *product.BrandUpdateReq) (resp *product.BrandUpdateResp, err error) {
+	resp, err = service.NewUpdateBrandService(ctx).Run(req)
+
+	return resp, err
+}

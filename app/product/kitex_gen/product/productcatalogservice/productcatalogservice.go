@@ -78,6 +78,48 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"DeleteCategory": kitex.NewMethodInfo(
+		deleteCategoryHandler,
+		newDeleteCategoryArgs,
+		newDeleteCategoryResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"UpdateCategory": kitex.NewMethodInfo(
+		updateCategoryHandler,
+		newUpdateCategoryArgs,
+		newUpdateCategoryResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"SelectBrand": kitex.NewMethodInfo(
+		selectBrandHandler,
+		newSelectBrandArgs,
+		newSelectBrandResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"InsertBrand": kitex.NewMethodInfo(
+		insertBrandHandler,
+		newInsertBrandArgs,
+		newInsertBrandResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"DeleteBrand": kitex.NewMethodInfo(
+		deleteBrandHandler,
+		newDeleteBrandArgs,
+		newDeleteBrandResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"UpdateBrand": kitex.NewMethodInfo(
+		updateBrandHandler,
+		newUpdateBrandArgs,
+		newUpdateBrandResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -1521,6 +1563,924 @@ func (p *InsertCategoryResult) GetResult() interface{} {
 	return p.Success
 }
 
+func deleteCategoryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.CategoryDeleteReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).DeleteCategory(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *DeleteCategoryArgs:
+		success, err := handler.(product.ProductCatalogService).DeleteCategory(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*DeleteCategoryResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newDeleteCategoryArgs() interface{} {
+	return &DeleteCategoryArgs{}
+}
+
+func newDeleteCategoryResult() interface{} {
+	return &DeleteCategoryResult{}
+}
+
+type DeleteCategoryArgs struct {
+	Req *product.CategoryDeleteReq
+}
+
+func (p *DeleteCategoryArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.CategoryDeleteReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *DeleteCategoryArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *DeleteCategoryArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *DeleteCategoryArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *DeleteCategoryArgs) Unmarshal(in []byte) error {
+	msg := new(product.CategoryDeleteReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var DeleteCategoryArgs_Req_DEFAULT *product.CategoryDeleteReq
+
+func (p *DeleteCategoryArgs) GetReq() *product.CategoryDeleteReq {
+	if !p.IsSetReq() {
+		return DeleteCategoryArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *DeleteCategoryArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DeleteCategoryArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type DeleteCategoryResult struct {
+	Success *product.CategoryDeleteResp
+}
+
+var DeleteCategoryResult_Success_DEFAULT *product.CategoryDeleteResp
+
+func (p *DeleteCategoryResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.CategoryDeleteResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *DeleteCategoryResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *DeleteCategoryResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *DeleteCategoryResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *DeleteCategoryResult) Unmarshal(in []byte) error {
+	msg := new(product.CategoryDeleteResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *DeleteCategoryResult) GetSuccess() *product.CategoryDeleteResp {
+	if !p.IsSetSuccess() {
+		return DeleteCategoryResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *DeleteCategoryResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.CategoryDeleteResp)
+}
+
+func (p *DeleteCategoryResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DeleteCategoryResult) GetResult() interface{} {
+	return p.Success
+}
+
+func updateCategoryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.CategoryUpdateReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).UpdateCategory(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *UpdateCategoryArgs:
+		success, err := handler.(product.ProductCatalogService).UpdateCategory(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*UpdateCategoryResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newUpdateCategoryArgs() interface{} {
+	return &UpdateCategoryArgs{}
+}
+
+func newUpdateCategoryResult() interface{} {
+	return &UpdateCategoryResult{}
+}
+
+type UpdateCategoryArgs struct {
+	Req *product.CategoryUpdateReq
+}
+
+func (p *UpdateCategoryArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.CategoryUpdateReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *UpdateCategoryArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *UpdateCategoryArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *UpdateCategoryArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *UpdateCategoryArgs) Unmarshal(in []byte) error {
+	msg := new(product.CategoryUpdateReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var UpdateCategoryArgs_Req_DEFAULT *product.CategoryUpdateReq
+
+func (p *UpdateCategoryArgs) GetReq() *product.CategoryUpdateReq {
+	if !p.IsSetReq() {
+		return UpdateCategoryArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *UpdateCategoryArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UpdateCategoryArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type UpdateCategoryResult struct {
+	Success *product.CategoryUpdateResp
+}
+
+var UpdateCategoryResult_Success_DEFAULT *product.CategoryUpdateResp
+
+func (p *UpdateCategoryResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.CategoryUpdateResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *UpdateCategoryResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *UpdateCategoryResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *UpdateCategoryResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *UpdateCategoryResult) Unmarshal(in []byte) error {
+	msg := new(product.CategoryUpdateResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *UpdateCategoryResult) GetSuccess() *product.CategoryUpdateResp {
+	if !p.IsSetSuccess() {
+		return UpdateCategoryResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *UpdateCategoryResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.CategoryUpdateResp)
+}
+
+func (p *UpdateCategoryResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UpdateCategoryResult) GetResult() interface{} {
+	return p.Success
+}
+
+func selectBrandHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.BrandSelectReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).SelectBrand(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SelectBrandArgs:
+		success, err := handler.(product.ProductCatalogService).SelectBrand(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SelectBrandResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSelectBrandArgs() interface{} {
+	return &SelectBrandArgs{}
+}
+
+func newSelectBrandResult() interface{} {
+	return &SelectBrandResult{}
+}
+
+type SelectBrandArgs struct {
+	Req *product.BrandSelectReq
+}
+
+func (p *SelectBrandArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.BrandSelectReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SelectBrandArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SelectBrandArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SelectBrandArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SelectBrandArgs) Unmarshal(in []byte) error {
+	msg := new(product.BrandSelectReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SelectBrandArgs_Req_DEFAULT *product.BrandSelectReq
+
+func (p *SelectBrandArgs) GetReq() *product.BrandSelectReq {
+	if !p.IsSetReq() {
+		return SelectBrandArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SelectBrandArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SelectBrandArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SelectBrandResult struct {
+	Success *product.BrandSelectResp
+}
+
+var SelectBrandResult_Success_DEFAULT *product.BrandSelectResp
+
+func (p *SelectBrandResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.BrandSelectResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SelectBrandResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SelectBrandResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SelectBrandResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SelectBrandResult) Unmarshal(in []byte) error {
+	msg := new(product.BrandSelectResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SelectBrandResult) GetSuccess() *product.BrandSelectResp {
+	if !p.IsSetSuccess() {
+		return SelectBrandResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SelectBrandResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.BrandSelectResp)
+}
+
+func (p *SelectBrandResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SelectBrandResult) GetResult() interface{} {
+	return p.Success
+}
+
+func insertBrandHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.BrandInsertReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).InsertBrand(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *InsertBrandArgs:
+		success, err := handler.(product.ProductCatalogService).InsertBrand(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*InsertBrandResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newInsertBrandArgs() interface{} {
+	return &InsertBrandArgs{}
+}
+
+func newInsertBrandResult() interface{} {
+	return &InsertBrandResult{}
+}
+
+type InsertBrandArgs struct {
+	Req *product.BrandInsertReq
+}
+
+func (p *InsertBrandArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.BrandInsertReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *InsertBrandArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *InsertBrandArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *InsertBrandArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *InsertBrandArgs) Unmarshal(in []byte) error {
+	msg := new(product.BrandInsertReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var InsertBrandArgs_Req_DEFAULT *product.BrandInsertReq
+
+func (p *InsertBrandArgs) GetReq() *product.BrandInsertReq {
+	if !p.IsSetReq() {
+		return InsertBrandArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *InsertBrandArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *InsertBrandArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type InsertBrandResult struct {
+	Success *product.BrandInsertResp
+}
+
+var InsertBrandResult_Success_DEFAULT *product.BrandInsertResp
+
+func (p *InsertBrandResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.BrandInsertResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *InsertBrandResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *InsertBrandResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *InsertBrandResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *InsertBrandResult) Unmarshal(in []byte) error {
+	msg := new(product.BrandInsertResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *InsertBrandResult) GetSuccess() *product.BrandInsertResp {
+	if !p.IsSetSuccess() {
+		return InsertBrandResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *InsertBrandResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.BrandInsertResp)
+}
+
+func (p *InsertBrandResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *InsertBrandResult) GetResult() interface{} {
+	return p.Success
+}
+
+func deleteBrandHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.BrandDeleteReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).DeleteBrand(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *DeleteBrandArgs:
+		success, err := handler.(product.ProductCatalogService).DeleteBrand(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*DeleteBrandResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newDeleteBrandArgs() interface{} {
+	return &DeleteBrandArgs{}
+}
+
+func newDeleteBrandResult() interface{} {
+	return &DeleteBrandResult{}
+}
+
+type DeleteBrandArgs struct {
+	Req *product.BrandDeleteReq
+}
+
+func (p *DeleteBrandArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.BrandDeleteReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *DeleteBrandArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *DeleteBrandArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *DeleteBrandArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *DeleteBrandArgs) Unmarshal(in []byte) error {
+	msg := new(product.BrandDeleteReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var DeleteBrandArgs_Req_DEFAULT *product.BrandDeleteReq
+
+func (p *DeleteBrandArgs) GetReq() *product.BrandDeleteReq {
+	if !p.IsSetReq() {
+		return DeleteBrandArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *DeleteBrandArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DeleteBrandArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type DeleteBrandResult struct {
+	Success *product.BrandDeleteResp
+}
+
+var DeleteBrandResult_Success_DEFAULT *product.BrandDeleteResp
+
+func (p *DeleteBrandResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.BrandDeleteResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *DeleteBrandResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *DeleteBrandResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *DeleteBrandResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *DeleteBrandResult) Unmarshal(in []byte) error {
+	msg := new(product.BrandDeleteResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *DeleteBrandResult) GetSuccess() *product.BrandDeleteResp {
+	if !p.IsSetSuccess() {
+		return DeleteBrandResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *DeleteBrandResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.BrandDeleteResp)
+}
+
+func (p *DeleteBrandResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DeleteBrandResult) GetResult() interface{} {
+	return p.Success
+}
+
+func updateBrandHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.BrandUpdateReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).UpdateBrand(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *UpdateBrandArgs:
+		success, err := handler.(product.ProductCatalogService).UpdateBrand(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*UpdateBrandResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newUpdateBrandArgs() interface{} {
+	return &UpdateBrandArgs{}
+}
+
+func newUpdateBrandResult() interface{} {
+	return &UpdateBrandResult{}
+}
+
+type UpdateBrandArgs struct {
+	Req *product.BrandUpdateReq
+}
+
+func (p *UpdateBrandArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.BrandUpdateReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *UpdateBrandArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *UpdateBrandArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *UpdateBrandArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *UpdateBrandArgs) Unmarshal(in []byte) error {
+	msg := new(product.BrandUpdateReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var UpdateBrandArgs_Req_DEFAULT *product.BrandUpdateReq
+
+func (p *UpdateBrandArgs) GetReq() *product.BrandUpdateReq {
+	if !p.IsSetReq() {
+		return UpdateBrandArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *UpdateBrandArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UpdateBrandArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type UpdateBrandResult struct {
+	Success *product.BrandUpdateResp
+}
+
+var UpdateBrandResult_Success_DEFAULT *product.BrandUpdateResp
+
+func (p *UpdateBrandResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.BrandUpdateResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *UpdateBrandResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *UpdateBrandResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *UpdateBrandResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *UpdateBrandResult) Unmarshal(in []byte) error {
+	msg := new(product.BrandUpdateResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *UpdateBrandResult) GetSuccess() *product.BrandUpdateResp {
+	if !p.IsSetSuccess() {
+		return UpdateBrandResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *UpdateBrandResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.BrandUpdateResp)
+}
+
+func (p *UpdateBrandResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UpdateBrandResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -1616,6 +2576,66 @@ func (p *kClient) InsertCategory(ctx context.Context, Req *product.CategoryInser
 	_args.Req = Req
 	var _result InsertCategoryResult
 	if err = p.c.Call(ctx, "InsertCategory", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq) (r *product.CategoryDeleteResp, err error) {
+	var _args DeleteCategoryArgs
+	_args.Req = Req
+	var _result DeleteCategoryResult
+	if err = p.c.Call(ctx, "DeleteCategory", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq) (r *product.CategoryUpdateResp, err error) {
+	var _args UpdateCategoryArgs
+	_args.Req = Req
+	var _result UpdateCategoryResult
+	if err = p.c.Call(ctx, "UpdateCategory", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SelectBrand(ctx context.Context, Req *product.BrandSelectReq) (r *product.BrandSelectResp, err error) {
+	var _args SelectBrandArgs
+	_args.Req = Req
+	var _result SelectBrandResult
+	if err = p.c.Call(ctx, "SelectBrand", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) InsertBrand(ctx context.Context, Req *product.BrandInsertReq) (r *product.BrandInsertResp, err error) {
+	var _args InsertBrandArgs
+	_args.Req = Req
+	var _result InsertBrandResult
+	if err = p.c.Call(ctx, "InsertBrand", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) DeleteBrand(ctx context.Context, Req *product.BrandDeleteReq) (r *product.BrandDeleteResp, err error) {
+	var _args DeleteBrandArgs
+	_args.Req = Req
+	var _result DeleteBrandResult
+	if err = p.c.Call(ctx, "DeleteBrand", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateBrand(ctx context.Context, Req *product.BrandUpdateReq) (r *product.BrandUpdateResp, err error) {
+	var _args UpdateBrandArgs
+	_args.Req = Req
+	var _result UpdateBrandResult
+	if err = p.c.Call(ctx, "UpdateBrand", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

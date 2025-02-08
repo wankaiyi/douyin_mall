@@ -4,48 +4,53 @@ package product;
 
 option go_package = "/product";
 
-
-message CategorySelectReq {
-  int64 categoryId = 1;
+message BrandSelectReq {
+  int64 BrandId = 1;
+  string name = 2;
+  string description = 3;
+  string icon = 4;
 }
 
-message CategorySelectResp {
+message BrandSelectResp {
   int32 status_code = 1;
   string status_msg = 2;
-  Category category = 3;
+  Brand Brand = 3;
 }
-message Category {
+message Brand {
   int64 id = 1;
   string name = 2;
   string description = 3;
+  string icon = 4;
 }
 
-message CategoryInsertReq{
+message BrandInsertReq{
   string name = 1;
   string description = 2;
+  string icon = 3;
 }
 
-message CategoryInsertResp {
+message BrandInsertResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
 
-message CategoryDeleteReq{
-  int64 category_id = 1;
+message BrandDeleteReq{
+  int64 Brand_id = 1;
 }
 
-message CategoryDeleteResp {
+message BrandDeleteResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
 
-message CategoryUpdateReq{
-  int64 category_id = 1;
+message BrandUpdateReq{
+  int64 Brand_id = 1;
   string name = 2;
   string description = 3;
+  string icon = 4;
 }
 
-message CategoryUpdateResp {
+message BrandUpdateResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
