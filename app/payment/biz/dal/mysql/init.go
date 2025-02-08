@@ -28,20 +28,9 @@ func Init() {
 	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
 	}
-	err := DB.AutoMigrate(&model.Payment{})
+	err = DB.AutoMigrate(&model.CheckRecord{})
 	if err != nil {
 		panic(err)
 	}
-	err = DB.AutoMigrate(&model.PaymentOrder{})
-	if err != nil {
-		panic(err)
-	}
-	err = DB.AutoMigrate(&model.PaymentTransaction{})
-	if err != nil {
-		panic(err)
-	}
-	err = DB.AutoMigrate(&model.IdempotentControl{})
-	if err != nil {
-		panic(err)
-	}
+
 }

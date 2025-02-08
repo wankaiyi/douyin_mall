@@ -25,28 +25,10 @@ func CancelCharge(ctx context.Context, req *payment.CancelChargeReq, callOptions
 	return resp, nil
 }
 
-func PaymentOrderRecord(ctx context.Context, req *payment.PaymentOrderRecordReq, callOptions ...callopt.Option) (resp *payment.PaymentOrderRecordResp, err error) {
-	resp, err = defaultClient.PaymentOrderRecord(ctx, req, callOptions...)
+func NotifyPayment(ctx context.Context, req *payment.NotifyPaymentReq, callOptions ...callopt.Option) (resp *payment.NotifyPaymentResp, err error) {
+	resp, err = defaultClient.NotifyPayment(ctx, req, callOptions...)
 	if err != nil {
-		klog.CtxErrorf(ctx, "PaymentOrderRecord call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func PaymentTransactionRecord(ctx context.Context, req *payment.PaymentTransactionRecordReq, callOptions ...callopt.Option) (resp *payment.PaymentTransactionRecordResp, err error) {
-	resp, err = defaultClient.PaymentTransactionRecord(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "PaymentTransactionRecord call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func IdempotentControl(ctx context.Context, req *payment.IdempotentControlReq, callOptions ...callopt.Option) (resp *payment.IdempotentControlResp, err error) {
-	resp, err = defaultClient.IdempotentControl(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "IdempotentControl call failed,err =%+v", err)
+		klog.CtxErrorf(ctx, "NotifyPayment call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil

@@ -27,6 +27,7 @@ type Config struct {
 	Jaeger Jaeger `yaml:"jaeger"`
 	Kafka  Kafka  `yaml:"kafka"`
 	Alert  Alert  `yaml:"alert"`
+	AliPay AliPay `yaml:"alipay"`
 }
 
 type Hertz struct {
@@ -60,6 +61,9 @@ type ClsKafka struct {
 
 type Alert struct {
 	FeishuWebhook string `yaml:"feishu_webhook"`
+}
+type AliPay struct {
+	AlipayPublicContentPath string `yaml:"ali_pay_public_content_path"`
 }
 
 // GetConf gets configuration instance
