@@ -23,11 +23,11 @@ var (
 type Config struct {
 	Env string
 
-	Hertz   Hertz   `yaml:"hertz"`
-	Jaeger  Jaeger  `yaml:"jaeger"`
-	Kafka   Kafka   `yaml:"kafka"`
-	Alert   Alert   `yaml:"alert"`
-	Redsync Redsync `yaml:"redsync"`
+	Hertz  Hertz  `yaml:"hertz"`
+	Jaeger Jaeger `yaml:"jaeger"`
+	Kafka  Kafka  `yaml:"kafka"`
+	Alert  Alert  `yaml:"alert"`
+	AliPay AliPay `yaml:"alipay"`
 }
 
 type Hertz struct {
@@ -62,9 +62,8 @@ type ClsKafka struct {
 type Alert struct {
 	FeishuWebhook string `yaml:"feishu_webhook"`
 }
-
-type Redsync struct {
-	Addr string `yaml:"addr"`
+type AliPay struct {
+	AlipayPublicContentPath string `yaml:"ali_pay_public_content_path"`
 }
 
 // GetConf gets configuration instance

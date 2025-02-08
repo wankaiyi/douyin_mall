@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/common/constant"
+	redsync "douyin_mall/payment/biz/dal/red_sync"
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
@@ -22,6 +23,16 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 	tradeStatus := notifyData["tradeStatus"]
 	//alipayAmount := notifyData["alipayAmount"]
 	orderId := notifyData["orderId"]
+	//得到互斥锁
+	rsync := redsync.GetRedsync()
+	mutexName := "order_" + orderId
+	mutex := rsync.NewMutex(mutexName)
+	//加锁
+	if err := mutex.Lock(); err != nil {
+		klog.CtxErrorf(s.ctx, "获取互斥锁失败，lock filed,orderId:%s,,err:%s", orderId, err.Error())
+		return nil, err
+	}
+
 	//todo:通过订单号查询订单记录，检查订单状态是否已支付，未支付则更新订单状态，已支付则直接返回
 	//todo:通过订单得到userId,得到订单金额
 	if tradeStatus != "TRADE_SUCCESS" {

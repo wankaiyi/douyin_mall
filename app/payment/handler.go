@@ -23,27 +23,6 @@ func (s *PaymentServiceImpl) CancelCharge(ctx context.Context, req *payment.Canc
 	return resp, err
 }
 
-// PaymentOrderRecord implements the PaymentServiceImpl interface.
-func (s *PaymentServiceImpl) PaymentOrderRecord(ctx context.Context, req *payment.PaymentOrderRecordReq) (resp *payment.PaymentOrderRecordResp, err error) {
-	resp, err = service.NewPaymentOrderRecordService(ctx).Run(req)
-
-	return resp, err
-}
-
-// PaymentTransactionRecord implements the PaymentServiceImpl interface.
-func (s *PaymentServiceImpl) PaymentTransactionRecord(ctx context.Context, req *payment.PaymentTransactionRecordReq) (resp *payment.PaymentTransactionRecordResp, err error) {
-	resp, err = service.NewPaymentTransactionRecordService(ctx).Run(req)
-
-	return resp, err
-}
-
-// IdempotentControl implements the PaymentServiceImpl interface.
-func (s *PaymentServiceImpl) IdempotentControl(ctx context.Context, req *payment.IdempotentControlReq) (resp *payment.IdempotentControlResp, err error) {
-	resp, err = service.NewIdempotentControlService(ctx).Run(req)
-
-	return resp, err
-}
-
 // NotifyPayment implements the PaymentServiceImpl interface.
 func (s *PaymentServiceImpl) NotifyPayment(ctx context.Context, req *payment.NotifyPaymentReq) (resp *payment.NotifyPaymentResp, err error) {
 	resp, err = service.NewNotifyPaymentService(ctx).Run(req)

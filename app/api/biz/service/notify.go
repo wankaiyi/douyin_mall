@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/api/biz/utils"
+	"douyin_mall/api/conf"
 	"douyin_mall/api/infra/rpc"
 	rpcpayment "douyin_mall/rpc/kitex_gen/payment"
 	"github.com/cloudwego/hertz/pkg/app"
@@ -30,7 +31,7 @@ func (h *NotifyService) Run(RequestContext *app.RequestContext) (err error) {
 	//hlog.CtxInfof(h.Context, "req = %+v", req)
 	//hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
-	AlipayPublicContentPath, _ := os.Open(os.Getenv("ALIPAY_PUBLIC_CONTENT_PATH"))
+	AlipayPublicContentPath, _ := os.Open(conf.GetConf().AliPay.AlipayPublicContentPath)
 	AlipayPublicContent, _ := io.ReadAll(AlipayPublicContentPath)
 
 	// 解析异步通知的参数

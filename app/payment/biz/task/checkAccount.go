@@ -3,6 +3,7 @@ package task
 import (
 	"archive/zip"
 	"context"
+	commonConstant "douyin_mall/common/constant"
 	"douyin_mall/payment/biz/dal/mysql"
 	"douyin_mall/payment/biz/model"
 	"douyin_mall/payment/biz/service"
@@ -11,6 +12,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/client"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+
 	"strconv"
 
 	"github.com/xxl-job/xxl-job-executor-go"
@@ -190,10 +192,11 @@ func resolutionCsv(ctx context.Context) {
 		}
 		wg.Add(1)
 		sem <- 1 // 获取一个信号量
+		i := i
 		go func() {
 			defer func() { <-sem }() // 释放信号量
 			// 处理数据
-			handlerData(ctx, i, record, startIndex, endIndex, sem, &wg)
+			handlerData(ctx, i, record, startIndex, endIndex, &wg)
 		}()
 	}
 
@@ -230,32 +233,61 @@ func findEndIndex(ctx context.Context, index int, content []string, endIndexCh c
 
 }
 
-func handlerData(ctx context.Context, index int, content []string, startIndex int, endIndex int, sem chan int, wg *sync.WaitGroup) {
+func handlerData(ctx context.Context, index int, content []string, startIndex int, endIndex int, wg *sync.WaitGroup) {
 	if index > startIndex+1 && index < endIndex {
 		//for循环处理数据
 		//0为支付宝交易号，1为订单号，13为商家实收的金额
 		alipayTradeNo := content[0]
 		orderId := content[1]
-		amount := content[13]
-		fAmount, err := strconv.ParseFloat(amount, 64)
+		AlipayAmount := content[13]
+		AlipayAmountFloat, err := strconv.ParseFloat(AlipayAmount, 64)
 		if err != nil {
 			hlog.CtxErrorf(ctx, "strconv.ParseFloat error: %v", err)
 		}
 		//检查数据库中是否存在数据
-		paymentOrder, err := model.GetPaymentOrdersByOrderID(mysql.DB, ctx, orderId)
+		//todo 获取根据订单号获取订单数据
 		if err != nil {
-			hlog.CtxErrorf(ctx, "model.GetPaymentOrdersByOrderID error: %v", err)
+			hlog.CtxErrorf(ctx, "获取订单数据失败,err： %v，orderId：%s", err, orderId)
+			return
+		}
+		var orderResp interface{}
+		var orderAmount float64
+
+		if orderResp == nil {
+			hlog.CtxErrorf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库中不存在!!!", orderId, alipayTradeNo, AlipayAmountFloat)
+			return
+			//订单金额与支付金额不一致
+		} else if orderAmount != AlipayAmountFloat {
+			hlog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, AlipayAmountFloat, orderAmount)
+
+			err := model.CreateCheckRecord(mysql.DB, ctx, &model.CheckRecord{
+				ReconDate:     time.Now().Local(),
+				OrderId:       orderId,
+				AlipayTradeNo: alipayTradeNo,
+				AlipayAmount:  AlipayAmountFloat,
+				LocalAmount:   orderAmount,
+				Status:        commonConstant.InconsistentCheckRecordStatus,
+			})
+			if err != nil {
+				hlog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
+			}
+			return
+			//订单金额与支付金额一致
+		}
+		err = model.CreateCheckRecord(mysql.DB, ctx, &model.CheckRecord{
+			ReconDate:     time.Now().Local(),
+			OrderId:       orderId,
+			AlipayTradeNo: alipayTradeNo,
+			AlipayAmount:  AlipayAmountFloat,
+			LocalAmount:   orderAmount,
+			Status:        commonConstant.ConsistentCheckRecordStatus,
+		})
+		if err != nil {
+			hlog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
 			return
 		}
 
-		if paymentOrder == nil {
-			hlog.CtxErrorf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库中不存在!!!", orderId, alipayTradeNo, fAmount)
-			return
-		} else if paymentOrder.Amount != fAmount {
-			hlog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, fAmount, paymentOrder.Amount)
-			return
-		}
-		hlog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, fAmount, paymentOrder.Amount)
+		hlog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, AlipayAmountFloat, orderAmount)
 	}
 	defer wg.Done()
 

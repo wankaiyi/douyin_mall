@@ -28,6 +28,7 @@ type Config struct {
 	Jaeger   Jaeger   `yaml:"jaeger"`
 	AliPay   AliPay   `yaml:"alipay"`
 	XxlJob   XxlJob   `yaml:"xxl_job"`
+	Redsync  Redsync  `yaml:"redsync"`
 }
 
 type MySQL struct {
@@ -86,7 +87,13 @@ type AliPay struct {
 }
 type XxlJob struct {
 	XxlJobAddress string `yaml:"xxl_job_address"`
+	ExecutorIp    string `yaml:"executor_ip"`
 	AccessToken   string `yaml:"access_token"`
+}
+
+type Redsync struct {
+	Addr     string `yaml:"addr"`
+	Password string `yaml:"password"`
 }
 
 // GetConf gets configuration instance
