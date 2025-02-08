@@ -21,6 +21,8 @@ message Product {
   int64 stock=7;
   int64 sale=8;
   int64 publish_status=9;
+  int64 category_id=10;
+  int64 brand_id=11;
 }
 
 message ProductRequest {
@@ -39,6 +41,8 @@ message ProductInsertRequest {
   string picture = 3 [(api.form)= "picture"];
   string price = 4 [(api.form)= "price"];
   int64 stock = 5 [(api.form)= "stock"];
+  int64 categoryId = 6 [(api.form)= "categoryId"];
+  int64 brandId = 7 [(api.form)= "brandId"];
 }
 message ProductInsertResponse {
   int32 status_code = 1[(api.go_tag)='json:"status_code"'];
@@ -72,6 +76,8 @@ message ProductUpdateRequest {
   int64 stock=7[(api.form)= "stock"];
   int64 sale=8[(api.form)= "sale"];
   int64 publish_status=9[(api.form)= "publish_status"];
+  int64 category_id=10[(api.form)= "categoryId"];
+  int64 brand_id=11[(api.form)= "brandId"];
 }
 
 message ProductUpdateResponse {

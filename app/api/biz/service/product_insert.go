@@ -25,6 +25,8 @@ func (h *ProductInsertService) Run(req *product.ProductInsertRequest) (resp *pro
 		Picture:     req.Picture,
 		Price:       req.Price,
 		Stock:       req.Stock,
+		CategoryId:  req.CategoryId,
+		BrandId:     req.BrandId,
 	}
 	//2 调用业务层的插入方法
 	insertProduct, err := rpc.ProductClient.InsertProduct(h.Context, &productReq)

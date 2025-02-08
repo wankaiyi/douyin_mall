@@ -30,6 +30,8 @@ func (h *ProductUpdateService) Run(req *product.ProductUpdateRequest) (resp *pro
 		Description:   req.GetDescription(),
 		Picture:       req.GetPicture(),
 		Categories:    req.GetCategories(),
+		BrandId:       req.GetBrandId(),
+		CategoryId:    req.GetCategoryId(),
 	})
 	//组装返回数据
 	return &product.ProductUpdateResponse{

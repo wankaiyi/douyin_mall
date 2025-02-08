@@ -16,6 +16,8 @@ type Product struct {
 	Sale        int64     `json:"sale"`
 	PublicState int64     `json:"public_state"`
 	LockStock   int64     `json:"lock_stock"`
+	CategoryId  int64     `json:"category_id"`
+	BrandId     int64     `json:"brand_id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

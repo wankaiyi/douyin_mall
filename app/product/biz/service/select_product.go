@@ -40,6 +40,8 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 			Stock:         pro.Stock,
 			Sale:          pro.Sale,
 			PublishStatus: pro.PublicState,
+			CategoryId:    pro.CategoryId,
+			BrandId:       pro.BrandId,
 		},
 	}
 	return
