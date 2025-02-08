@@ -14,9 +14,7 @@ type RPCClient interface {
 	Service() string
 	Charge(ctx context.Context, Req *payment.ChargeReq, callOptions ...callopt.Option) (r *payment.ChargeResp, err error)
 	CancelCharge(ctx context.Context, Req *payment.CancelChargeReq, callOptions ...callopt.Option) (r *payment.CancelChargeResp, err error)
-	PaymentOrderRecord(ctx context.Context, Req *payment.PaymentOrderRecordReq, callOptions ...callopt.Option) (r *payment.PaymentOrderRecordResp, err error)
-	PaymentTransactionRecord(ctx context.Context, Req *payment.PaymentTransactionRecordReq, callOptions ...callopt.Option) (r *payment.PaymentTransactionRecordResp, err error)
-	IdempotentControl(ctx context.Context, Req *payment.IdempotentControlReq, callOptions ...callopt.Option) (r *payment.IdempotentControlResp, err error)
+	NotifyPayment(ctx context.Context, Req *payment.NotifyPaymentReq, callOptions ...callopt.Option) (r *payment.NotifyPaymentResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -53,14 +51,6 @@ func (c *clientImpl) CancelCharge(ctx context.Context, Req *payment.CancelCharge
 	return c.kitexClient.CancelCharge(ctx, Req, callOptions...)
 }
 
-func (c *clientImpl) PaymentOrderRecord(ctx context.Context, Req *payment.PaymentOrderRecordReq, callOptions ...callopt.Option) (r *payment.PaymentOrderRecordResp, err error) {
-	return c.kitexClient.PaymentOrderRecord(ctx, Req, callOptions...)
-}
-
-func (c *clientImpl) PaymentTransactionRecord(ctx context.Context, Req *payment.PaymentTransactionRecordReq, callOptions ...callopt.Option) (r *payment.PaymentTransactionRecordResp, err error) {
-	return c.kitexClient.PaymentTransactionRecord(ctx, Req, callOptions...)
-}
-
-func (c *clientImpl) IdempotentControl(ctx context.Context, Req *payment.IdempotentControlReq, callOptions ...callopt.Option) (r *payment.IdempotentControlResp, err error) {
-	return c.kitexClient.IdempotentControl(ctx, Req, callOptions...)
+func (c *clientImpl) NotifyPayment(ctx context.Context, Req *payment.NotifyPaymentReq, callOptions ...callopt.Option) (r *payment.NotifyPaymentResp, err error) {
+	return c.kitexClient.NotifyPayment(ctx, Req, callOptions...)
 }

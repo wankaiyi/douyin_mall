@@ -8,9 +8,7 @@ option go_package = "payment";
 service PaymentService {
   rpc Charge(ChargeReq) returns (ChargeResp) {}
   rpc CancelCharge(CancelChargeReq) returns (CancelChargeResp) {}
-  rpc PaymentOrderRecord(PaymentOrderRecordReq) returns (PaymentOrderRecordResp) {}
-  rpc PaymentTransactionRecord(PaymentTransactionRecordReq) returns (PaymentTransactionRecordResp) {}
-  rpc idempotentControl(idempotentControlReq) returns (idempotentControlResp) {}
+  rpc NotifyPayment(NotifyPaymentReq) returns (NotifyPaymentResp) {}
 }
 
 
@@ -35,33 +33,12 @@ message CancelChargeResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
-
-message PaymentOrderRecordReq {
-  string order_id = 1;
-  int32 user_id = 2;
-  float amount = 3;
-  int32 status = 4;
-}
-message PaymentOrderRecordResp {
-  int32 status_code = 1;
-  string status_msg = 2;
+message NotifyPaymentReq {
+  map<string, string> notify_data = 1;
+  
 }
 
-message PaymentTransactionRecordReq {
-  string order_id = 1;
-  string AlipayTradeNo = 2;
-  string TradeStatus = 3;
-  string Callback = 4   ;
-  string RequestParams = 5;
-}
-message PaymentTransactionRecordResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-}
-message idempotentControlReq {
-   string order_id = 1;
-}
-message idempotentControlResp {
+message NotifyPaymentResp {
   int32 status_code = 1;
   string status_msg = 2;
 }

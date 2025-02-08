@@ -43,3 +43,10 @@ func (s *PaymentServiceImpl) IdempotentControl(ctx context.Context, req *payment
 
 	return resp, err
 }
+
+// NotifyPayment implements the PaymentServiceImpl interface.
+func (s *PaymentServiceImpl) NotifyPayment(ctx context.Context, req *payment.NotifyPaymentReq) (resp *payment.NotifyPaymentResp, err error) {
+	resp, err = service.NewNotifyPaymentService(ctx).Run(req)
+
+	return resp, err
+}
