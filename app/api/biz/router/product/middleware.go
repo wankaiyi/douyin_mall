@@ -45,3 +45,13 @@ func _productupdateMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _categoryMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _categoryselectMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

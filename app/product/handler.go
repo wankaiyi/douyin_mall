@@ -57,3 +57,10 @@ func (s *ProductCatalogServiceImpl) UpdateProduct(ctx context.Context, req *prod
 
 	return resp, err
 }
+
+// SelectCategory implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) SelectCategory(ctx context.Context, req *product.CategorySelectReq) (resp *product.CategorySelectResp, err error) {
+	resp, err = service.NewSelectCategoryService(ctx).Run(req)
+
+	return resp, err
+}

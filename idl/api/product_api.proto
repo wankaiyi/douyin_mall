@@ -6,6 +6,7 @@ package api.product;
 option go_package = "api/product";
 
 import "api.proto";
+import "category_api.proto";
 //import "common.proto";
 
 message Product {
@@ -96,6 +97,10 @@ service ProductService {
 
   rpc ProductUpdate(ProductUpdateRequest) returns (ProductUpdateResponse) {
     option (api.post) = "/product/update";
+  }
+
+  rpc CategorySelect (CategorySelectRequest) returns (CategorySelectResponse) {
+    option (api.post) = "/category/select";
   }
 
 }

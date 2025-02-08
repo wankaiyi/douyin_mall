@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package api.product;
+
+option go_package = "api/product";
+
+import "api.proto";
+
+message CategorySelectRequest {
+    int64 categoryId = 1 [(api.form)= "categoryId"];
+}
+
+message CategorySelectResponse {
+    int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+    string status_msg = 2;
+    Category categories = 3;
+}
+message Category {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+}
