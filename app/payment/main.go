@@ -8,8 +8,8 @@ import (
 	"douyin_mall/common/utils/env"
 	"douyin_mall/payment/biz/dal"
 	"douyin_mall/payment/biz/task"
+	kafka2 "douyin_mall/payment/infra/kafka"
 
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/xxl-job/xxl-job-executor-go"
 
 	"net"
@@ -40,6 +40,10 @@ func main() {
 	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
+	//klog.CtxInfof(context.Background(), "payment service start")
+	//初始化延时队列和消费者组
+	go kafka2.DelayQueueInit()
+	go kafka2.ConsumerGroupInit()
 
 	opts := kitexInit()
 	//将server服务注册到nacos
@@ -109,25 +113,25 @@ func customLogHandle(req *xxl.LogReq) *xxl.LogRes {
 type logger struct{}
 
 func (l *logger) Info(format string, a ...interface{}) {
-	hlog.CtxInfof(context.Background(), format, a...)
+	klog.CtxInfof(context.Background(), format, a...)
 }
 
 func (l *logger) Error(format string, a ...interface{}) {
-	hlog.CtxErrorf(context.Background(), format, a...)
+	klog.CtxErrorf(context.Background(), format, a...)
 }
 func (l *logger) Debug(format string, a ...interface{}) {
-	hlog.CtxDebugf(context.Background(), format, a...)
+	klog.CtxDebugf(context.Background(), format, a...)
 }
 func (l *logger) Warn(format string, a ...interface{}) {
-	hlog.CtxWarnf(context.Background(), format, a...)
+	klog.CtxWarnf(context.Background(), format, a...)
 }
 
 // 自定义中间件
 func customMiddleware(tf xxl.TaskFunc) xxl.TaskFunc {
 	return func(cxt context.Context, param *xxl.RunReq) string {
-		hlog.CtxInfof(context.Background(), "xxl-job 定时任务启动")
+		klog.CtxInfof(context.Background(), "xxl-job 定时任务启动")
 		res := tf(cxt, param)
-		hlog.CtxInfof(context.Background(), "xxl-job 定时任务结束")
+		klog.CtxInfof(context.Background(), "xxl-job 定时任务结束")
 		return res
 	}
 }

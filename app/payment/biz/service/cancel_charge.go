@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/common/constant"
+	"douyin_mall/payment/biz/dal/alipay"
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
@@ -24,7 +25,7 @@ func (s *CancelChargeService) Run(req *payment.CancelChargeReq) (resp *payment.C
 		klog.CtxErrorf(s.ctx, "parse order id error: %s", err.Error())
 		return nil, err
 	}
-	result, err := CancelPay(s.ctx, orderId)
+	result, err := alipay.CancelPay(s.ctx, orderId)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "cancel charge error: %s", err.Error())
 		return nil, errors.WithStack(err)

@@ -3,7 +3,10 @@ package service
 import (
 	"context"
 	"douyin_mall/common/constant"
+	"douyin_mall/payment/biz/dal/alipay"
+	"douyin_mall/payment/infra/kafka"
 	payment "douyin_mall/payment/kitex_gen/payment"
+	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 	"strconv"
@@ -26,7 +29,7 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 	}
 	amount := req.Amount
 
-	paymentUrl, err := Pay(s.ctx, orderId, amount)
+	paymentUrl, err := alipay.Pay(s.ctx, orderId, amount)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "pay error: %s,req: %+v", err.Error(), req)
 		resp = &payment.ChargeResp{
@@ -36,6 +39,15 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 		}
 		return nil, errors.WithStack(err)
 	}
+	//给kafka发送延时消息
+	producer := kafka.GetProducer()
+	msg := strconv.Itoa(int(orderId))
+
+	kafka.SendDelayMsg(&sarama.ProducerMessage{
+		Topic: "__delay-seconds-5",
+		Value: sarama.StringEncoder(msg),
+		Key:   sarama.StringEncoder("check-payment"),
+	}, *producer)
 	resp = &payment.ChargeResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

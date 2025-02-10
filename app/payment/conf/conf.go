@@ -65,12 +65,16 @@ type Alert struct {
 
 type Kafka struct {
 	ClsKafka ClsKafka `yaml:"cls_kafka"`
+	BizKafka BizKafka `yaml:"biz_kafka"`
 }
 
 type ClsKafka struct {
 	Usser    string `yaml:"user"`
 	Password string `yaml:"password"`
 	TopicId  string `yaml:"topic_id"`
+}
+type BizKafka struct {
+	BootstrapServers string `yaml:"bootstrap_servers"`
 }
 
 type Jaeger struct {
@@ -81,8 +85,8 @@ type AliPay struct {
 	AppId                   string `yaml:"app_id"`
 	PrivateKey              string `yaml:"private_key"`
 	NotifyUrl               string `yaml:"notify_url"`
-	AliPayPublicContentPath string `yaml:"alipay_public_content_path"`
-	AliPayRootContentPath   string `yaml:"alipay_private_content_path"`
+	AliPayPublicContentPath string `yaml:"ali_pay_public_content_path"`
+	AliPayRootContentPath   string `yaml:"ali_pay_root_content_path"`
 	AppPublicContentPath    string `yaml:"app_public_content_path"`
 }
 type XxlJob struct {

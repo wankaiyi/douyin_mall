@@ -4,9 +4,9 @@ import (
 	"archive/zip"
 	"context"
 	commonConstant "douyin_mall/common/constant"
+	"douyin_mall/payment/biz/dal/alipay"
 	"douyin_mall/payment/biz/dal/mysql"
 	"douyin_mall/payment/biz/model"
-	"douyin_mall/payment/biz/service"
 	"encoding/csv"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app/client"
@@ -38,7 +38,7 @@ func CheckAccountTask(ctx context.Context, param *xxl.RunReq) (msg string) {
 
 func downloadQueryZip(ctx context.Context) {
 	// 目标URL
-	billDownloadUrl, err := service.QueryPay(ctx)
+	billDownloadUrl, err := alipay.QueryBill(ctx)
 	if err != nil {
 		hlog.CtxErrorf(ctx, "Get billDownloadUrl error: %v", err)
 		return
