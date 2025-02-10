@@ -36,6 +36,41 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"SearchCarts": kitex.NewMethodInfo(
+		searchCartsHandler,
+		newSearchCartsArgs,
+		newSearchCartsResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"InsertCart": kitex.NewMethodInfo(
+		insertCartHandler,
+		newInsertCartArgs,
+		newInsertCartResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"SelectCart": kitex.NewMethodInfo(
+		selectCartHandler,
+		newSelectCartArgs,
+		newSelectCartResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"DeleteCart": kitex.NewMethodInfo(
+		deleteCartHandler,
+		newDeleteCartArgs,
+		newDeleteCartResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"UpdateCart": kitex.NewMethodInfo(
+		updateCartHandler,
+		newUpdateCartArgs,
+		newUpdateCartResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -561,6 +596,771 @@ func (p *EmptyCartResult) GetResult() interface{} {
 	return p.Success
 }
 
+func searchCartsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(cart.SearchCartsReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(cart.CartService).SearchCarts(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SearchCartsArgs:
+		success, err := handler.(cart.CartService).SearchCarts(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SearchCartsResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSearchCartsArgs() interface{} {
+	return &SearchCartsArgs{}
+}
+
+func newSearchCartsResult() interface{} {
+	return &SearchCartsResult{}
+}
+
+type SearchCartsArgs struct {
+	Req *cart.SearchCartsReq
+}
+
+func (p *SearchCartsArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(cart.SearchCartsReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SearchCartsArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SearchCartsArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SearchCartsArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SearchCartsArgs) Unmarshal(in []byte) error {
+	msg := new(cart.SearchCartsReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SearchCartsArgs_Req_DEFAULT *cart.SearchCartsReq
+
+func (p *SearchCartsArgs) GetReq() *cart.SearchCartsReq {
+	if !p.IsSetReq() {
+		return SearchCartsArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SearchCartsArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SearchCartsArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SearchCartsResult struct {
+	Success *cart.SearchCartsResp
+}
+
+var SearchCartsResult_Success_DEFAULT *cart.SearchCartsResp
+
+func (p *SearchCartsResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(cart.SearchCartsResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SearchCartsResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SearchCartsResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SearchCartsResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SearchCartsResult) Unmarshal(in []byte) error {
+	msg := new(cart.SearchCartsResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SearchCartsResult) GetSuccess() *cart.SearchCartsResp {
+	if !p.IsSetSuccess() {
+		return SearchCartsResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SearchCartsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cart.SearchCartsResp)
+}
+
+func (p *SearchCartsResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SearchCartsResult) GetResult() interface{} {
+	return p.Success
+}
+
+func insertCartHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(cart.InsertCartReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(cart.CartService).InsertCart(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *InsertCartArgs:
+		success, err := handler.(cart.CartService).InsertCart(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*InsertCartResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newInsertCartArgs() interface{} {
+	return &InsertCartArgs{}
+}
+
+func newInsertCartResult() interface{} {
+	return &InsertCartResult{}
+}
+
+type InsertCartArgs struct {
+	Req *cart.InsertCartReq
+}
+
+func (p *InsertCartArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(cart.InsertCartReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *InsertCartArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *InsertCartArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *InsertCartArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *InsertCartArgs) Unmarshal(in []byte) error {
+	msg := new(cart.InsertCartReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var InsertCartArgs_Req_DEFAULT *cart.InsertCartReq
+
+func (p *InsertCartArgs) GetReq() *cart.InsertCartReq {
+	if !p.IsSetReq() {
+		return InsertCartArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *InsertCartArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *InsertCartArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type InsertCartResult struct {
+	Success *cart.InsertCartResp
+}
+
+var InsertCartResult_Success_DEFAULT *cart.InsertCartResp
+
+func (p *InsertCartResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(cart.InsertCartResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *InsertCartResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *InsertCartResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *InsertCartResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *InsertCartResult) Unmarshal(in []byte) error {
+	msg := new(cart.InsertCartResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *InsertCartResult) GetSuccess() *cart.InsertCartResp {
+	if !p.IsSetSuccess() {
+		return InsertCartResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *InsertCartResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cart.InsertCartResp)
+}
+
+func (p *InsertCartResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *InsertCartResult) GetResult() interface{} {
+	return p.Success
+}
+
+func selectCartHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(cart.SelectCartReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(cart.CartService).SelectCart(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SelectCartArgs:
+		success, err := handler.(cart.CartService).SelectCart(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SelectCartResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSelectCartArgs() interface{} {
+	return &SelectCartArgs{}
+}
+
+func newSelectCartResult() interface{} {
+	return &SelectCartResult{}
+}
+
+type SelectCartArgs struct {
+	Req *cart.SelectCartReq
+}
+
+func (p *SelectCartArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(cart.SelectCartReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SelectCartArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SelectCartArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SelectCartArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SelectCartArgs) Unmarshal(in []byte) error {
+	msg := new(cart.SelectCartReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SelectCartArgs_Req_DEFAULT *cart.SelectCartReq
+
+func (p *SelectCartArgs) GetReq() *cart.SelectCartReq {
+	if !p.IsSetReq() {
+		return SelectCartArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SelectCartArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SelectCartArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SelectCartResult struct {
+	Success *cart.SelectCartResp
+}
+
+var SelectCartResult_Success_DEFAULT *cart.SelectCartResp
+
+func (p *SelectCartResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(cart.SelectCartResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SelectCartResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SelectCartResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SelectCartResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SelectCartResult) Unmarshal(in []byte) error {
+	msg := new(cart.SelectCartResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SelectCartResult) GetSuccess() *cart.SelectCartResp {
+	if !p.IsSetSuccess() {
+		return SelectCartResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SelectCartResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cart.SelectCartResp)
+}
+
+func (p *SelectCartResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SelectCartResult) GetResult() interface{} {
+	return p.Success
+}
+
+func deleteCartHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(cart.DeleteCartReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(cart.CartService).DeleteCart(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *DeleteCartArgs:
+		success, err := handler.(cart.CartService).DeleteCart(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*DeleteCartResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newDeleteCartArgs() interface{} {
+	return &DeleteCartArgs{}
+}
+
+func newDeleteCartResult() interface{} {
+	return &DeleteCartResult{}
+}
+
+type DeleteCartArgs struct {
+	Req *cart.DeleteCartReq
+}
+
+func (p *DeleteCartArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(cart.DeleteCartReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *DeleteCartArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *DeleteCartArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *DeleteCartArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *DeleteCartArgs) Unmarshal(in []byte) error {
+	msg := new(cart.DeleteCartReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var DeleteCartArgs_Req_DEFAULT *cart.DeleteCartReq
+
+func (p *DeleteCartArgs) GetReq() *cart.DeleteCartReq {
+	if !p.IsSetReq() {
+		return DeleteCartArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *DeleteCartArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *DeleteCartArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type DeleteCartResult struct {
+	Success *cart.DeleteCartResp
+}
+
+var DeleteCartResult_Success_DEFAULT *cart.DeleteCartResp
+
+func (p *DeleteCartResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(cart.DeleteCartResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *DeleteCartResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *DeleteCartResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *DeleteCartResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *DeleteCartResult) Unmarshal(in []byte) error {
+	msg := new(cart.DeleteCartResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *DeleteCartResult) GetSuccess() *cart.DeleteCartResp {
+	if !p.IsSetSuccess() {
+		return DeleteCartResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *DeleteCartResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cart.DeleteCartResp)
+}
+
+func (p *DeleteCartResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *DeleteCartResult) GetResult() interface{} {
+	return p.Success
+}
+
+func updateCartHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(cart.UpdateCartReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(cart.CartService).UpdateCart(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *UpdateCartArgs:
+		success, err := handler.(cart.CartService).UpdateCart(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*UpdateCartResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newUpdateCartArgs() interface{} {
+	return &UpdateCartArgs{}
+}
+
+func newUpdateCartResult() interface{} {
+	return &UpdateCartResult{}
+}
+
+type UpdateCartArgs struct {
+	Req *cart.UpdateCartReq
+}
+
+func (p *UpdateCartArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(cart.UpdateCartReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *UpdateCartArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *UpdateCartArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *UpdateCartArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *UpdateCartArgs) Unmarshal(in []byte) error {
+	msg := new(cart.UpdateCartReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var UpdateCartArgs_Req_DEFAULT *cart.UpdateCartReq
+
+func (p *UpdateCartArgs) GetReq() *cart.UpdateCartReq {
+	if !p.IsSetReq() {
+		return UpdateCartArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *UpdateCartArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *UpdateCartArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type UpdateCartResult struct {
+	Success *cart.UpdateCartResp
+}
+
+var UpdateCartResult_Success_DEFAULT *cart.UpdateCartResp
+
+func (p *UpdateCartResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(cart.UpdateCartResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *UpdateCartResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *UpdateCartResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *UpdateCartResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *UpdateCartResult) Unmarshal(in []byte) error {
+	msg := new(cart.UpdateCartResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *UpdateCartResult) GetSuccess() *cart.UpdateCartResp {
+	if !p.IsSetSuccess() {
+		return UpdateCartResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *UpdateCartResult) SetSuccess(x interface{}) {
+	p.Success = x.(*cart.UpdateCartResp)
+}
+
+func (p *UpdateCartResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *UpdateCartResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -596,6 +1396,56 @@ func (p *kClient) EmptyCart(ctx context.Context, Req *cart.EmptyCartReq) (r *car
 	_args.Req = Req
 	var _result EmptyCartResult
 	if err = p.c.Call(ctx, "EmptyCart", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SearchCarts(ctx context.Context, Req *cart.SearchCartsReq) (r *cart.SearchCartsResp, err error) {
+	var _args SearchCartsArgs
+	_args.Req = Req
+	var _result SearchCartsResult
+	if err = p.c.Call(ctx, "SearchCarts", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) InsertCart(ctx context.Context, Req *cart.InsertCartReq) (r *cart.InsertCartResp, err error) {
+	var _args InsertCartArgs
+	_args.Req = Req
+	var _result InsertCartResult
+	if err = p.c.Call(ctx, "InsertCart", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SelectCart(ctx context.Context, Req *cart.SelectCartReq) (r *cart.SelectCartResp, err error) {
+	var _args SelectCartArgs
+	_args.Req = Req
+	var _result SelectCartResult
+	if err = p.c.Call(ctx, "SelectCart", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) DeleteCart(ctx context.Context, Req *cart.DeleteCartReq) (r *cart.DeleteCartResp, err error) {
+	var _args DeleteCartArgs
+	_args.Req = Req
+	var _result DeleteCartResult
+	if err = p.c.Call(ctx, "DeleteCart", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) UpdateCart(ctx context.Context, Req *cart.UpdateCartReq) (r *cart.UpdateCartResp, err error) {
+	var _args UpdateCartArgs
+	_args.Req = Req
+	var _result UpdateCartResult
+	if err = p.c.Call(ctx, "UpdateCart", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

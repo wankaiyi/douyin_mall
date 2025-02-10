@@ -10,6 +10,12 @@ service OrderService {
   rpc PlaceOrder(PlaceOrderReq) returns (PlaceOrderResp) {}
   rpc ListOrder(ListOrderReq) returns (ListOrderResp) {}
   rpc MarkOrderPaid(MarkOrderPaidReq) returns (MarkOrderPaidResp) {}
+  rpc GetOrder(GetOrderReq) returns (GetOrderResp) {}
+  rpc SearchOrders(SearchOrdersReq) returns (SearchOrdersResp) {}
+  rpc InsertOrder(InsertOrderReq) returns (InsertOrderResp) {}
+  rpc SelectOrder(SelectOrderReq) returns (SelectOrderResp) {}
+  rpc DeleteOrder(DeleteOrderReq) returns (DeleteOrderResp) {}
+  rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderResp) {}
 }
 
 message Address {
@@ -70,6 +76,79 @@ message MarkOrderPaidReq {
 }
 
 message MarkOrderPaidResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message GetOrderReq {
+  uint32 id = 1;
+}
+
+message GetOrderResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  Order order = 3;
+}
+
+message SearchOrdersReq {
+  string query = 1;
+}
+
+message SearchOrdersResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Order results = 3;
+}
+
+message InsertOrderReq {
+  int64 id = 1;
+  int64 productId = 2;
+  int64 userId = 3;
+  int64 deliveryId = 4;
+  string quantity = 5;
+  string price = 6;
+  string description = 7;
+  int32 status = 8;
+  int32 isDeleted = 9;
+}
+
+message InsertOrderResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message SelectOrderReq {
+  int64 id = 1;
+}
+
+message SelectOrderResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  Order order = 3;
+}
+
+message DeleteOrderReq {
+  int64 id = 1;
+}
+
+message DeleteOrderResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message UpdateOrderReq {
+  int64 id = 1;
+  int64 productId = 2;
+  int64 userId = 3;
+  int64 deliveryId = 4;
+  string quantity = 5;
+  string price = 6;
+  string description = 7;
+  int32 status = 8;
+  int32 isDeleted = 9;
+}
+
+message UpdateOrderResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
