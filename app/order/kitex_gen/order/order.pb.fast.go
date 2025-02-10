@@ -275,6 +275,21 @@ func (x *ListOrderReq) FastRead(buf []byte, _type int8, number int32) (offset in
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 4:
+		offset, err = x.fastReadField4(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -290,6 +305,26 @@ ReadFieldError:
 
 func (x *ListOrderReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
 	x.UserId, offset, err = fastpb.ReadUint32(buf, _type)
+	return offset, err
+}
+
+func (x *ListOrderReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	var v string
+	v, offset, err = fastpb.ReadString(buf, _type)
+	if err != nil {
+		return offset, err
+	}
+	x.SearchTerms = append(x.SearchTerms, v)
+	return offset, err
+}
+
+func (x *ListOrderReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.StartTime, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *ListOrderReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
+	x.EndTime, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -583,81 +618,6 @@ func (x *GetOrderResp) fastReadField3(buf []byte, _type int8) (offset int, err e
 	return offset, nil
 }
 
-func (x *SearchOrdersReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SearchOrdersReq[number], err)
-}
-
-func (x *SearchOrdersReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Query, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *SearchOrdersResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	case 2:
-		offset, err = x.fastReadField2(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	case 3:
-		offset, err = x.fastReadField3(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SearchOrdersResp[number], err)
-}
-
-func (x *SearchOrdersResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
-	return offset, err
-}
-
-func (x *SearchOrdersResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *SearchOrdersResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	var v Order
-	offset, err = fastpb.ReadMessage(buf, _type, &v)
-	if err != nil {
-		return offset, err
-	}
-	x.Results = append(x.Results, &v)
-	return offset, nil
-}
-
 func (x *InsertOrderReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
 	switch number {
 	case 1:
@@ -796,81 +756,6 @@ func (x *InsertOrderResp) fastReadField1(buf []byte, _type int8) (offset int, er
 func (x *InsertOrderResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
 	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
-}
-
-func (x *SelectOrderReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SelectOrderReq[number], err)
-}
-
-func (x *SelectOrderReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
-	return offset, err
-}
-
-func (x *SelectOrderResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
-	switch number {
-	case 1:
-		offset, err = x.fastReadField1(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	case 2:
-		offset, err = x.fastReadField2(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	case 3:
-		offset, err = x.fastReadField3(buf, _type)
-		if err != nil {
-			goto ReadFieldError
-		}
-	default:
-		offset, err = fastpb.Skip(buf, _type, number)
-		if err != nil {
-			goto SkipFieldError
-		}
-	}
-	return offset, nil
-SkipFieldError:
-	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
-ReadFieldError:
-	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SelectOrderResp[number], err)
-}
-
-func (x *SelectOrderResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
-	return offset, err
-}
-
-func (x *SelectOrderResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
-	return offset, err
-}
-
-func (x *SelectOrderResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	var v Order
-	offset, err = fastpb.ReadMessage(buf, _type, &v)
-	if err != nil {
-		return offset, err
-	}
-	x.Order = &v
-	return offset, nil
 }
 
 func (x *DeleteOrderReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
@@ -1259,6 +1144,9 @@ func (x *ListOrderReq) FastWrite(buf []byte) (offset int) {
 		return offset
 	}
 	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	offset += x.fastWriteField4(buf[offset:])
 	return offset
 }
 
@@ -1267,6 +1155,32 @@ func (x *ListOrderReq) fastWriteField1(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteUint32(buf[offset:], 1, x.GetUserId())
+	return offset
+}
+
+func (x *ListOrderReq) fastWriteField2(buf []byte) (offset int) {
+	if len(x.SearchTerms) == 0 {
+		return offset
+	}
+	for i := range x.GetSearchTerms() {
+		offset += fastpb.WriteString(buf[offset:], 2, x.GetSearchTerms()[i])
+	}
+	return offset
+}
+
+func (x *ListOrderReq) fastWriteField3(buf []byte) (offset int) {
+	if x.StartTime == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetStartTime())
+	return offset
+}
+
+func (x *ListOrderReq) fastWriteField4(buf []byte) (offset int) {
+	if x.EndTime == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 4, x.GetEndTime())
 	return offset
 }
 
@@ -1478,58 +1392,6 @@ func (x *GetOrderResp) fastWriteField3(buf []byte) (offset int) {
 	return offset
 }
 
-func (x *SearchOrdersReq) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	return offset
-}
-
-func (x *SearchOrdersReq) fastWriteField1(buf []byte) (offset int) {
-	if x.Query == "" {
-		return offset
-	}
-	offset += fastpb.WriteString(buf[offset:], 1, x.GetQuery())
-	return offset
-}
-
-func (x *SearchOrdersResp) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	offset += x.fastWriteField2(buf[offset:])
-	offset += x.fastWriteField3(buf[offset:])
-	return offset
-}
-
-func (x *SearchOrdersResp) fastWriteField1(buf []byte) (offset int) {
-	if x.StatusCode == 0 {
-		return offset
-	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
-	return offset
-}
-
-func (x *SearchOrdersResp) fastWriteField2(buf []byte) (offset int) {
-	if x.StatusMsg == "" {
-		return offset
-	}
-	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
-	return offset
-}
-
-func (x *SearchOrdersResp) fastWriteField3(buf []byte) (offset int) {
-	if x.Results == nil {
-		return offset
-	}
-	for i := range x.GetResults() {
-		offset += fastpb.WriteMessage(buf[offset:], 3, x.GetResults()[i])
-	}
-	return offset
-}
-
 func (x *InsertOrderReq) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -1640,56 +1502,6 @@ func (x *InsertOrderResp) fastWriteField2(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
-	return offset
-}
-
-func (x *SelectOrderReq) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	return offset
-}
-
-func (x *SelectOrderReq) fastWriteField1(buf []byte) (offset int) {
-	if x.Id == 0 {
-		return offset
-	}
-	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
-	return offset
-}
-
-func (x *SelectOrderResp) FastWrite(buf []byte) (offset int) {
-	if x == nil {
-		return offset
-	}
-	offset += x.fastWriteField1(buf[offset:])
-	offset += x.fastWriteField2(buf[offset:])
-	offset += x.fastWriteField3(buf[offset:])
-	return offset
-}
-
-func (x *SelectOrderResp) fastWriteField1(buf []byte) (offset int) {
-	if x.StatusCode == 0 {
-		return offset
-	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetStatusCode())
-	return offset
-}
-
-func (x *SelectOrderResp) fastWriteField2(buf []byte) (offset int) {
-	if x.StatusMsg == "" {
-		return offset
-	}
-	offset += fastpb.WriteString(buf[offset:], 2, x.GetStatusMsg())
-	return offset
-}
-
-func (x *SelectOrderResp) fastWriteField3(buf []byte) (offset int) {
-	if x.Order == nil {
-		return offset
-	}
-	offset += fastpb.WriteMessage(buf[offset:], 3, x.GetOrder())
 	return offset
 }
 
@@ -2033,6 +1845,9 @@ func (x *ListOrderReq) Size() (n int) {
 		return n
 	}
 	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	n += x.sizeField4()
 	return n
 }
 
@@ -2041,6 +1856,32 @@ func (x *ListOrderReq) sizeField1() (n int) {
 		return n
 	}
 	n += fastpb.SizeUint32(1, x.GetUserId())
+	return n
+}
+
+func (x *ListOrderReq) sizeField2() (n int) {
+	if len(x.SearchTerms) == 0 {
+		return n
+	}
+	for i := range x.GetSearchTerms() {
+		n += fastpb.SizeString(2, x.GetSearchTerms()[i])
+	}
+	return n
+}
+
+func (x *ListOrderReq) sizeField3() (n int) {
+	if x.StartTime == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetStartTime())
+	return n
+}
+
+func (x *ListOrderReq) sizeField4() (n int) {
+	if x.EndTime == "" {
+		return n
+	}
+	n += fastpb.SizeString(4, x.GetEndTime())
 	return n
 }
 
@@ -2252,58 +2093,6 @@ func (x *GetOrderResp) sizeField3() (n int) {
 	return n
 }
 
-func (x *SearchOrdersReq) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	return n
-}
-
-func (x *SearchOrdersReq) sizeField1() (n int) {
-	if x.Query == "" {
-		return n
-	}
-	n += fastpb.SizeString(1, x.GetQuery())
-	return n
-}
-
-func (x *SearchOrdersResp) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	n += x.sizeField2()
-	n += x.sizeField3()
-	return n
-}
-
-func (x *SearchOrdersResp) sizeField1() (n int) {
-	if x.StatusCode == 0 {
-		return n
-	}
-	n += fastpb.SizeInt32(1, x.GetStatusCode())
-	return n
-}
-
-func (x *SearchOrdersResp) sizeField2() (n int) {
-	if x.StatusMsg == "" {
-		return n
-	}
-	n += fastpb.SizeString(2, x.GetStatusMsg())
-	return n
-}
-
-func (x *SearchOrdersResp) sizeField3() (n int) {
-	if x.Results == nil {
-		return n
-	}
-	for i := range x.GetResults() {
-		n += fastpb.SizeMessage(3, x.GetResults()[i])
-	}
-	return n
-}
-
 func (x *InsertOrderReq) Size() (n int) {
 	if x == nil {
 		return n
@@ -2414,56 +2203,6 @@ func (x *InsertOrderResp) sizeField2() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(2, x.GetStatusMsg())
-	return n
-}
-
-func (x *SelectOrderReq) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	return n
-}
-
-func (x *SelectOrderReq) sizeField1() (n int) {
-	if x.Id == 0 {
-		return n
-	}
-	n += fastpb.SizeInt64(1, x.GetId())
-	return n
-}
-
-func (x *SelectOrderResp) Size() (n int) {
-	if x == nil {
-		return n
-	}
-	n += x.sizeField1()
-	n += x.sizeField2()
-	n += x.sizeField3()
-	return n
-}
-
-func (x *SelectOrderResp) sizeField1() (n int) {
-	if x.StatusCode == 0 {
-		return n
-	}
-	n += fastpb.SizeInt32(1, x.GetStatusCode())
-	return n
-}
-
-func (x *SelectOrderResp) sizeField2() (n int) {
-	if x.StatusMsg == "" {
-		return n
-	}
-	n += fastpb.SizeString(2, x.GetStatusMsg())
-	return n
-}
-
-func (x *SelectOrderResp) sizeField3() (n int) {
-	if x.Order == nil {
-		return n
-	}
-	n += fastpb.SizeMessage(3, x.GetOrder())
 	return n
 }
 
@@ -2654,6 +2393,9 @@ var fieldIDToName_PlaceOrderResp = map[int32]string{
 
 var fieldIDToName_ListOrderReq = map[int32]string{
 	1: "UserId",
+	2: "SearchTerms",
+	3: "StartTime",
+	4: "EndTime",
 }
 
 var fieldIDToName_Order = map[int32]string{
@@ -2692,16 +2434,6 @@ var fieldIDToName_GetOrderResp = map[int32]string{
 	3: "Order",
 }
 
-var fieldIDToName_SearchOrdersReq = map[int32]string{
-	1: "Query",
-}
-
-var fieldIDToName_SearchOrdersResp = map[int32]string{
-	1: "StatusCode",
-	2: "StatusMsg",
-	3: "Results",
-}
-
 var fieldIDToName_InsertOrderReq = map[int32]string{
 	1: "Id",
 	2: "ProductId",
@@ -2717,16 +2449,6 @@ var fieldIDToName_InsertOrderReq = map[int32]string{
 var fieldIDToName_InsertOrderResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
-}
-
-var fieldIDToName_SelectOrderReq = map[int32]string{
-	1: "Id",
-}
-
-var fieldIDToName_SelectOrderResp = map[int32]string{
-	1: "StatusCode",
-	2: "StatusMsg",
-	3: "Order",
 }
 
 var fieldIDToName_DeleteOrderReq = map[int32]string{

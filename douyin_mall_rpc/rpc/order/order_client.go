@@ -16,9 +16,7 @@ type RPCClient interface {
 	ListOrder(ctx context.Context, Req *order.ListOrderReq, callOptions ...callopt.Option) (r *order.ListOrderResp, err error)
 	MarkOrderPaid(ctx context.Context, Req *order.MarkOrderPaidReq, callOptions ...callopt.Option) (r *order.MarkOrderPaidResp, err error)
 	GetOrder(ctx context.Context, Req *order.GetOrderReq, callOptions ...callopt.Option) (r *order.GetOrderResp, err error)
-	SearchOrders(ctx context.Context, Req *order.SearchOrdersReq, callOptions ...callopt.Option) (r *order.SearchOrdersResp, err error)
 	InsertOrder(ctx context.Context, Req *order.InsertOrderReq, callOptions ...callopt.Option) (r *order.InsertOrderResp, err error)
-	SelectOrder(ctx context.Context, Req *order.SelectOrderReq, callOptions ...callopt.Option) (r *order.SelectOrderResp, err error)
 	DeleteOrder(ctx context.Context, Req *order.DeleteOrderReq, callOptions ...callopt.Option) (r *order.DeleteOrderResp, err error)
 	UpdateOrder(ctx context.Context, Req *order.UpdateOrderReq, callOptions ...callopt.Option) (r *order.UpdateOrderResp, err error)
 }
@@ -65,16 +63,8 @@ func (c *clientImpl) GetOrder(ctx context.Context, Req *order.GetOrderReq, callO
 	return c.kitexClient.GetOrder(ctx, Req, callOptions...)
 }
 
-func (c *clientImpl) SearchOrders(ctx context.Context, Req *order.SearchOrdersReq, callOptions ...callopt.Option) (r *order.SearchOrdersResp, err error) {
-	return c.kitexClient.SearchOrders(ctx, Req, callOptions...)
-}
-
 func (c *clientImpl) InsertOrder(ctx context.Context, Req *order.InsertOrderReq, callOptions ...callopt.Option) (r *order.InsertOrderResp, err error) {
 	return c.kitexClient.InsertOrder(ctx, Req, callOptions...)
-}
-
-func (c *clientImpl) SelectOrder(ctx context.Context, Req *order.SelectOrderReq, callOptions ...callopt.Option) (r *order.SelectOrderResp, err error) {
-	return c.kitexClient.SelectOrder(ctx, Req, callOptions...)
 }
 
 func (c *clientImpl) DeleteOrder(ctx context.Context, Req *order.DeleteOrderReq, callOptions ...callopt.Option) (r *order.DeleteOrderResp, err error) {

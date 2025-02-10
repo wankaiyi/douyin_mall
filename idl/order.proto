@@ -11,9 +11,7 @@ service OrderService {
   rpc ListOrder(ListOrderReq) returns (ListOrderResp) {}
   rpc MarkOrderPaid(MarkOrderPaidReq) returns (MarkOrderPaidResp) {}
   rpc GetOrder(GetOrderReq) returns (GetOrderResp) {}
-  rpc SearchOrders(SearchOrdersReq) returns (SearchOrdersResp) {}
   rpc InsertOrder(InsertOrderReq) returns (InsertOrderResp) {}
-  rpc SelectOrder(SelectOrderReq) returns (SelectOrderResp) {}
   rpc DeleteOrder(DeleteOrderReq) returns (DeleteOrderResp) {}
   rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderResp) {}
 }
@@ -52,6 +50,9 @@ message PlaceOrderResp {
 
 message ListOrderReq {
   uint32 user_id = 1;
+  repeated string search_terms = 2;
+  string start_time = 3;
+  string end_time = 4;
 }
 
 message Order {
@@ -90,16 +91,6 @@ message GetOrderResp {
   Order order = 3;
 }
 
-message SearchOrdersReq {
-  string query = 1;
-}
-
-message SearchOrdersResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  repeated Order results = 3;
-}
-
 message InsertOrderReq {
   int64 id = 1;
   int64 productId = 2;
@@ -115,16 +106,6 @@ message InsertOrderReq {
 message InsertOrderResp {
   int32 status_code = 1;
   string status_msg = 2;
-}
-
-message SelectOrderReq {
-  int64 id = 1;
-}
-
-message SelectOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  Order order = 3;
 }
 
 message DeleteOrderReq {

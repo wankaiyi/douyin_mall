@@ -17,7 +17,6 @@ message Order {
   string price = 6;
   string description = 7;
   int32 status = 8;
-  int32 isDeleted = 9;
 }
 
 message OrderRequest {
@@ -39,16 +38,16 @@ message OrderInsertRequest {
   string price = 6 [(api.form) = "price"];
   string description = 7 [(api.form) = "description"];
   int32 status = 8 [(api.form) = "status"];
-  int32 isDeleted = 9 [(api.form) = "isDeleted"];
 }
+
 message OrderInsertResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
 
 message OrderSelectRequest {
-  int64 id = 1;
 }
+
 message OrderSelectResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
@@ -73,7 +72,6 @@ message OrderUpdateRequest {
   string price = 6 [(api.form) = "price"];
   string description = 7 [(api.form) = "description"];
   int32 status = 8 [(api.form) = "status"];
-  int32 isDeleted = 9 [(api.form) = "isDeleted"];
 }
 
 message OrderUpdateResponse {
@@ -81,10 +79,6 @@ message OrderUpdateResponse {
   string status_msg = 2;
 }
 service OrderService {
-
-  rpc Search(OrderRequest) returns (OrderResponse) {
-    option (api.post) = "/order/search";
-  }
 
   rpc OrderInsert(OrderInsertRequest) returns (OrderInsertResponse) {
     option (api.post) = "/order/insert";

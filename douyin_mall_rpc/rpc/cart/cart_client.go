@@ -15,9 +15,7 @@ type RPCClient interface {
 	AddItem(ctx context.Context, Req *cart.AddItemReq, callOptions ...callopt.Option) (r *cart.AddItemResp, err error)
 	GetCart(ctx context.Context, Req *cart.GetCartReq, callOptions ...callopt.Option) (r *cart.GetCartResp, err error)
 	EmptyCart(ctx context.Context, Req *cart.EmptyCartReq, callOptions ...callopt.Option) (r *cart.EmptyCartResp, err error)
-	SearchCarts(ctx context.Context, Req *cart.SearchCartsReq, callOptions ...callopt.Option) (r *cart.SearchCartsResp, err error)
 	InsertCart(ctx context.Context, Req *cart.InsertCartReq, callOptions ...callopt.Option) (r *cart.InsertCartResp, err error)
-	SelectCart(ctx context.Context, Req *cart.SelectCartReq, callOptions ...callopt.Option) (r *cart.SelectCartResp, err error)
 	DeleteCart(ctx context.Context, Req *cart.DeleteCartReq, callOptions ...callopt.Option) (r *cart.DeleteCartResp, err error)
 	UpdateCart(ctx context.Context, Req *cart.UpdateCartReq, callOptions ...callopt.Option) (r *cart.UpdateCartResp, err error)
 }
@@ -60,16 +58,8 @@ func (c *clientImpl) EmptyCart(ctx context.Context, Req *cart.EmptyCartReq, call
 	return c.kitexClient.EmptyCart(ctx, Req, callOptions...)
 }
 
-func (c *clientImpl) SearchCarts(ctx context.Context, Req *cart.SearchCartsReq, callOptions ...callopt.Option) (r *cart.SearchCartsResp, err error) {
-	return c.kitexClient.SearchCarts(ctx, Req, callOptions...)
-}
-
 func (c *clientImpl) InsertCart(ctx context.Context, Req *cart.InsertCartReq, callOptions ...callopt.Option) (r *cart.InsertCartResp, err error) {
 	return c.kitexClient.InsertCart(ctx, Req, callOptions...)
-}
-
-func (c *clientImpl) SelectCart(ctx context.Context, Req *cart.SelectCartReq, callOptions ...callopt.Option) (r *cart.SelectCartResp, err error) {
-	return c.kitexClient.SelectCart(ctx, Req, callOptions...)
 }
 
 func (c *clientImpl) DeleteCart(ctx context.Context, Req *cart.DeleteCartReq, callOptions ...callopt.Option) (r *cart.DeleteCartResp, err error) {

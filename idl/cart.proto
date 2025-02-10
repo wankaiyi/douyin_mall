@@ -8,10 +8,7 @@ service CartService {
   rpc AddItem(AddItemReq) returns (AddItemResp) {}
   rpc GetCart(GetCartReq) returns (GetCartResp) {}
   rpc EmptyCart(EmptyCartReq) returns (EmptyCartResp) {}
-
-  rpc SearchCarts(SearchCartsReq) returns (SearchCartsResp) {}
   rpc InsertCart(InsertCartReq) returns (InsertCartResp) {}
-  rpc SelectCart(SelectCartReq) returns (SelectCartResp) {}
   rpc DeleteCart(DeleteCartReq) returns (DeleteCartResp) {}
   rpc UpdateCart(UpdateCartReq) returns (UpdateCartResp) {}
 }
@@ -50,16 +47,6 @@ message Cart {
 message EmptyCartResp {}
 
 
-message SearchCartsReq {
-  string query = 1;
-}
-
-message SearchCartsResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  repeated Cart results = 3;
-}
-
 message InsertCartReq {
   int64 id = 1;
   int64 userId = 2;
@@ -73,16 +60,6 @@ message InsertCartReq {
 message InsertCartResp {
   int32 status_code = 1;
   string status_msg = 2;
-}
-
-message SelectCartReq {
-  int64 id = 1;
-}
-
-message SelectCartResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  Cart cart = 3;
 }
 
 message DeleteCartReq {

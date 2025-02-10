@@ -15,9 +15,7 @@ type Client interface {
 	ListOrder(ctx context.Context, Req *order.ListOrderReq, callOptions ...callopt.Option) (r *order.ListOrderResp, err error)
 	MarkOrderPaid(ctx context.Context, Req *order.MarkOrderPaidReq, callOptions ...callopt.Option) (r *order.MarkOrderPaidResp, err error)
 	GetOrder(ctx context.Context, Req *order.GetOrderReq, callOptions ...callopt.Option) (r *order.GetOrderResp, err error)
-	SearchOrders(ctx context.Context, Req *order.SearchOrdersReq, callOptions ...callopt.Option) (r *order.SearchOrdersResp, err error)
 	InsertOrder(ctx context.Context, Req *order.InsertOrderReq, callOptions ...callopt.Option) (r *order.InsertOrderResp, err error)
-	SelectOrder(ctx context.Context, Req *order.SelectOrderReq, callOptions ...callopt.Option) (r *order.SelectOrderResp, err error)
 	DeleteOrder(ctx context.Context, Req *order.DeleteOrderReq, callOptions ...callopt.Option) (r *order.DeleteOrderResp, err error)
 	UpdateOrder(ctx context.Context, Req *order.UpdateOrderReq, callOptions ...callopt.Option) (r *order.UpdateOrderResp, err error)
 }
@@ -71,19 +69,9 @@ func (p *kOrderServiceClient) GetOrder(ctx context.Context, Req *order.GetOrderR
 	return p.kClient.GetOrder(ctx, Req)
 }
 
-func (p *kOrderServiceClient) SearchOrders(ctx context.Context, Req *order.SearchOrdersReq, callOptions ...callopt.Option) (r *order.SearchOrdersResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SearchOrders(ctx, Req)
-}
-
 func (p *kOrderServiceClient) InsertOrder(ctx context.Context, Req *order.InsertOrderReq, callOptions ...callopt.Option) (r *order.InsertOrderResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.InsertOrder(ctx, Req)
-}
-
-func (p *kOrderServiceClient) SelectOrder(ctx context.Context, Req *order.SelectOrderReq, callOptions ...callopt.Option) (r *order.SelectOrderResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SelectOrder(ctx, Req)
 }
 
 func (p *kOrderServiceClient) DeleteOrder(ctx context.Context, Req *order.DeleteOrderReq, callOptions ...callopt.Option) (r *order.DeleteOrderResp, err error) {

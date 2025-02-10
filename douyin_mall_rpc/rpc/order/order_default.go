@@ -43,28 +43,10 @@ func GetOrder(ctx context.Context, req *order.GetOrderReq, callOptions ...callop
 	return resp, nil
 }
 
-func SearchOrders(ctx context.Context, req *order.SearchOrdersReq, callOptions ...callopt.Option) (resp *order.SearchOrdersResp, err error) {
-	resp, err = defaultClient.SearchOrders(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "SearchOrders call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
 func InsertOrder(ctx context.Context, req *order.InsertOrderReq, callOptions ...callopt.Option) (resp *order.InsertOrderResp, err error) {
 	resp, err = defaultClient.InsertOrder(ctx, req, callOptions...)
 	if err != nil {
 		klog.CtxErrorf(ctx, "InsertOrder call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func SelectOrder(ctx context.Context, req *order.SelectOrderReq, callOptions ...callopt.Option) (resp *order.SelectOrderResp, err error) {
-	resp, err = defaultClient.SelectOrder(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "SelectOrder call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil

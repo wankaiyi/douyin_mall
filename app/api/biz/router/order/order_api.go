@@ -21,7 +21,6 @@ func Register(r *server.Hertz) {
 		_order := root.Group("/order", _orderMw()...)
 		_order.POST("/delete", append(_orderdeleteMw(), order.OrderDelete)...)
 		_order.POST("/insert", append(_orderinsertMw(), order.OrderInsert)...)
-		_order.POST("/search", append(_searchMw(), order.Search)...)
 		_order.POST("/select", append(_orderselectMw(), order.OrderSelect)...)
 		_order.POST("/update", append(_orderupdateMw(), order.OrderUpdate)...)
 	}

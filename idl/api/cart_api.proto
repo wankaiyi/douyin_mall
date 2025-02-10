@@ -15,7 +15,6 @@ message Cart {
   string quantity = 4;
   string price = 5;
   string total = 6;
-  int32 isDeleted = 7;
 }
 
 message CartRequest {
@@ -35,7 +34,6 @@ message CartInsertRequest {
   string quantity = 4 [(api.form) = "quantity"];
   string price = 5 [(api.form) = "price"];
   string total = 6 [(api.form) = "total"];
-  int32 isDeleted = 7 [(api.form) = "isDeleted"];
 }
 
 message CartInsertResponse {
@@ -69,7 +67,6 @@ message CartUpdateRequest {
   string quantity = 4 [(api.form) = "quantity"];
   string price = 5 [(api.form) = "price"];
   string total = 6 [(api.form) = "total"];
-  int32 isDeleted = 7 [(api.form) = "isDeleted"];
 }
 
 message CartUpdateResponse {
@@ -77,10 +74,6 @@ message CartUpdateResponse {
   string status_msg = 2;
 }
 service CartService {
-
-  rpc Search(CartRequest) returns (CartResponse) {
-    option (api.post) = "/cart/search";
-  }
 
   rpc CartInsert(CartInsertRequest) returns (CartInsertResponse) {
     option (api.post) = "/cart/insert";

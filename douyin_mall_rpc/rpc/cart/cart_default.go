@@ -34,28 +34,10 @@ func EmptyCart(ctx context.Context, req *cart.EmptyCartReq, callOptions ...callo
 	return resp, nil
 }
 
-func SearchCarts(ctx context.Context, req *cart.SearchCartsReq, callOptions ...callopt.Option) (resp *cart.SearchCartsResp, err error) {
-	resp, err = defaultClient.SearchCarts(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "SearchCarts call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
 func InsertCart(ctx context.Context, req *cart.InsertCartReq, callOptions ...callopt.Option) (resp *cart.InsertCartResp, err error) {
 	resp, err = defaultClient.InsertCart(ctx, req, callOptions...)
 	if err != nil {
 		klog.CtxErrorf(ctx, "InsertCart call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func SelectCart(ctx context.Context, req *cart.SelectCartReq, callOptions ...callopt.Option) (resp *cart.SelectCartResp, err error) {
-	resp, err = defaultClient.SelectCart(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "SelectCart call failed,err =%+v", err)
 		return nil, err
 	}
 	return resp, nil
