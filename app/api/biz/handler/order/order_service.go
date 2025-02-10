@@ -10,27 +10,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 )
 
-// Search .
-// @router /order/search [POST]
-func Search(ctx context.Context, c *app.RequestContext) {
-	var err error
-	var req order.OrderRequest
-	err = c.BindAndValidate(&req)
-	if err != nil {
-		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
-		return
-	}
-
-	resp := &order.OrderResponse{}
-	resp, err = service.NewSearchService(ctx, c).Run(&req)
-	if err != nil {
-		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
-		return
-	}
-
-	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
-}
-
 // OrderInsert .
 // @router /order/insert [POST]
 func OrderInsert(ctx context.Context, c *app.RequestContext) {
