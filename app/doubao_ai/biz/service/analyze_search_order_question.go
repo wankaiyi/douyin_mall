@@ -139,7 +139,7 @@ func processTransaction(ctx context.Context, params *transactionParams) (aiRespo
 			Scenario: model.OrderInquiry,
 		}
 		// 先插数据库再存缓存，防止事务回滚导致redis缓存不一致
-		if err := model.CreateMessage(tx, ctx, userMessage); err != nil {
+		if err = model.CreateMessage(tx, ctx, userMessage); err != nil {
 			klog.CtxErrorf(ctx, "智能购物助手：用户消息写入数据库失败，message: %s, err: %v", userMessage, err)
 			return errors.WithStack(err)
 		}

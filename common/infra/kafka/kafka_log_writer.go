@@ -5,9 +5,7 @@ import (
 	"douyin_mall/common/utils/env"
 	"fmt"
 	"github.com/IBM/sarama"
-	"os"
-	"os/signal"
-	"syscall"
+	"github.com/cloudwego/kitex/server"
 )
 
 type KafkaWriter struct {
@@ -45,13 +43,10 @@ func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 		}
 	}()
 
-	// 捕获退出信号，优雅停机
-	go func() {
-		sigs := make(chan os.Signal, 1)
-		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-		<-sigs
+	server.RegisterShutdownHook(func() {
 		_ = producer.Close()
-	}()
+	})
+
 	return &KafkaWriter{
 		producer: producer,
 		topicId:  topicId,

@@ -25,6 +25,24 @@ type User struct {
 	DeletedAt   soft_delete.DeletedAt `gorm:"index;uniqueIndex:idx_username_deleted_at"`
 }
 
+type UserBasicInfo struct {
+	Username    string
+	Email       string
+	Sex         int32
+	Description string
+	Avatar      string
+}
+
+func (u UserBasicInfo) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"username":    u.Username,
+		"email":       u.Email,
+		"sex":         SexToString(u.Sex),
+		"description": u.Description,
+		"avatar":      u.Avatar,
+	}
+}
+
 func (u User) TableName() string {
 	return "tb_user"
 }
@@ -41,6 +59,11 @@ func CreateUser(db *gorm.DB, ctx context.Context, user *User) error {
 
 func GetUserById(db *gorm.DB, ctx context.Context, userId int32) (user *User, err error) {
 	err = db.WithContext(ctx).Model(&User{}).Where(&User{Base: Base{ID: userId}}).First(&user).Error
+	return
+}
+
+func GetUserBasicInfoById(db *gorm.DB, ctx context.Context, userId int32) (user *UserBasicInfo, err error) {
+	err = db.WithContext(ctx).Model(&User{}).Select("username", "email", "sex", "description", "avatar").Where(&User{Base: Base{ID: userId}}).First(&user).Error
 	return
 }
 

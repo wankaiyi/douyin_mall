@@ -3,6 +3,7 @@ package main
 import (
 	"douyin_mall/auth/biz/dal"
 	"douyin_mall/auth/casbin"
+	"douyin_mall/auth/infra/kafka"
 	"douyin_mall/auth/infra/rpc"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
@@ -38,6 +39,8 @@ func main() {
 	dal.Init()
 	casbin.InitCasbin()
 	rpc.InitClient()
+	kafka.Init()
+
 	opts := kitexInit()
 
 	svr := authservice.NewServer(new(AuthServiceImpl), opts...)

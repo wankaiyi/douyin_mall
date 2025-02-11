@@ -3,7 +3,7 @@ syntax = "proto3";
 
 package api.cart;
 
-option go_package = "api/order";
+option go_package = "api/cart";
 
 import "api.proto";
 //import "common.proto";

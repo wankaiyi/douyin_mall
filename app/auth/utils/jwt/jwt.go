@@ -85,14 +85,14 @@ func ParseJWT(tokenStr string) (jwt.MapClaims, int) {
 
 }
 
-// RefreshAccessToken 刷新access token，同时也要刷新refresh token;；
+// RefreshAccessToken 刷新access token，同时也要刷新refresh token;
 // 调用场景：1. access token 过期，需要刷新；2. 用户角色变更，后端将access token删除，让前端主动刷新access token
-func RefreshAccessToken(ctx context.Context, refreshToken string) (string, string, bool) {
+func RefreshAccessToken(ctx context.Context, refreshToken string) (int32, string, string, bool) {
 	// 解析refreshToken
 	claims, status := ParseJWT(refreshToken)
 	if status != TokenValid {
 		klog.Error("refreshToken无效，解析失败，refreshToken: %s", refreshToken)
-		return "", "", false
+		return 0, "", "", false
 	}
 	userId := int32(claims["userId"].(float64))
 	getUserRoleByIdResp, err := rpc.UserClient.GetUserRoleById(ctx, &user.GetUserRoleByIdReq{
@@ -100,22 +100,22 @@ func RefreshAccessToken(ctx context.Context, refreshToken string) (string, strin
 	})
 	if err != nil {
 		klog.Errorf("rpc调用GetUserRoleById失败，userId: %d, err: %v", userId, err)
-		return "", "", false
+		return 0, "", "", false
 	}
 	role := getUserRoleByIdResp.Role
 
 	savedRefreshToken, err := redis.GetVal(ctx, redis.GetRefreshTokenKey(userId))
 	if err != nil || savedRefreshToken != refreshToken {
-		return "", "", false
+		return 0, "", "", false
 	}
 
 	newAccessToken, err := GenerateAccessToken(ctx, userId, role)
 	if err != nil {
-		return "", "", false
+		return 0, "", "", false
 	}
 	newRefreshToken, err := GenerateRefreshToken(ctx, userId)
 	if err != nil {
-		return "", "", false
+		return 0, "", "", false
 	}
-	return newAccessToken, newRefreshToken, true
+	return userId, newAccessToken, newRefreshToken, true
 }

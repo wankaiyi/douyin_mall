@@ -8,6 +8,7 @@ import (
 	"douyin_mall/user/biz/dal"
 	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/conf"
+	"douyin_mall/user/infra/kafka"
 	"douyin_mall/user/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
@@ -35,6 +36,7 @@ func main() {
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
 	rpc.InitClient()
+	kafka.Init()
 	opts := kitexInit()
 
 	svr := userservice.NewServer(new(UserServiceImpl), opts...)
