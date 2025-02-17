@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/payment/biz/dal"
+	"douyin_mall/payment/biz/dal/redis"
 	"douyin_mall/payment/biz/task"
 	kafka2 "douyin_mall/payment/infra/kafka"
 
@@ -45,11 +47,14 @@ func main() {
 	go kafka2.DelayQueueInit()
 	go kafka2.ConsumerGroupInit()
 
+	//启动hotKeyClient
+	go hotKeyClient.Start(redis.RedisClient)
+
 	opts := kitexInit()
 	//将server服务注册到nacos
 	svr := paymentservice.NewServer(new(PaymentServiceImpl), opts...)
 	//将任务注册到xxl-job中
-	xxljobInit()
+	go xxljobInit()
 
 	err := svr.Run()
 	if err != nil {
