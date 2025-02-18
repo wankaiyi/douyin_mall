@@ -1,11 +1,14 @@
 package main
 
 import (
+	"douyin_mall/common/constant"
+	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/user/biz/dal"
+	"douyin_mall/user/biz/dal/redis"
 	"douyin_mall/user/biz/infra/rpc"
 	"douyin_mall/user/conf"
 	"douyin_mall/user/infra/kafka"
@@ -38,6 +41,8 @@ func main() {
 	rpc.InitClient()
 	kafka.Init()
 	opts := kitexInit()
+	//启动hotKeyClient
+	go hotKeyClient.Start(redis.RedisClient, constant.UserService)
 
 	svr := userservice.NewServer(new(UserServiceImpl), opts...)
 

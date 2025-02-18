@@ -2,9 +2,12 @@ package main
 
 import (
 	"douyin_mall/auth/biz/dal"
+	"douyin_mall/auth/biz/dal/redis"
 	"douyin_mall/auth/casbin"
 	"douyin_mall/auth/infra/kafka"
 	"douyin_mall/auth/infra/rpc"
+	"douyin_mall/common/constant"
+	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/serversuite"
@@ -40,6 +43,8 @@ func main() {
 	casbin.InitCasbin()
 	rpc.InitClient()
 	kafka.Init()
+	//启动hotKeyClient
+	go hotKeyClient.Start(redis.RedisClient, constant.AuthService)
 
 	opts := kitexInit()
 

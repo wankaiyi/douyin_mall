@@ -1,11 +1,14 @@
 package main
 
 import (
+	"douyin_mall/common/constant"
+	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/order/biz/dal"
+	"douyin_mall/order/biz/dal/redis"
 	"net"
 	"os"
 	"time"
@@ -34,6 +37,8 @@ func main() {
 	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
+	//启动hotKeyClient
+	go hotKeyClient.Start(redis.RedisClient, constant.OrderService)
 	opts := kitexInit()
 
 	svr := orderservice.NewServer(new(OrderServiceImpl), opts...)
