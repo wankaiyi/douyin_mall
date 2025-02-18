@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 )
 
@@ -17,7 +18,9 @@ func main() {
 func workerStarter() {
 	redis.Init()
 	go producer.Listener()
-	for i := 0; i < 10; i++ {
+	numCPU := runtime.NumCPU()
+	runtime.GOMAXPROCS(numCPU - 1)
+	for i := 0; i < numCPU; i++ {
 		go consumer.Consume()
 	}
 

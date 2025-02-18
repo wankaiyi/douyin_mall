@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
 	"douyin_mall/common/mtl"
@@ -48,7 +49,7 @@ func main() {
 	go kafka2.ConsumerGroupInit()
 
 	//启动hotKeyClient
-	go hotKeyClient.Start(redis.RedisClient)
+	go hotKeyClient.Start(redis.RedisClient, constant.PaymentService)
 
 	opts := kitexInit()
 	//将server服务注册到nacos

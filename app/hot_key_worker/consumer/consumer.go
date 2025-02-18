@@ -48,20 +48,23 @@ func removeKey(hotkeyModel key.HotkeyModel) (err error) {
 		return err
 	}
 	//通知所有的client集群删除
-	redis.PublishClientChannel(hotkeyModel)
+	err = redis.PublishClientChannel(hotkeyModel)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func newKey(hotkeyModel key.HotkeyModel) (err error) {
 	buildKey := BuildKey(hotkeyModel)
 	//判断key是否刚热过
-	exist, err := hotKeyCache.Get(buildKey)
-	if err != nil {
-		return err
-	}
-	if exist != nil {
+	_, err = hotKeyCache.Get(buildKey)
+	if err == nil {
 		return nil
 	}
+	//if exist != nil {
+	//	return nil
+	//}
 	slidingWindow := getWindow(hotkeyModel, buildKey)
 	hot := slidingWindow.AddCount(hotkeyModel.Count.GetCount())
 
@@ -74,7 +77,10 @@ func newKey(hotkeyModel key.HotkeyModel) (err error) {
 	//热放进热键的缓存
 	hotKeyCache.Set(buildKey, []byte("hot"))
 	hotkeyModel.CreateAt = time.Now().UnixMilli()
-	redis.PublishClientChannel(hotkeyModel)
+	err = redis.PublishClientChannel(hotkeyModel)
+	if err != nil {
+		return err
+	}
 	return nil
 
 }

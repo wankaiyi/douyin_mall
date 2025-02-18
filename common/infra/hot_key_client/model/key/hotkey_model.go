@@ -1,6 +1,7 @@
 package key
 
 import (
+	"douyin_mall/common/infra/hot_key_client/constants"
 	"douyin_mall/common/infra/hot_key_client/model/base"
 	"strconv"
 )
@@ -49,4 +50,11 @@ func NewHotKeyModelWithConfig(key string, config *KeyConf) *HotkeyModel {
 	hotKeyModel.Interval = config.Interval
 	return &hotKeyModel
 
+}
+func NewDeleteHotkeyModel(key string) *HotkeyModel {
+	var hotKeyModel HotkeyModel
+	hotKeyModel.Key = key
+	hotKeyModel.ServiceName = constants.ClientServiceName
+	hotKeyModel.Remove = true
+	return &hotKeyModel
 }

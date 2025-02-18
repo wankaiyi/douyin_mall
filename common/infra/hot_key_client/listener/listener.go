@@ -8,6 +8,7 @@ import (
 	"douyin_mall/common/infra/hot_key_client/redis"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"log"
 )
@@ -17,7 +18,7 @@ func ListenStarter() {
 	ch := pubsub.Channel()
 
 	for msg := range ch {
-		log.Printf(msg.Channel, msg.Payload)
+		klog.CtxInfof(context.Background(), "receive message: %s", msg.Payload)
 		var hotKeyModel key.HotkeyModel
 		sonic.Unmarshal([]byte(msg.Payload), &hotKeyModel)
 		if hotKeyModel.ServiceName != constants.ClientServiceName {
@@ -46,13 +47,18 @@ func newKey(hotKeyModel key.HotkeyModel) (err error) {
 func addKey(hotKeyModel key.HotkeyModel, err error) error {
 	valueModel, ok := cache.LocalStore.GetDefaultValue(hotKeyModel.Key)
 	if ok {
-		log.Printf("key already exist, key: %s", hotKeyModel.Key)
+		// key already exist, update duration已存在则重置
+		klog.CtxInfof(context.Background(), "key already exist,will update duration, key: %s", hotKeyModel.Key)
+		valueModel.Duration = hotKeyModel.Duration
+		err = cache.LocalStore.PutInLocalCacheStore(hotKeyModel.Key, valueModel)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 	valueModel.Duration = hotKeyModel.Duration
 	err = cache.LocalStore.PutInLocalCacheStore(hotKeyModel.Key, valueModel)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	return nil

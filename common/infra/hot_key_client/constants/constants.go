@@ -6,8 +6,8 @@ var (
 	WorkerChannelIdList string
 )
 
-func init() {
+func Init(serviceName string) {
 	ClientChannel = "client-channel"
-	ClientServiceName = "test-service"
+	ClientServiceName = serviceName
 	WorkerChannelIdList = "worker-channel-id-list"
 }

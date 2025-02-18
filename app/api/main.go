@@ -73,6 +73,47 @@ func main() {
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
 		ctx.JSON(consts.StatusOK, utils.H{"ping": "pong"})
 	})
+	//hotkey 测试接口
+	//要先启动hotkey worker,这里redis的地址要和worker的地址一致
+	//client := redis.NewClient(&redis.Options{
+	//	Addr:     "localhost:6379",
+	//	Password: "",
+	//	DB:       0,
+	//})
+	//hotKeyClient.Start(client, constant.ApiServiceName)
+	//h.GET("/isHot", func(c context.Context, ctx *app.RequestContext) {
+	//	keyConf := key.NewKeyConf1(constant.ApiServiceName)
+	//	hotkeyModel := key.NewHotKeyModelWithConfig("api", &keyConf)
+	//	isHotKey := processor.IsHotKey(*hotkeyModel)
+	//	if isHotKey {
+	//		ctx.JSON(consts.StatusOK, utils.H{"isHotKey": "hot key"})
+	//	} else {
+	//		ctx.JSON(consts.StatusOK, utils.H{"isHotKey": "not hot key"})
+	//	}
+	//
+	//})
+	//h.GET("/set", func(c context.Context, ctx *app.RequestContext) {
+	//	err := processor.SetDirectly("api", *value.NewValueModel(2000, "test set"))
+	//	if err != nil {
+	//		ctx.JSON(consts.StatusOK, utils.H{"setDirectly err": err.Error()})
+	//	}
+	//	ctx.JSON(consts.StatusOK, utils.H{"setDirectly": "success"})
+	//})
+	//
+	//h.GET("/get", func(c context.Context, ctx *app.RequestContext) {
+	//	v := processor.Get("api")
+	//	if v != nil {
+	//		ctx.JSON(consts.StatusOK, utils.H{"api": v})
+	//		return
+	//	}
+	//	ctx.JSON(consts.StatusOK, utils.H{"api": "not found"})
+	//})
+	//
+	//h.GET("/remove", func(c context.Context, ctx *app.RequestContext) {
+	//	processor.Remove("api")
+	//	ctx.JSON(consts.StatusOK, utils.H{"api": "success"})
+	//
+	//})
 
 	router.GeneratedRegister(h)
 

@@ -7,7 +7,6 @@ import (
 	"hotkey/conf"
 	"hotkey/constant"
 	"hotkey/model/key"
-	"log"
 )
 
 var Rdb *redis.Client
@@ -21,10 +20,11 @@ func Init() {
 	})
 }
 
-func PublishClientChannel(hotKeyModel key.HotkeyModel) {
+func PublishClientChannel(hotKeyModel key.HotkeyModel) (err error) {
 	marshal, _ := sonic.Marshal(hotKeyModel)
-	err := Rdb.Publish(context.Background(), constant.ClientChannel, marshal).Err()
+	err = Rdb.Publish(context.Background(), constant.ClientChannel, marshal).Err()
 	if err != nil {
-		log.Println(err)
+		return err
 	}
+	return nil
 }

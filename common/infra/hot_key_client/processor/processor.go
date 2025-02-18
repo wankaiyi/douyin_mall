@@ -66,7 +66,6 @@ func Get(key string) any {
 func GetValue(hotKeyModel keyModel.HotkeyModel) any {
 	hotKeyValueModel, ok := cache.LocalStore.GetDefaultValue(hotKeyModel.Key)
 	if !ok {
-
 		push(hotKeyModel, 1)
 		return nil
 	}
@@ -85,8 +84,8 @@ func Remove(key string) {
 	//删除本地缓存
 	cache.LocalStore.Remove(key)
 	//通知集群删除
-	hotkeyModel := keyModel.NewDefaultHotkeyModel1(key)
-	push(*hotkeyModel, -1)
+	hotkeyModel := keyModel.NewDeleteHotkeyModel(key)
+	push(*hotkeyModel, 0)
 
 }
 func push(hotKeyModel keyModel.HotkeyModel, count int) {

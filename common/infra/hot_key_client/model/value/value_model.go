@@ -15,3 +15,11 @@ func (model *ValueModel) GetDefaultValue() any {
 	}
 	return model.Value
 }
+
+// NewValueModel 创建ValueModel,duration本地缓存时间,单位毫秒,value为数据值
+func NewValueModel(duration int64, value any) *ValueModel {
+	return &ValueModel{
+		Duration: duration,
+		Value:    value,
+	}
+}
