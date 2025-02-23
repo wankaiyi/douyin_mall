@@ -79,7 +79,14 @@ message ProductUpdateRequest {
   int64 category_id=10[(api.form)= "categoryId"];
   int64 brand_id=11[(api.form)= "brandId"];
 }
-
+message ProductSelectListRequest {
+  repeated int64 id = 1[(api.form)= "ids"];
+}
+message ProductSelectListResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+  repeated Product products = 3;
+}
 message ProductUpdateResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
@@ -103,6 +110,10 @@ service ProductService {
   }
 
   rpc ProductUpdate(ProductUpdateRequest) returns (ProductUpdateResponse) {
+    option (api.post) = "/product/update";
+  }
+
+  rpc ProductSelectList(ProductSelectListRequest) returns (ProductSelectListResponse) {
     option (api.post) = "/product/update";
   }
 

@@ -38,5 +38,6 @@ func Register(r *server.Hertz) {
 		_product.POST("/search", append(_searchMw(), product.Search)...)
 		_product.POST("/select", append(_productselectMw(), product.ProductSelect)...)
 		_product.POST("/update", append(_productupdateMw(), product.ProductUpdate)...)
+		_product.POST("/update", append(_productselectlistMw(), product.ProductSelectList)...)
 	}
 }

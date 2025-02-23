@@ -100,3 +100,14 @@ type ProductSearchMatchQuery struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 }
+
+type ProductBulkUpdate struct {
+	Update ProductBulkBody `json:"update,omitempty"`
+}
+type ProductBulkBody struct {
+	DocID interface{} `json:"_id,omitempty"`
+}
+
+type ProductBulkDoc struct {
+	Doc ProductSearchDoc `json:"doc,omitempty"`
+}

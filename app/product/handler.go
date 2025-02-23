@@ -113,3 +113,10 @@ func (s *ProductCatalogServiceImpl) UpdateBrand(ctx context.Context, req *produc
 
 	return resp, err
 }
+
+// SelectProductList implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) SelectProductList(ctx context.Context, req *product.SelectProductListReq) (resp *product.SelectProductListResp, err error) {
+	resp, err = service.NewSelectProductListService(ctx).Run(req)
+
+	return resp, err
+}

@@ -50,6 +50,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"SelectProductList": kitex.NewMethodInfo(
+		selectProductListHandler,
+		newSelectProductListArgs,
+		newSelectProductListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 	"DeleteProduct": kitex.NewMethodInfo(
 		deleteProductHandler,
 		newDeleteProductArgs,
@@ -948,6 +955,159 @@ func (p *SelectProductResult) IsSetSuccess() bool {
 }
 
 func (p *SelectProductResult) GetResult() interface{} {
+	return p.Success
+}
+
+func selectProductListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.SelectProductListReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).SelectProductList(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SelectProductListArgs:
+		success, err := handler.(product.ProductCatalogService).SelectProductList(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SelectProductListResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSelectProductListArgs() interface{} {
+	return &SelectProductListArgs{}
+}
+
+func newSelectProductListResult() interface{} {
+	return &SelectProductListResult{}
+}
+
+type SelectProductListArgs struct {
+	Req *product.SelectProductListReq
+}
+
+func (p *SelectProductListArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.SelectProductListReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SelectProductListArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SelectProductListArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SelectProductListArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SelectProductListArgs) Unmarshal(in []byte) error {
+	msg := new(product.SelectProductListReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SelectProductListArgs_Req_DEFAULT *product.SelectProductListReq
+
+func (p *SelectProductListArgs) GetReq() *product.SelectProductListReq {
+	if !p.IsSetReq() {
+		return SelectProductListArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SelectProductListArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SelectProductListArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SelectProductListResult struct {
+	Success *product.SelectProductListResp
+}
+
+var SelectProductListResult_Success_DEFAULT *product.SelectProductListResp
+
+func (p *SelectProductListResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.SelectProductListResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SelectProductListResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SelectProductListResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SelectProductListResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SelectProductListResult) Unmarshal(in []byte) error {
+	msg := new(product.SelectProductListResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SelectProductListResult) GetSuccess() *product.SelectProductListResp {
+	if !p.IsSetSuccess() {
+		return SelectProductListResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SelectProductListResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.SelectProductListResp)
+}
+
+func (p *SelectProductListResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SelectProductListResult) GetResult() interface{} {
 	return p.Success
 }
 
@@ -2536,6 +2696,16 @@ func (p *kClient) SelectProduct(ctx context.Context, Req *product.SelectProductR
 	_args.Req = Req
 	var _result SelectProductResult
 	if err = p.c.Call(ctx, "SelectProduct", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SelectProductList(ctx context.Context, Req *product.SelectProductListReq) (r *product.SelectProductListResp, err error) {
+	var _args SelectProductListArgs
+	_args.Req = Req
+	var _result SelectProductListResult
+	if err = p.c.Call(ctx, "SelectProductList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

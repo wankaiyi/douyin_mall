@@ -12,6 +12,7 @@ service ProductCatalogService {
   rpc SearchProducts(SearchProductsReq) returns (SearchProductsResp) {}
   rpc InsertProduct(InsertProductReq) returns (InsertProductResp) {}
   rpc SelectProduct(SelectProductReq) returns (SelectProductResp) {}
+  rpc SelectProductList(SelectProductListReq) returns (SelectProductListResp) {}
   rpc DeleteProduct(DeleteProductReq) returns (DeleteProductResp) {}
   rpc UpdateProduct(UpdateProductReq) returns (UpdateProductResp) {}
 
@@ -91,6 +92,15 @@ message InsertProductResp {
 
 message SelectProductReq {
   int64 id = 1;
+}
+message SelectProductListReq {
+  repeated int64 id = 1;
+}
+
+message SelectProductListResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Product product = 3;
 }
 
 message SelectProductResp {

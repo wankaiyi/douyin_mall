@@ -32,10 +32,16 @@ func SelectProduct(db *gorm.DB, ctx context.Context, id int64) (product Product,
 	err = result.Error
 	return
 }
+func SelectProductAll(db *gorm.DB, ctx context.Context) (product []Product, err error) {
+	product = []Product{}
+	result := db.WithContext(ctx).Find(&product)
+	err = result.Error
+	return
+}
 
 func SelectProductList(db *gorm.DB, ctx context.Context, ids []int64) (product []Product, err error) {
 	product = []Product{}
-	result := db.WithContext(ctx).Where("id IN ?", ids).First(&product)
+	result := db.WithContext(ctx).Where("id IN ?", ids).Find(&product)
 	err = result.Error
 	return
 }

@@ -95,3 +95,8 @@ func _brandupdateMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _productselectlistMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
