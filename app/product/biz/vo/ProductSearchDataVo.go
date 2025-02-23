@@ -75,9 +75,12 @@ type ProductSearchDoc struct {
 	Description interface{} `json:"description,omitempty"`
 }
 
+type ProductSearchSource []string
+
 type ProductSearchQueryBody struct {
-	Query ProductSearchQuery `json:"query,omitempty"`
-	Doc   ProductSearchDoc   `json:"doc,omitempty"`
+	Query  ProductSearchQuery  `json:"query,omitempty"`
+	Doc    ProductSearchDoc    `json:"doc,omitempty"`
+	Source ProductSearchSource `json:"_source,omitempty"`
 }
 type ProductSearchTermQuery map[string]interface{}
 

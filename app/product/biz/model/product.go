@@ -33,6 +33,13 @@ func SelectProduct(db *gorm.DB, ctx context.Context, id int64) (product Product,
 	return
 }
 
+func SelectProductList(db *gorm.DB, ctx context.Context, ids []int64) (product []Product, err error) {
+	product = []Product{}
+	result := db.WithContext(ctx).Where("id IN ?", ids).First(&product)
+	err = result.Error
+	return
+}
+
 func UpdateProduct(db *gorm.DB, ctx context.Context, product *Product) (err error) {
 	result := db.WithContext(ctx).Updates(&product)
 	err = result.Error
