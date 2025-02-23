@@ -25,25 +25,28 @@ type ProductSearchAllDataVo struct {
 	} `json:"hits"`
 }
 type ProductSearchDataVo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	ID          int64  `json:"id,omitempty"`
 }
 
 type ProductSearchMapping struct {
-	Mappings Mappings `json:"mappings"`
+	Mappings Mappings `json:"mappings,omitempty"`
 }
 type Mappings struct {
-	Properties Properties `json:"properties"`
+	Properties Properties `json:"properties,omitempty"`
 }
 
 type Properties struct {
-	Name        Field `json:"name"`
-	Description Field `json:"description"`
+	Name        Field `json:"name,omitempty"`
+	Description Field `json:"description,omitempty"`
+	ID          Field `json:"id,omitempty"`
 }
 
 type Field struct {
-	Type     string `json:"type"`
-	Analyzer string `json:"analyzer"`
+	Type     string `json:"type,omitempty"`
+	Analyzer string `json:"analyzer,omitempty"`
+	Index    bool   `json:"index,omitempty"`
 }
 
 var ProductSearchMappingSetting = ProductSearchMapping{
@@ -52,23 +55,45 @@ var ProductSearchMappingSetting = ProductSearchMapping{
 			Name: Field{
 				Type:     "text",
 				Analyzer: "ik_smart",
+				Index:    true,
 			},
 			Description: Field{
 				Type:     "text",
 				Analyzer: "ik_smart",
+				Index:    true,
+			},
+			ID: Field{
+				Type:  "keyword",
+				Index: true,
 			},
 		},
 	},
 }
 
-type ProductSearchQueryBody struct {
-	Query ProductSearchQuery `json:"query"`
+type ProductSearchDoc struct {
+	Name        interface{} `json:"name,omitempty"`
+	Description interface{} `json:"description,omitempty"`
 }
+
+type ProductSearchQueryBody struct {
+	Query ProductSearchQuery `json:"query,omitempty"`
+	Doc   ProductSearchDoc   `json:"doc,omitempty"`
+}
+type ProductSearchTermQuery map[string]interface{}
+
 type ProductSearchQuery struct {
-	MultiMatch ProductSearchMultiMatchQuery `json:"multi_match"`
+	MultiMatch ProductSearchMultiMatchQuery `json:"multi_match,omitempty"`
+	Match      ProductSearchMatchQuery      `json:"match,omitempty"`
+	Term       ProductSearchTermQuery       `json:"term,omitempty"`
 }
 
 type ProductSearchMultiMatchQuery struct {
-	Query  string   `json:"query"`
-	Fields []string `json:"fields"`
+	Query  string   `json:"query,omitempty"`
+	Fields []string `json:"fields,omitempty"`
+}
+
+type ProductSearchMatchQuery struct {
+	ID          int64  `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
 }

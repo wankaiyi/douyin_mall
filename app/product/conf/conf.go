@@ -27,7 +27,6 @@ type Config struct {
 	Kafka         Kafka         `yaml:"kafka"`
 	Elasticsearch Elasticsearch `yaml:"elasticsearch"`
 	Jaeger        Jaeger        `yaml:"jaeger"`
-	KafkaEs       KafkaEs       `yaml:"kafka_es"`
 }
 
 type MySQL struct {
@@ -64,6 +63,7 @@ type Alert struct {
 
 type Kafka struct {
 	ClsKafka ClsKafka `yaml:"cls_kafka"`
+	BizKafka BizKafka `yaml:"biz_kafka"`
 }
 
 type ClsKafka struct {
@@ -72,27 +72,16 @@ type ClsKafka struct {
 	TopicId  string `yaml:"topic_id"`
 }
 
+type BizKafka struct {
+	BootstrapServers string `yaml:"bootstrap_servers"`
+	ProductTopicId   string `yaml:"product_topic_id"`
+}
+
 type Elasticsearch struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-}
-
-type KafkaEs struct {
-	KafkaWriter KafkaWriter `yaml:"kafka_writer"`
-	KafkaReader KafkaReader `yaml:"kafka_reader"`
-}
-
-type KafkaWriter struct {
-	Addr  string `yaml:"addr"`
-	Topic string `yaml:"topic"`
-}
-
-type KafkaReader struct {
-	Addr    string `yaml:"addr"`
-	Topic   string `yaml:"topic"`
-	GroupID string `yaml:"groupId"`
 }
 
 type Jaeger struct {

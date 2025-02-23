@@ -5,7 +5,9 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
+	kf "douyin_mall/product/infra/kafka"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type DeleteProductService struct {
@@ -26,6 +28,15 @@ func (s *DeleteProductService) Run(req *product.DeleteProductReq) (resp *product
 		}
 		return
 	}
+	//发送到kafka
+	defer func() {
+		err := kf.DeleteProduct(&model.Product{
+			ID: req.Id,
+		})
+		if err != nil {
+			klog.Error("delete product error:%v", err)
+		}
+	}()
 	resp = &product.DeleteProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

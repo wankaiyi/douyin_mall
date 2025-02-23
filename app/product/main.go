@@ -11,6 +11,7 @@ import (
 	"douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/infra/elastic"
 	"douyin_mall/product/infra/kafka"
+	"douyin_mall/product/infra/rpc"
 	"net"
 	"os"
 	"time"
@@ -45,6 +46,7 @@ func main() {
 	elastic.InitClient()
 	kafka.InitClient()
 	opts := kitexInit()
+	rpc.InitClient()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 

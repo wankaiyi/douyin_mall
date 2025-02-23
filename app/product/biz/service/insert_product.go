@@ -7,10 +7,7 @@ import (
 	"douyin_mall/product/biz/model"
 	kf "douyin_mall/product/infra/kafka"
 	product "douyin_mall/product/kitex_gen/product"
-	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"github.com/segmentio/kafka-go"
 )
 
 type InsertProductService struct {
@@ -45,27 +42,17 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 		}
 		return
 	}
-	//TODO 发送到kafka
-	defer sendToKafka(s.ctx, &pro)
+	//发送到kafka
+	defer func() {
+		err := kf.AddProduct(&pro)
+		if err != nil {
+			klog.Error("insert product error:%v", err)
+		}
+	}()
 	//返回响应
 	resp = &product.InsertProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 	}
 	return
-}
-
-func sendToKafka(ctx context.Context, pro *model.Product) {
-	productData, err := sonic.Marshal(pro)
-	if err != nil {
-		hlog.CtxErrorf(ctx, "product序列化失败:%v error:%v", pro, err)
-	}
-	kfErr := kf.Writer.WriteMessages(ctx,
-		kafka.Message{
-			Key:   []byte("insert"),
-			Value: productData,
-		})
-	if kfErr != nil {
-		klog.CtxErrorf(ctx, "发送kafka失败:%v error:%v", pro, kfErr)
-	}
 }

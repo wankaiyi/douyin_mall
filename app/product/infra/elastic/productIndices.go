@@ -5,33 +5,18 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
-	"encoding/json"
+	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"strings"
 )
 
-var mapping = `{
-  "mappings": {
-    "properties": {
-      "name": {
-        "type": "text",
-        "analyzer": "ik_smart"
-      },
-      "description": {
-        "type": "text"
-      }
-    }
-  }
-}
-`
-
 func ProduceIndicesInit() {
 	// 构建请求
 	productIndicesExist, err := esapi.IndicesExistsRequest{
 		Index: []string{"product"},
-	}.Do(context.Background(), &ElasticClient)
+	}.Do(nil, ElasticClient)
 	if err != nil {
 		klog.Error(err)
 		return
@@ -39,16 +24,20 @@ func ProduceIndicesInit() {
 	//如果product不存在，就创建这个索引库
 	if productIndicesExist.StatusCode != 200 {
 		SettingData, err := sonic.Marshal(vo.ProductSearchMappingSetting)
+		s := string(SettingData)
+		fmt.Printf("%v", s)
 		if err != nil {
 			return
 		}
 		create, err := esapi.IndicesCreateRequest{
 			Index: "product",
-			Body:  strings.NewReader(string(SettingData)),
-		}.Do(context.Background(), &ElasticClient)
+			Body:  strings.NewReader(s),
+		}.Do(context.Background(), ElasticClient)
 		if err != nil {
 			klog.Info(err)
 		}
+		body := create.Body
+		fmt.Printf("%v", body)
 		if create.StatusCode != 200 {
 			klog.Error("create product indices failed")
 			return
@@ -61,20 +50,21 @@ func ProduceIndicesInit() {
 			klog.Error(result.Error)
 			return
 		}
-		//2 遍历数据，将数据转换为json格式
+		//2 遍历数据，将数据转换为sonic格式
 		for i := range products {
 			pro := products[i]
 			dataVo := vo.ProductSearchDataVo{
 				Name:        pro.Name,
 				Description: pro.Description,
+				ID:          pro.ID,
 			}
-			jsonData, _ := json.Marshal(dataVo)
+			sonicData, _ := sonic.Marshal(dataVo)
 			//3 调用esapi.BulkRequest将数据导入到product索引库中
 			_, _ = esapi.IndexRequest{
 				Index:   "product",
-				Body:    strings.NewReader(string(jsonData)),
+				Body:    strings.NewReader(string(sonicData)),
 				Refresh: "true",
-			}.Do(context.Background(), &ElasticClient)
+			}.Do(context.Background(), ElasticClient)
 		}
 	}
 }
