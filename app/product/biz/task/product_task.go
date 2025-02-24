@@ -1,10 +1,11 @@
-package kafka
+package task
 
 import (
 	"context"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
 	"douyin_mall/product/infra/elastic"
+	kf "douyin_mall/product/infra/kafka"
 	"fmt"
 	"github.com/IBM/sarama"
 	"github.com/bytedance/sonic"
@@ -24,8 +25,8 @@ func AddProduct(product *model.Product) (err error) {
 			Description: product.Description,
 		},
 	})
-	Producer.Input() <- &sarama.ProducerMessage{
-		Topic: Topic,
+	kf.Producer.Input() <- &sarama.ProducerMessage{
+		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
 	}
 	return
@@ -41,8 +42,8 @@ func DeleteProduct(product *model.Product) (err error) {
 			ID: product.ID,
 		},
 	})
-	Producer.Input() <- &sarama.ProducerMessage{
-		Topic: Topic,
+	kf.Producer.Input() <- &sarama.ProducerMessage{
+		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
 	}
 	return
@@ -60,8 +61,8 @@ func UpdateProduct(product *model.Product) (err error) {
 			Description: product.Description,
 		},
 	})
-	Producer.Input() <- &sarama.ProducerMessage{
-		Topic: Topic,
+	kf.Producer.Input() <- &sarama.ProducerMessage{
+		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
 	}
 	return

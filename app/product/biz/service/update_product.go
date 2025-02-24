@@ -5,7 +5,7 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
-	kf "douyin_mall/product/infra/kafka"
+	"douyin_mall/product/biz/task"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
@@ -43,7 +43,7 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 	}
 	//发送到kafka
 	defer func() {
-		err := kf.UpdateProduct(&pro)
+		err := task.UpdateProduct(&pro)
 		if err != nil {
 			klog.Error("update product error:%v", err)
 		}
