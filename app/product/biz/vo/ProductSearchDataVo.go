@@ -78,16 +78,16 @@ type ProductSearchDoc struct {
 type ProductSearchSource []string
 
 type ProductSearchQueryBody struct {
-	Query  ProductSearchQuery  `json:"query,omitempty"`
-	Doc    ProductSearchDoc    `json:"doc,omitempty"`
-	Source ProductSearchSource `json:"_source,omitempty"`
+	Query  *ProductSearchQuery  `json:"query,omitempty"`
+	Doc    *ProductSearchDoc    `json:"doc,omitempty"`
+	Source *ProductSearchSource `json:"_source,omitempty"`
 }
 type ProductSearchTermQuery map[string]interface{}
 
 type ProductSearchQuery struct {
-	MultiMatch ProductSearchMultiMatchQuery `json:"multi_match,omitempty"`
-	Match      ProductSearchMatchQuery      `json:"match,omitempty"`
-	Term       ProductSearchTermQuery       `json:"term,omitempty"`
+	MultiMatch *ProductSearchMultiMatchQuery `json:"multi_match,omitempty"`
+	Match      *ProductSearchMatchQuery      `json:"match,omitempty"`
+	Term       *ProductSearchTermQuery       `json:"term,omitempty"`
 }
 
 type ProductSearchMultiMatchQuery struct {

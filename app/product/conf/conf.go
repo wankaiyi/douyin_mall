@@ -27,6 +27,7 @@ type Config struct {
 	Kafka         Kafka         `yaml:"kafka"`
 	Elasticsearch Elasticsearch `yaml:"elasticsearch"`
 	Jaeger        Jaeger        `yaml:"jaeger"`
+	XxlJob        XxlJob        `yaml:"xxl_job"`
 }
 
 type MySQL struct {
@@ -86,6 +87,12 @@ type Elasticsearch struct {
 
 type Jaeger struct {
 	Endpoint string `yaml:"endpoint"`
+}
+
+type XxlJob struct {
+	XxlJobAddress string `yaml:"xxl_job_address"`
+	ExecutorIp    string `yaml:"executor_ip"`
+	AccessToken   string `yaml:"access_token"`
 }
 
 // GetConf gets configuration instance
