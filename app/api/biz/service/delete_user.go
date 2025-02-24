@@ -27,7 +27,7 @@ func (h *DeleteUserService) Run(req *user.Empty) (resp *user.DeleteUserResponse,
 		UserId: ctx.Value(constant.UserId).(int32),
 	})
 	if err != nil {
-		hlog.CtxErrorf(ctx, "删除用户失败: %v", err)
+		hlog.CtxErrorf(ctx, "rpc调用删除用户失败: %v", err)
 		return nil, errors.New("删除用户失败，请稍后再试")
 	}
 	return &user.DeleteUserResponse{

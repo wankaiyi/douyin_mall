@@ -1,44 +1,20 @@
 package main
 
 import (
-	"douyin_mall/common/constant"
-	hotKeyClient "douyin_mall/common/infra/hot_key_client"
-	"douyin_mall/common/middleware"
-	"douyin_mall/common/mtl"
-	"douyin_mall/common/serversuite"
-	"douyin_mall/common/utils/env"
-	"douyin_mall/order/biz/dal"
-	"douyin_mall/order/biz/dal/redis"
 	"net"
-	"os"
 	"time"
 
 	"douyin_mall/order/conf"
 	"douyin_mall/order/kitex_gen/order/orderservice"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	kitexlogrus "github.com/kitex-contrib/obs-opentelemetry/logging/logrus"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 func main() {
-	os.Setenv("TZ", "Asia/Shanghai")
-	time.Local, _ = time.LoadLocation("")
-	serviceName := conf.GetConf().Kitex.Service
-	mtl.InitLog(
-		conf.GetConf().Kitex.LogFileName,
-		conf.GetConf().Kitex.LogMaxSize,
-		conf.GetConf().Kitex.LogMaxBackups,
-		conf.GetConf().Kitex.LogMaxAge,
-		conf.LogLevel(),
-		conf.GetConf().Kafka.ClsKafka.Usser,
-		conf.GetConf().Kafka.ClsKafka.Password,
-		conf.GetConf().Kafka.ClsKafka.TopicId,
-		serviceName,
-	)
-	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
-	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
-	dal.Init()
-	//启动hotKeyClient
-	go hotKeyClient.Start(redis.RedisClient, constant.OrderService)
 	opts := kitexInit()
 
 	svr := orderservice.NewServer(new(OrderServiceImpl), opts...)
@@ -51,22 +27,33 @@ func main() {
 
 func kitexInit() (opts []server.Option) {
 	// address
-	var address string
-	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "prod" {
-		address = "0.0.0.0:8888"
-	} else {
-		address = conf.GetConf().Kitex.Address
-	}
-	addr, err := net.ResolveTCPAddr("tcp", address)
+	addr, err := net.ResolveTCPAddr("tcp", conf.GetConf().Kitex.Address)
 	if err != nil {
 		panic(err)
 	}
 	opts = append(opts, server.WithServiceAddr(addr))
-	opts = append(opts, server.WithMiddleware(middleware.ServerInterceptor))
-	opts = append(opts, server.WithMiddleware(middleware.BuildRecoverPanicMiddleware(conf.GetConf().Alert.FeishuWebhook)))
-	opts = append(opts, server.WithSuite(serversuite.CommonServerSuite{
-		CurrentServiceName: conf.GetConf().Kitex.Service,
+
+	// service info
+	opts = append(opts, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
+		ServiceName: conf.GetConf().Kitex.Service,
 	}))
 
+	// klog
+	logger := kitexlogrus.NewLogger()
+	klog.SetLogger(logger)
+	klog.SetLevel(conf.LogLevel())
+	asyncWriter := &zapcore.BufferedWriteSyncer{
+		WS: zapcore.AddSync(&lumberjack.Logger{
+			Filename:   conf.GetConf().Kitex.LogFileName,
+			MaxSize:    conf.GetConf().Kitex.LogMaxSize,
+			MaxBackups: conf.GetConf().Kitex.LogMaxBackups,
+			MaxAge:     conf.GetConf().Kitex.LogMaxAge,
+		}),
+		FlushInterval: time.Minute,
+	}
+	klog.SetOutput(asyncWriter)
+	server.RegisterShutdownHook(func() {
+		asyncWriter.Sync()
+	})
 	return
 }

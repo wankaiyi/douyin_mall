@@ -1,8 +1,8 @@
 module douyin_mall/common
 
-go 1.22.0
+go 1.21.0
 
-toolchain go1.22.11
+toolchain go1.21.0
 
 require (
 	github.com/IBM/sarama v1.45.0

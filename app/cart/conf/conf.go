@@ -5,11 +5,11 @@ import (
 	"github.com/kitex-contrib/config-nacos/nacos"
 	"github.com/kr/pretty"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"gopkg.in/yaml.v3"
 	"os"
 	"sync"
 
 	"github.com/cloudwego/kitex/pkg/klog"
+	"gopkg.in/yaml.v2"
 )
 
 var (

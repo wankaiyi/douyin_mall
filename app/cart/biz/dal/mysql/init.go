@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"douyin_mall/cart/biz/model"
 	"douyin_mall/cart/conf"
 	"gorm.io/plugin/opentelemetry/tracing"
 
@@ -14,7 +15,8 @@ var (
 )
 
 func Init() {
-	DB, err = gorm.Open(mysql.Open(conf.GetConf().MySQL.DSN),
+	dsn := conf.GetConf().MySQL.DSN
+	DB, err = gorm.Open(mysql.Open(dsn),
 		&gorm.Config{
 			PrepareStmt:    true,
 			TranslateError: true,
@@ -23,7 +25,11 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	if err := DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
+	if err = DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&model.CartItem{})
+	if err != nil {
 		panic(err)
 	}
 }

@@ -37,23 +37,9 @@ func (s *OrderServiceImpl) GetOrder(ctx context.Context, req *order.GetOrderReq)
 	return resp, err
 }
 
-// SearchOrders implements the OrderServiceImpl interface.
-func (s *OrderServiceImpl) SearchOrders(ctx context.Context, req *order.SearchOrdersReq) (resp *order.SearchOrdersResp, err error) {
-	resp, err = service.NewSearchOrdersService(ctx).Run(req)
-
-	return resp, err
-}
-
 // InsertOrder implements the OrderServiceImpl interface.
 func (s *OrderServiceImpl) InsertOrder(ctx context.Context, req *order.InsertOrderReq) (resp *order.InsertOrderResp, err error) {
 	resp, err = service.NewInsertOrderService(ctx).Run(req)
-
-	return resp, err
-}
-
-// SelectOrder implements the OrderServiceImpl interface.
-func (s *OrderServiceImpl) SelectOrder(ctx context.Context, req *order.SelectOrderReq) (resp *order.SelectOrderResp, err error) {
-	resp, err = service.NewSelectOrderService(ctx).Run(req)
 
 	return resp, err
 }

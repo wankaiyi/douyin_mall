@@ -26,7 +26,7 @@ func (h *LoginService) Run(req *user.LoginRequest) (resp *user.LoginResponse, er
 		Password: req.Password,
 	})
 	if err != nil {
-		hlog.CtxErrorf(h.Context, "登录失败, err: %v", err)
+		hlog.CtxErrorf(h.Context, "rpc调用登录失败, err: %v", err)
 		return nil, errors.New("登录失败，请稍后再试")
 	}
 	resp = &user.LoginResponse{

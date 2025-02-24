@@ -34,7 +34,7 @@ func (h *AddReceiveAddressService) Run(req *user.AddReceiveAddressRequest) (resp
 		DetailAddress: req.DetailAddress,
 	})
 	if err != nil {
-		hlog.CtxErrorf(ctx, "添加收货地址错误，req：%v，err：%v", req, err)
+		hlog.CtxErrorf(ctx, "rpc调用添加收货地址错误，req：%v，err：%v", req, err)
 		return nil, errors.New("添加收货地址错误，请稍后再试")
 	}
 	resp = &user.AddReceiveAddressResponse{

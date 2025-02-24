@@ -14,9 +14,6 @@ type Client interface {
 	AddItem(ctx context.Context, Req *cart.AddItemReq, callOptions ...callopt.Option) (r *cart.AddItemResp, err error)
 	GetCart(ctx context.Context, Req *cart.GetCartReq, callOptions ...callopt.Option) (r *cart.GetCartResp, err error)
 	EmptyCart(ctx context.Context, Req *cart.EmptyCartReq, callOptions ...callopt.Option) (r *cart.EmptyCartResp, err error)
-	InsertCart(ctx context.Context, Req *cart.InsertCartReq, callOptions ...callopt.Option) (r *cart.InsertCartResp, err error)
-	DeleteCart(ctx context.Context, Req *cart.DeleteCartReq, callOptions ...callopt.Option) (r *cart.DeleteCartResp, err error)
-	UpdateCart(ctx context.Context, Req *cart.UpdateCartReq, callOptions ...callopt.Option) (r *cart.UpdateCartResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -61,19 +58,4 @@ func (p *kCartServiceClient) GetCart(ctx context.Context, Req *cart.GetCartReq, 
 func (p *kCartServiceClient) EmptyCart(ctx context.Context, Req *cart.EmptyCartReq, callOptions ...callopt.Option) (r *cart.EmptyCartResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.EmptyCart(ctx, Req)
-}
-
-func (p *kCartServiceClient) InsertCart(ctx context.Context, Req *cart.InsertCartReq, callOptions ...callopt.Option) (r *cart.InsertCartResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.InsertCart(ctx, Req)
-}
-
-func (p *kCartServiceClient) DeleteCart(ctx context.Context, Req *cart.DeleteCartReq, callOptions ...callopt.Option) (r *cart.DeleteCartResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.DeleteCart(ctx, Req)
-}
-
-func (p *kCartServiceClient) UpdateCart(ctx context.Context, Req *cart.UpdateCartReq, callOptions ...callopt.Option) (r *cart.UpdateCartResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateCart(ctx, Req)
 }

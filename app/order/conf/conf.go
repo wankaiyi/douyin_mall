@@ -1,15 +1,15 @@
 package conf
 
 import (
-	"fmt"
-	"github.com/kitex-contrib/config-nacos/nacos"
-	"github.com/kr/pretty"
-	"github.com/nacos-group/nacos-sdk-go/vo"
-	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/kr/pretty"
+	"gopkg.in/validator.v2"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -23,9 +23,6 @@ type Config struct {
 	MySQL    MySQL    `yaml:"mysql"`
 	Redis    Redis    `yaml:"redis"`
 	Registry Registry `yaml:"registry"`
-	Alert    Alert    `yaml:"alert"`
-	Kafka    Kafka    `yaml:"kafka"`
-	Jaeger   Jaeger   `yaml:"jaeger"`
 }
 
 type MySQL struct {
@@ -42,7 +39,6 @@ type Redis struct {
 type Kitex struct {
 	Service       string `yaml:"service"`
 	Address       string `yaml:"address"`
-	MetricsPort   string `yaml:"metrics_port"`
 	LogLevel      string `yaml:"log_level"`
 	LogFileName   string `yaml:"log_file_name"`
 	LogMaxSize    int    `yaml:"log_max_size"`
@@ -51,27 +47,9 @@ type Kitex struct {
 }
 
 type Registry struct {
-	RegistryAddress string `yaml:"registry_address"`
-	Username        string `yaml:"username"`
-	Password        string `yaml:"password"`
-}
-
-type Alert struct {
-	FeishuWebhook string `yaml:"feishu_webhook"`
-}
-
-type Kafka struct {
-	ClsKafka ClsKafka `yaml:"cls_kafka"`
-}
-
-type ClsKafka struct {
-	Usser    string `yaml:"user"`
-	Password string `yaml:"password"`
-	TopicId  string `yaml:"topic_id"`
-}
-
-type Jaeger struct {
-	Endpoint string `yaml:"endpoint"`
+	RegistryAddress []string `yaml:"registry_address"`
+	Username        string   `yaml:"username"`
+	Password        string   `yaml:"password"`
 }
 
 // GetConf gets configuration instance
@@ -81,57 +59,28 @@ func GetConf() *Config {
 }
 
 func initConf() {
-	client, err := nacos.NewClient(nacos.Options{
-		Address:     os.Getenv("NACOS_ADDR"),
-		NamespaceID: "e45ccc29-3e7d-4275-917b-febc49052d58",
-		Group:       "DEFAULT_GROUP",
-		Username:    "nacos",
-		Password:    os.Getenv("NACOS_PASSWORD"),
-		Port:        8848,
-	})
+	prefix := "conf"
+	confFileRelPath := filepath.Join(prefix, filepath.Join(GetEnv(), "conf.yaml"))
+	content, err := ioutil.ReadFile(confFileRelPath)
 	if err != nil {
 		panic(err)
 	}
-	param := vo.ConfigParam{
-		DataId: "order_conf.yaml",
-		Group:  "DEFAULT_GROUP",
-		Type:   "yaml",
-		OnChange: func(namespace, group, dataId, data string) {
-			fmt.Printf("Config changed - namespace: %s, group: %s, data-id: %s\n", namespace, group, dataId)
-
-			// 解析 YAML 配置
-			var config interface{}
-			err := yaml.Unmarshal([]byte(data), &config)
-			if err != nil {
-				fmt.Printf("Error parsing YAML: %v\n", err)
-				return
-			}
-
-			// 输出解析结果
-			fmt.Printf("Parsed YAML: %v\n", config)
-		},
+	conf = new(Config)
+	err = yaml.Unmarshal(content, conf)
+	if err != nil {
+		klog.Error("parse yaml error - %v", err)
+		panic(err)
 	}
-
-	client.RegisterConfigCallback(param, func(data string, parser nacos.ConfigParser) {
-		// 处理配置数据的逻辑
-		if conf == nil {
-			conf = new(Config)
-		}
-		err := yaml.Unmarshal([]byte(data), &conf)
-		if err != nil {
-			klog.Error("Error parsing YAML: %v\n", err)
-			return
-		}
-		_, err = pretty.Printf("%+v\n", conf)
-		if err != nil {
-			klog.Error("pretty print error - %v", err)
-		}
-	}, 5000)
+	if err := validator.Validate(conf); err != nil {
+		klog.Error("validate config error - %v", err)
+		panic(err)
+	}
 	conf.Env = GetEnv()
+	pretty.Printf("%+v\n", conf)
 }
 
 func GetEnv() string {
-	e := os.Getenv("env")
+	e := os.Getenv("GO_ENV")
 	if len(e) == 0 {
 		return "test"
 	}

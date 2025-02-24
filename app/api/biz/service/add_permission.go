@@ -27,7 +27,7 @@ func (h *AddPermissionService) Run(req *user.AddPermissionRequest) (resp *user.E
 		Method: req.Method,
 	})
 	if err != nil {
-		hlog.CtxErrorf(h.Context, "添加权限失败，req: %v, err: %v", req, err)
+		hlog.CtxErrorf(h.Context, "rpc调用添加权限失败，req: %v, err: %v", req, err)
 		return nil, errors.New("添加权限失败")
 	}
 	return &user.Empty{}, nil

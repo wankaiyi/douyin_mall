@@ -3,6 +3,7 @@ package main
 import (
 	"douyin_mall/cart/biz/dal"
 	"douyin_mall/cart/biz/dal/redis"
+	"douyin_mall/cart/infra/rpc"
 	"douyin_mall/common/constant"
 	hotKeyClient "douyin_mall/common/infra/hot_key_client"
 	"douyin_mall/common/middleware"
@@ -37,6 +38,8 @@ func main() {
 	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
+	rpc.InitClient()
+
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.CartService)
 

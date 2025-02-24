@@ -31,7 +31,7 @@ func (h *RegisterService) Run(req *user.RegisterRequest) (resp *user.RegisterRes
 		Avatar:          req.Avatar,
 	})
 	if err != nil {
-		hlog.CtxErrorf(h.Context, "register failed, err: %v", err)
+		hlog.CtxErrorf(h.Context, "rpc调用register失败, req: %v, err: %v", req, err)
 		return nil, errors.New("注册失败，请稍后再试")
 	}
 	resp = &user.RegisterResponse{

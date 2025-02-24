@@ -23,10 +23,6 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 	for msg := range claim.Messages() {
 		klog.Infof("收到消息，topic:%q partition:%d offset:%d  value:%s\n", msg.Topic, msg.Partition, msg.Offset, string(msg.Value))
 
-		//if 1 == 1 {
-		//	return errors.New("模拟错误")
-		//}
-
 		userCacheMsg := UserCacheMessage{}
 		err := sonic.Unmarshal(msg.Value, &userCacheMsg)
 		if err != nil {

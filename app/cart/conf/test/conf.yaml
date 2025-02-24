@@ -1,6 +1,6 @@
 kitex:
   service: "cart"
-  address: "localhost:8002"
+  address: ":8888"
   log_level: info
   log_file_name: "log/kitex.log"
   log_max_size: 10
@@ -14,10 +14,10 @@ registry:
   password: ""
 
 mysql:
-  dsn: "root:123456@tcp(localhost:3306)/gorm_test?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8mb4&parseTime=True&loc=Local"
 
 redis:
-  address: "localhost"
+  address: "127.0.0.1:6379"
   username: ""
   password: ""
   db: 0

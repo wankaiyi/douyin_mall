@@ -41,7 +41,6 @@ message GetUserInfoResponse {
   string description = 6;
   string avatar = 7;
   string created_at = 8;
-
 }
 
 message LogoutResponse {
@@ -88,6 +87,24 @@ message AddReceiveAddressResponse {
   string status_msg = 2;
 }
 
+message GetReceiveAddressesResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+  repeated ReceiveAddress addresses = 3;
+}
+
+message ReceiveAddress {
+  int32 id = 1;
+  string name = 2;
+  string phone_number = 3;
+  int32 default_status = 4;
+  string province = 5;
+  string city = 6;
+  string region = 7;
+  string detail_address = 8;
+  string created_at = 9;
+}
+
 message Empty {}
 
 service UserService {
@@ -126,5 +143,9 @@ service UserService {
 
   rpc AddReceiveAddress(AddReceiveAddressRequest) returns (AddReceiveAddressResponse) {
     option (api.post) = "/user/address";
+  }
+
+  rpc GetReceiveAddresses(Empty) returns (GetReceiveAddressesResponse) {
+    option (api.get) = "/user/address";
   }
 }
