@@ -25,3 +25,8 @@ func GetCartItemByUserId(ctx context.Context, db *gorm.DB, userId int32) ([]*Car
 	err := db.WithContext(ctx).Where(&CartItem{UserId: userId}).Find(&items).Error
 	return items, err
 }
+
+func EmptyCart(ctx context.Context, db *gorm.DB, userId int32) error {
+	err := db.WithContext(ctx).Where(&CartItem{UserId: userId}).Delete(&CartItem{}).Error
+	return err
+}

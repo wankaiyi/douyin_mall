@@ -26,8 +26,6 @@ message AddItemResp {
 }
 
 message EmptyCartReq {
-  int32 status_code = 1;
-  string status_msg = 2;
   int32 user_id = 3;
 }
 
@@ -41,7 +39,10 @@ message GetCartResp {
   repeated Product products = 3;
 }
 
-message EmptyCartResp {}
+message EmptyCartResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
 
 message Product {
   int32 id = 1;
