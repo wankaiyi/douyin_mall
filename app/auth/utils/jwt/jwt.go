@@ -72,6 +72,11 @@ func ParseJWT(tokenStr string) (jwt.MapClaims, int) {
 		return jwtSecret, nil
 	})
 
+	// token 格式不合法
+	if token == nil {
+		return nil, TokenInvalid
+	}
+
 	switch {
 	case token.Valid:
 		return token.Claims.(jwt.MapClaims), TokenValid
