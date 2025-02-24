@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	Producer sarama.AsyncProducer
+	Producer sarama.SyncProducer
 	Topic    string
 	err      error
 )
@@ -34,7 +34,7 @@ func InitProducer() (err error) {
 
 	// 创建生产者
 	brokers := strings.Split(conf.GetConf().Kafka.BizKafka.BootstrapServers, ",")
-	Producer, err := sarama.NewAsyncProducer(brokers, config)
+	Producer, err = sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		klog.Error("Failed to start producer:", err)
 	}

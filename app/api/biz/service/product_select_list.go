@@ -20,7 +20,7 @@ func NewProductSelectListService(Context context.Context, RequestContext *app.Re
 
 func (h *ProductSelectListService) Run(req *product.ProductSelectListRequest) (resp *product.ProductSelectListResponse, err error) {
 	//根据id查询商品信息
-	selectProduct, err := rpc.ProductClient.SelectProductList(h.Context, &rpcproduct.SelectProductListReq{Id: req.Id})
+	selectProduct, err := rpc.ProductClient.SelectProductList(h.Context, &rpcproduct.SelectProductListReq{Ids: req.Id})
 	if err != nil {
 		return nil, err
 	}

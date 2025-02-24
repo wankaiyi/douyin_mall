@@ -54,7 +54,8 @@ func main() {
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 	//将任务注册到xxl-job中
 	go xxljobInit()
-	taskInit()
+	go task.ProduceIndicesInit()
+	go task.Consumer()
 	err := svr.Run()
 	if err != nil {
 		klog.Error(err.Error())
@@ -138,8 +139,4 @@ func customMiddleware(tf xxl.TaskFunc) xxl.TaskFunc {
 		klog.CtxInfof(context.Background(), "xxl-job 定时任务结束")
 		return res
 	}
-}
-
-func taskInit() {
-	task.ProduceIndicesInit()
 }

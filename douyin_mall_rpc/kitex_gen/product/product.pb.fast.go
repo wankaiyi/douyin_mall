@@ -560,7 +560,7 @@ func (x *SelectProductListReq) fastReadField1(buf []byte, _type int8) (offset in
 			if err != nil {
 				return offset, err
 			}
-			x.Id = append(x.Id, v)
+			x.Ids = append(x.Ids, v)
 			return offset, err
 		})
 	return offset, err
@@ -1291,13 +1291,13 @@ func (x *SelectProductListReq) FastWrite(buf []byte) (offset int) {
 }
 
 func (x *SelectProductListReq) fastWriteField1(buf []byte) (offset int) {
-	if len(x.Id) == 0 {
+	if len(x.Ids) == 0 {
 		return offset
 	}
-	offset += fastpb.WriteListPacked(buf[offset:], 1, len(x.GetId()),
+	offset += fastpb.WriteListPacked(buf[offset:], 1, len(x.GetIds()),
 		func(buf []byte, numTagOrKey, numIdxOrVal int32) int {
 			offset := 0
-			offset += fastpb.WriteInt64(buf[offset:], numTagOrKey, x.GetId()[numIdxOrVal])
+			offset += fastpb.WriteInt64(buf[offset:], numTagOrKey, x.GetIds()[numIdxOrVal])
 			return offset
 		})
 	return offset
@@ -1947,13 +1947,13 @@ func (x *SelectProductListReq) Size() (n int) {
 }
 
 func (x *SelectProductListReq) sizeField1() (n int) {
-	if len(x.Id) == 0 {
+	if len(x.Ids) == 0 {
 		return n
 	}
-	n += fastpb.SizeListPacked(1, len(x.GetId()),
+	n += fastpb.SizeListPacked(1, len(x.GetIds()),
 		func(numTagOrKey, numIdxOrVal int32) int {
 			n := 0
-			n += fastpb.SizeInt64(numTagOrKey, x.GetId()[numIdxOrVal])
+			n += fastpb.SizeInt64(numTagOrKey, x.GetIds()[numIdxOrVal])
 			return n
 		})
 	return n
@@ -2269,7 +2269,7 @@ var fieldIDToName_SelectProductReq = map[int32]string{
 }
 
 var fieldIDToName_SelectProductListReq = map[int32]string{
-	1: "Id",
+	1: "Ids",
 }
 
 var fieldIDToName_SelectProductListResp = map[int32]string{

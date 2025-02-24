@@ -2,15 +2,19 @@ package task
 
 import (
 	"context"
+	"douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
+	"douyin_mall/product/conf"
 	"douyin_mall/product/infra/elastic"
 	kf "douyin_mall/product/infra/kafka"
-	"fmt"
 	"github.com/IBM/sarama"
 	"github.com/bytedance/sonic"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
+	"strconv"
 	"strings"
+	"time"
 )
 
 func AddProduct(product *model.Product) (err error) {
@@ -23,15 +27,19 @@ func AddProduct(product *model.Product) (err error) {
 			ID:          product.ID,
 			Name:        product.Name,
 			Description: product.Description,
+			Price:       product.Price,
+			Picture:     product.Picture,
 		},
 	})
-	kf.Producer.Input() <- &sarama.ProducerMessage{
+	_, _, err = kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
+	})
+	if err != nil {
+		return err
 	}
 	return
 }
-
 func DeleteProduct(product *model.Product) (err error) {
 	//TODO 用专门的结构体来封装发送上去的数据
 	sonicData, err := sonic.Marshal(vo.ProductKafkaDataVO{
@@ -42,13 +50,12 @@ func DeleteProduct(product *model.Product) (err error) {
 			ID: product.ID,
 		},
 	})
-	kf.Producer.Input() <- &sarama.ProducerMessage{
+	kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
-	}
+	})
 	return
 }
-
 func UpdateProduct(product *model.Product) (err error) {
 	//TODO 用专门的结构体来封装发送上去的数据
 	sonicData, err := sonic.Marshal(vo.ProductKafkaDataVO{
@@ -59,14 +66,17 @@ func UpdateProduct(product *model.Product) (err error) {
 			ID:          product.ID,
 			Name:        product.Name,
 			Description: product.Description,
+			Price:       product.Price,
+			Picture:     product.Picture,
 		},
 	})
-	kf.Producer.Input() <- &sarama.ProducerMessage{
+	kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
-	}
+	})
 	return
 }
+
 func DeleteProductToElasticSearch(id int64) {
 	body := vo.ProductSearchQueryBody{
 		Query: &vo.ProductSearchQuery{
@@ -86,7 +96,15 @@ func DeleteProductToElasticSearch(id int64) {
 	//1 调用esapi.DeleteRequest删除product索引库中id为product.ID的数据
 	print(request.StatusCode) //2 打印返回的状态码
 }
-
+func DeleteProductToRedis(id int64) {
+	key := "product:" + strconv.FormatInt(id, 10)
+	_, err := redis.RedisClient.Del(context.Background(), key).Result()
+	if err != nil {
+		klog.Error("redis delete error", err)
+		return
+	}
+	return
+}
 func UpdateProductToElasticSearch(p *vo.ProductSendToKafka) {
 	body := vo.ProductSearchQueryBody{
 		Query: &vo.ProductSearchQuery{
@@ -110,6 +128,28 @@ func UpdateProductToElasticSearch(p *vo.ProductSendToKafka) {
 	//1 调用esapi.DeleteRequest删除product索引库中id为product.ID的数据
 	print(request.StatusCode) //2 打印返回的状态码
 }
+func UpdateProductToRedis(product *vo.ProductSendToKafka) {
+	pro := vo.ProductRedisDataVo{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Picture:     product.Picture,
+	}
+	key := "product:" + strconv.FormatInt(product.ID, 10)
+	//4 调用redis的set方法将数据导入到redis缓存中
+	marshal, err := sonic.MarshalString(pro)
+	if err != nil {
+		klog.Error("序列化失败", err)
+		return
+	}
+	_, err = redis.RedisClient.Set(context.Background(), key, marshal, 1*time.Hour).Result()
+	if err != nil {
+		klog.Error("redis set error", err)
+		return
+	}
+	return
+}
 
 func AddProductToElasticSearch(product *vo.ProductSendToKafka) {
 	pro := vo.ProductSearchDataVo{
@@ -126,15 +166,41 @@ func AddProductToElasticSearch(product *vo.ProductSendToKafka) {
 	print(response.StatusCode)
 	return
 }
-
-type ProductKafkaConsumer struct {
+func AddProductToRedis(product *vo.ProductSendToKafka) {
+	pro := vo.ProductRedisDataVo{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Picture:     product.Picture,
+	}
+	key := "product:" + strconv.FormatInt(product.ID, 10)
+	//4 调用redis的set方法将数据导入到redis缓存中
+	marshal, err := sonic.MarshalString(pro)
+	if err != nil {
+		klog.Error("序列化失败", err)
+		return
+	}
+	_, err = redis.RedisClient.Set(context.Background(), key, marshal, 1*time.Hour).Result()
+	if err != nil {
+		klog.Error("redis set error", err)
+		return
+	}
+	return
 }
 
-func (ProductKafkaConsumer) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
-func (ProductKafkaConsumer) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
-func (h ProductKafkaConsumer) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+type ProductKafkaHandler struct {
+}
+
+func (ProductKafkaHandler) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
+func (ProductKafkaHandler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
+func (h ProductKafkaHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+	count := 0
+	batchSize := 10
 	for msg := range claim.Messages() {
-		fmt.Printf("Message topic:%q partition:%d offset:%d\n", msg.Topic, msg.Partition, msg.Offset)
+		klog.CtxInfof(context.Background(), "消费者接受到消息，Received message: Topic=%s, Partition=%d, Offset=%d, Key=%s, Value=%s \n",
+			msg.Topic, msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
+		session.MarkMessage(msg, "开始消费")
 		value := msg.Value //消息内容
 		dataVo := vo.ProductKafkaDataVO{}
 		_ = sonic.Unmarshal(value, &dataVo)
@@ -142,13 +208,44 @@ func (h ProductKafkaConsumer) ConsumeClaim(sess sarama.ConsumerGroupSession, cla
 		switch dataVo.Type.Name {
 		case vo.Add:
 			AddProductToElasticSearch(&dataVo.Product)
+			AddProductToRedis(&dataVo.Product)
 		case vo.Update:
 			UpdateProductToElasticSearch(&dataVo.Product)
+			UpdateProductToRedis(&dataVo.Product)
 		case vo.Delete:
 			DeleteProductToElasticSearch(dataVo.Product.ID)
+			DeleteProductToRedis(dataVo.Product.ID)
 		}
-		sess.MarkMessage(msg, "")
-		sess.Commit()
+		count++
+		session.MarkMessage(msg, "done")
+		if count >= batchSize {
+			count = 0
+			session.Commit()
+		}
 	}
+	session.Commit()
 	return nil
+}
+
+func Consumer() {
+	config := sarama.NewConfig()
+	strategies := make([]sarama.BalanceStrategy, 1)
+	strategies[0] = sarama.NewBalanceStrategyRange()
+	config.Consumer.Group.Rebalance.GroupStrategies = strategies
+	config.Consumer.Offsets.Initial = sarama.OffsetOldest
+
+	// 创建消费者
+	brokers := strings.Split(conf.GetConf().Kafka.BizKafka.BootstrapServers, ",")
+	consumer, err := sarama.NewConsumerGroup(brokers, "product_group", config)
+	handler := ProductKafkaHandler{}
+	for {
+		err = consumer.Consume(
+			context.Background(),
+			[]string{conf.GetConf().Kafka.BizKafka.ProductTopicId},
+			handler,
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
 }

@@ -20,7 +20,7 @@ func NewSelectProductListService(ctx context.Context) *SelectProductListService 
 func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp *product.SelectProductListResp, err error) {
 	// Finish your business logic.
 	// 创建实体类
-	products, err := model.SelectProductList(mysql.DB, s.ctx, req.Id)
+	products, err := model.SelectProductList(mysql.DB, s.ctx, req.Ids)
 	if err != nil {
 		klog.Error("mysql error:%v", err)
 		resp = &product.SelectProductListResp{

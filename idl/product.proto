@@ -94,7 +94,7 @@ message SelectProductReq {
   int64 id = 1;
 }
 message SelectProductListReq {
-  repeated int64 id = 1;
+  repeated int64 ids = 1;
 }
 
 message SelectProductListResp {
