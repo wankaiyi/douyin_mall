@@ -15,7 +15,7 @@ message Product {
   string name = 2;
   string description = 3;
   string picture = 4;
-  string price = 5;
+  float price = 5;
 
   repeated string categories = 6;
   int64 stock=7;
@@ -39,7 +39,7 @@ message ProductInsertRequest {
   string name = 1 [(api.form)= "name"];
   string description = 2 [(api.form)= "description"];
   string picture = 3 [(api.form)= "picture"];
-  string price = 4 [(api.form)= "price"];
+  float price = 4 [(api.form)= "price"];
   int64 stock = 5 [(api.form)= "stock"];
   int64 categoryId = 6 [(api.form)= "categoryId"];
   int64 brandId = 7 [(api.form)= "brandId"];
@@ -71,7 +71,7 @@ message ProductUpdateRequest {
   string name = 2[(api.form)= "name"];
   string description = 3[(api.form)= "description"];
   string picture = 4[(api.form)= "picture"];
-  string price = 5[(api.form)= "price"];
+  float price = 5[(api.form)= "price"];
   repeated string categories = 6[(api.form)= "categories"];
   int64 stock=7[(api.form)= "stock"];
   int64 sale=8[(api.form)= "sale"];
@@ -114,7 +114,7 @@ service ProductService {
   }
 
   rpc ProductSelectList(ProductSelectListRequest) returns (ProductSelectListResponse) {
-    option (api.post) = "/product/update";
+    option (api.post) = "/product/selectList";
   }
 
   rpc CategorySelect (CategorySelectRequest) returns (CategorySelectResponse) {

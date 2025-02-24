@@ -148,7 +148,7 @@ func (x *Product) fastReadField4(buf []byte, _type int8) (offset int, err error)
 }
 
 func (x *Product) fastReadField5(buf []byte, _type int8) (offset int, err error) {
-	x.Price, offset, err = fastpb.ReadString(buf, _type)
+	x.Price, offset, err = fastpb.ReadFloat(buf, _type)
 	return offset, err
 }
 
@@ -453,7 +453,7 @@ func (x *InsertProductReq) fastReadField3(buf []byte, _type int8) (offset int, e
 }
 
 func (x *InsertProductReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
-	x.Price, offset, err = fastpb.ReadString(buf, _type)
+	x.Price, offset, err = fastpb.ReadFloat(buf, _type)
 	return offset, err
 }
 
@@ -817,7 +817,7 @@ func (x *UpdateProductReq) fastReadField4(buf []byte, _type int8) (offset int, e
 }
 
 func (x *UpdateProductReq) fastReadField5(buf []byte, _type int8) (offset int, err error) {
-	x.Price, offset, err = fastpb.ReadString(buf, _type)
+	x.Price, offset, err = fastpb.ReadFloat(buf, _type)
 	return offset, err
 }
 
@@ -976,10 +976,10 @@ func (x *Product) fastWriteField4(buf []byte) (offset int) {
 }
 
 func (x *Product) fastWriteField5(buf []byte) (offset int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 5, x.GetPrice())
+	offset += fastpb.WriteFloat(buf[offset:], 5, x.GetPrice())
 	return offset
 }
 
@@ -1210,10 +1210,10 @@ func (x *InsertProductReq) fastWriteField3(buf []byte) (offset int) {
 }
 
 func (x *InsertProductReq) fastWriteField4(buf []byte) (offset int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 4, x.GetPrice())
+	offset += fastpb.WriteFloat(buf[offset:], 4, x.GetPrice())
 	return offset
 }
 
@@ -1465,10 +1465,10 @@ func (x *UpdateProductReq) fastWriteField4(buf []byte) (offset int) {
 }
 
 func (x *UpdateProductReq) fastWriteField5(buf []byte) (offset int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 5, x.GetPrice())
+	offset += fastpb.WriteFloat(buf[offset:], 5, x.GetPrice())
 	return offset
 }
 
@@ -1632,10 +1632,10 @@ func (x *Product) sizeField4() (n int) {
 }
 
 func (x *Product) sizeField5() (n int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return n
 	}
-	n += fastpb.SizeString(5, x.GetPrice())
+	n += fastpb.SizeFloat(5, x.GetPrice())
 	return n
 }
 
@@ -1866,10 +1866,10 @@ func (x *InsertProductReq) sizeField3() (n int) {
 }
 
 func (x *InsertProductReq) sizeField4() (n int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return n
 	}
-	n += fastpb.SizeString(4, x.GetPrice())
+	n += fastpb.SizeFloat(4, x.GetPrice())
 	return n
 }
 
@@ -2121,10 +2121,10 @@ func (x *UpdateProductReq) sizeField4() (n int) {
 }
 
 func (x *UpdateProductReq) sizeField5() (n int) {
-	if x.Price == "" {
+	if x.Price == 0 {
 		return n
 	}
-	n += fastpb.SizeString(5, x.GetPrice())
+	n += fastpb.SizeFloat(5, x.GetPrice())
 	return n
 }
 

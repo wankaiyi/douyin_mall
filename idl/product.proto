@@ -39,7 +39,7 @@ message Product {
   string name = 2;
   string description = 3;
   string picture = 4;
-  string price = 5;
+  float price = 5;
 
   repeated string categories = 6;
   int64 stock=7;
@@ -79,7 +79,7 @@ message InsertProductReq {
   string name = 1 ;
   string description = 2 ;
   string picture = 3 ;
-  string price = 4 ;
+  float price = 4 ;
   int64 stock = 5 ;
   int64 brandId=10;
   int64 categoryId=11;
@@ -123,7 +123,7 @@ message UpdateProductReq {
   string name = 2;
   string description = 3;
   string picture = 4;
-  string price = 5;
+  float price = 5;
 
   repeated string categories = 6;
   int64 stock=7;
