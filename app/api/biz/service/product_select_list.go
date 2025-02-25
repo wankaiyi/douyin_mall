@@ -26,19 +26,19 @@ func (h *ProductSelectListService) Run(req *product.ProductSelectListRequest) (r
 	}
 	//组装返回数据
 	var products []*product.Product
-	for i := range selectProduct.Product {
+	for i := range selectProduct.Products {
 		products = append(products, &product.Product{
-			Id:            selectProduct.Product[i].Id,
-			Name:          selectProduct.Product[i].Name,
-			Description:   selectProduct.Product[i].Description,
-			Price:         selectProduct.Product[i].Price,
-			Stock:         selectProduct.Product[i].Stock,
-			Sale:          selectProduct.Product[i].Sale,
-			PublishStatus: selectProduct.Product[i].PublishStatus,
-			Picture:       selectProduct.Product[i].Picture,
-			Categories:    selectProduct.Product[i].Categories,
-			BrandId:       selectProduct.Product[i].BrandId,
-			CategoryId:    selectProduct.Product[i].CategoryId,
+			Id:            selectProduct.Products[i].Id,
+			Name:          selectProduct.Products[i].Name,
+			Description:   selectProduct.Products[i].Description,
+			Price:         selectProduct.Products[i].Price,
+			Stock:         selectProduct.Products[i].Stock,
+			Sale:          selectProduct.Products[i].Sale,
+			PublishStatus: selectProduct.Products[i].PublishStatus,
+			Picture:       selectProduct.Products[i].Picture,
+			Categories:    selectProduct.Products[i].Categories,
+			BrandId:       selectProduct.Products[i].BrandId,
+			CategoryId:    selectProduct.Products[i].CategoryId,
 		})
 	}
 
