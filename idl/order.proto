@@ -10,27 +10,23 @@ service OrderService {
   rpc PlaceOrder(PlaceOrderReq) returns (PlaceOrderResp) {}
   rpc ListOrder(ListOrderReq) returns (ListOrderResp) {}
   rpc MarkOrderPaid(MarkOrderPaidReq) returns (MarkOrderPaidResp) {}
-  rpc GetOrder(GetOrderReq) returns (GetOrderResp) {}
-  rpc InsertOrder(InsertOrderReq) returns (InsertOrderResp) {}
-  rpc DeleteOrder(DeleteOrderReq) returns (DeleteOrderResp) {}
-  rpc UpdateOrder(UpdateOrderReq) returns (UpdateOrderResp) {}
 }
 
 message Address {
-  string street_address = 1;
-  string city = 2;
-  string state = 3;
-  string country = 4;
-  int32 zip_code = 5;
+  string name = 1;
+  string phone_number = 2;
+  int32 default_status = 3;
+  string province = 4;
+  string city = 5;
+  string region = 6;
+  string detail_address = 7;
 }
 
 message PlaceOrderReq {
-  uint32 user_id = 1;
-  string user_currency = 2;
+  int32 user_id = 1;
 
-  Address address = 3;
-  string email = 4;
-  repeated OrderItem order_items = 5;
+  Address address = 2;
+  repeated OrderItem order_items = 3;
 }
 
 message OrderItem {
@@ -43,93 +39,36 @@ message OrderResult {
 }
 
 message PlaceOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  OrderResult order = 3;
+  OrderResult order = 1;
+  int32 status_code = 2;
+  string status_msg = 3;
 }
 
 message ListOrderReq {
-  uint32 user_id = 1;
-  repeated string search_terms = 2;
-  string start_time = 3;
-  string end_time = 4;
+  int32 user_id = 1;
 }
 
 message Order {
-  repeated OrderItem order_items = 1;
+  OrderItem order_items = 1;
   string order_id = 2;
-  uint32 user_id = 3;
-  string user_currency = 4;
-  Address address = 5;
-  string email = 6;
-  int32 created_at = 7;
+  int32 user_id = 3;
+  Address address = 4;
+  int32 created_at = 5;
+  int32 status = 6;
 }
 
 message ListOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  repeated Order orders = 3;
+  repeated Order orders = 1;
+  int32 status_code = 2;
+  string status_msg = 3;
 }
 
 message MarkOrderPaidReq {
-  uint32 user_id = 1;
+  int32 user_id = 1;
   string order_id = 2;
 }
 
 message MarkOrderPaidResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-}
-
-message GetOrderReq {
-  uint32 id = 1;
-}
-
-message GetOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-  Order order = 3;
-}
-
-message InsertOrderReq {
-  int64 id = 1;
-  int64 productId = 2;
-  int64 userId = 3;
-  int64 deliveryId = 4;
-  string quantity = 5;
-  string price = 6;
-  string description = 7;
-  int32 status = 8;
-  int32 isDeleted = 9;
-}
-
-message InsertOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-}
-
-message DeleteOrderReq {
-  int64 id = 1;
-}
-
-message DeleteOrderResp {
-  int32 status_code = 1;
-  string status_msg = 2;
-}
-
-message UpdateOrderReq {
-  int64 id = 1;
-  int64 productId = 2;
-  int64 userId = 3;
-  int64 deliveryId = 4;
-  string quantity = 5;
-  string price = 6;
-  string description = 7;
-  int32 status = 8;
-  int32 isDeleted = 9;
-}
-
-message UpdateOrderResp {
   int32 status_code = 1;
   string status_msg = 2;
 }

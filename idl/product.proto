@@ -100,7 +100,7 @@ message SelectProductListReq {
 message SelectProductListResp {
   int32 status_code = 1;
   string status_msg = 2;
-  repeated Product product = 3;
+  repeated Product products = 3;
 }
 
 message SelectProductResp {

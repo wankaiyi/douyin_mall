@@ -42,7 +42,7 @@ func (s *GetCartService) Run(req *cart.GetCartReq) (resp *cart.GetCartResp, err 
 		productIds[i] = (int64)(item.ProductId)
 	}
 
-	productList, err := rpc.ProductClient.SelectProductList(ctx, &product.SelectProductListReq{
+	getProductListResp, err := rpc.ProductClient.SelectProductList(ctx, &product.SelectProductListReq{
 		Ids: productIds,
 	})
 	if err != nil {
@@ -50,15 +50,32 @@ func (s *GetCartService) Run(req *cart.GetCartReq) (resp *cart.GetCartResp, err 
 		return nil, errors.WithStack(err)
 	}
 
+	productMap := make(map[int]*product.Product)
+	for _, p := range getProductListResp.Products {
+		productMap[int(p.Id)] = p
+	}
+
 	productItems := make([]*cart.Product, len(cartItems))
 	for i, item := range cartItems {
-
+		p := productMap[int(item.ProductId)]
+		if p == nil {
+			// 商品不存在，返回空数据
+			productItems[i] = &cart.Product{
+				Id:          item.ProductId,
+				Name:        "",
+				Description: "",
+				Picture:     "",
+				Price:       0,
+				Quantity:    item.Quantity,
+			}
+			continue
+		}
 		productItems[i] = &cart.Product{
 			Id:          item.ProductId,
-			Name:        productList.Product[i].Name,
-			Description: productList.Product[i].Description,
-			Picture:     productList.Product[i].Picture,
-			Price:       productList.Product[i].Price,
+			Name:        p.Name,
+			Description: p.Description,
+			Picture:     p.Picture,
+			Price:       p.Price,
 			Quantity:    item.Quantity,
 		}
 	}

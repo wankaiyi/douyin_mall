@@ -612,7 +612,7 @@ func (x *SelectProductListResp) fastReadField3(buf []byte, _type int8) (offset i
 	if err != nil {
 		return offset, err
 	}
-	x.Product = append(x.Product, &v)
+	x.Products = append(x.Products, &v)
 	return offset, nil
 }
 
@@ -1330,11 +1330,11 @@ func (x *SelectProductListResp) fastWriteField2(buf []byte) (offset int) {
 }
 
 func (x *SelectProductListResp) fastWriteField3(buf []byte) (offset int) {
-	if x.Product == nil {
+	if x.Products == nil {
 		return offset
 	}
-	for i := range x.GetProduct() {
-		offset += fastpb.WriteMessage(buf[offset:], 3, x.GetProduct()[i])
+	for i := range x.GetProducts() {
+		offset += fastpb.WriteMessage(buf[offset:], 3, x.GetProducts()[i])
 	}
 	return offset
 }
@@ -1986,11 +1986,11 @@ func (x *SelectProductListResp) sizeField2() (n int) {
 }
 
 func (x *SelectProductListResp) sizeField3() (n int) {
-	if x.Product == nil {
+	if x.Products == nil {
 		return n
 	}
-	for i := range x.GetProduct() {
-		n += fastpb.SizeMessage(3, x.GetProduct()[i])
+	for i := range x.GetProducts() {
+		n += fastpb.SizeMessage(3, x.GetProducts()[i])
 	}
 	return n
 }
@@ -2275,7 +2275,7 @@ var fieldIDToName_SelectProductListReq = map[int32]string{
 var fieldIDToName_SelectProductListResp = map[int32]string{
 	1: "StatusCode",
 	2: "StatusMsg",
-	3: "Product",
+	3: "Products",
 }
 
 var fieldIDToName_SelectProductResp = map[int32]string{

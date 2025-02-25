@@ -1,8 +1,8 @@
 module douyin_mall/product
 
-go 1.21.0
+go 1.22
 
-toolchain go1.21.0
+toolchain go1.23.6
 
 replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 

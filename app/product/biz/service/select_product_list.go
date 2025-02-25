@@ -42,7 +42,7 @@ func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp 
 	resp = &product.SelectProductListResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-		Product:    productList,
+		Products:   productList,
 	}
 	return
 }
