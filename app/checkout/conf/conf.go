@@ -1,9 +1,14 @@
 package conf
 
 import (
+	"context"
+	nacosUtils "douyin_mall/common/infra/nacos"
 	"fmt"
+	"github.com/alibaba/sentinel-golang/ext/datasource"
+	sentinelNacosDataSource "github.com/alibaba/sentinel-golang/pkg/datasource/nacos"
 	"github.com/kitex-contrib/config-nacos/nacos"
 	"github.com/kr/pretty"
+	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -128,6 +133,28 @@ func initConf() {
 		}
 	}, 5000)
 	conf.Env = GetEnv()
+	clientConfig, serverConfigs := nacosUtils.GetNacosConfig()
+
+	configClient, err := clients.CreateConfigClient(map[string]interface{}{
+		"serverConfigs": serverConfigs,
+		"clientConfig":  clientConfig,
+	})
+	if err != nil {
+		klog.Fatalf("初始化nacos配置客户端失败: %v", err)
+	}
+
+	//sentinel规则nacos动态配置
+	h := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
+	nacosDataSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_checkout_rule_config.json", h)
+	if err != nil {
+		panic(err)
+	}
+	err = nacosDataSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+	}
+	klog.CtxInfof(context.Background(), "初始化sentinel规则成功, rule: %+v", nacosDataSource)
+
 }
 
 func GetEnv() string {

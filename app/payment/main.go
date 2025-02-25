@@ -12,9 +12,7 @@ import (
 	"douyin_mall/payment/biz/dal/redis"
 	"douyin_mall/payment/biz/task"
 	kafka2 "douyin_mall/payment/infra/kafka"
-
 	"github.com/xxl-job/xxl-job-executor-go"
-
 	"net"
 	"os"
 	"time"
@@ -59,7 +57,7 @@ func main() {
 
 	err := svr.Run()
 	if err != nil {
-		klog.Error(err.Error())
+		klog.CtxErrorf(context.Background(), "payment service run error:%v", err.Error())
 	}
 }
 

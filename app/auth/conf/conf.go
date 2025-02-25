@@ -1,8 +1,11 @@
 package conf
 
 import (
+	"context"
 	nacosUtils "douyin_mall/common/infra/nacos"
 	"fmt"
+	"github.com/alibaba/sentinel-golang/ext/datasource"
+	sentinelNacosDataSource "github.com/alibaba/sentinel-golang/pkg/datasource/nacos"
 	"github.com/bytedance/sonic"
 	"github.com/kitex-contrib/config-nacos/nacos"
 	"github.com/kr/pretty"
@@ -177,6 +180,18 @@ func initConf() {
 			},
 		},
 	}
+
+	//sentinel规则nacos动态配置
+	h := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
+	nacosDataSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_auth_rule_config.json", h)
+	if err != nil {
+		panic(err)
+	}
+	err = nacosDataSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+	}
+	klog.CtxInfof(context.Background(), "初始化sentinel规则成功, rule: %+v", nacosDataSource)
 
 	// 监听与初始化配置
 	for _, cfg := range configs {

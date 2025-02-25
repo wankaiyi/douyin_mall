@@ -2,6 +2,7 @@ package clientsuite
 
 import (
 	"douyin_mall/common/infra/nacos"
+	sentinel "github.com/alibaba/sentinel-golang/pkg/adapters/kitex"
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
@@ -25,6 +26,8 @@ func (s CommonGrpcClientSuite) Options() []client.Option {
 		client.WithClientBasicInfo(&rpcinfo.EndpointBasicInfo{
 			ServiceName: s.CurrentServiceName,
 		}),
+		// sentinel客户端中间件
+		client.WithMiddleware(sentinel.SentinelClientMiddleware()),
 	}
 
 	return opts

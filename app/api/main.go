@@ -18,6 +18,7 @@ import (
 
 	"douyin_mall/api/biz/router"
 	"douyin_mall/api/conf"
+	sentinelPlugin "github.com/alibaba/sentinel-golang/pkg/adapters/hertz"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -58,6 +59,20 @@ func main() {
 	} else {
 		address = conf.GetConf().Hertz.Address
 	}
+
+	// 加载流控规则（示例）
+	//_, err := flow.LoadRules([]*flow.Rule{
+	//	{
+	//		Resource:         "GET:/ping", // 资源名称（方法+路径）
+	//		Threshold:        1,           // QPS 阈值
+	//		ControlBehavior:  flow.Reject, // 直接拒绝
+	//		StatIntervalInMs: 1000,        // 统计窗口 1s
+	//	},
+	//})
+	//if err != nil {
+	//	panic(err)
+	//}
+
 	h := server.New(server.WithHostPorts(address), tracer)
 	log.InitLog(ServiceName,
 		conf.LogLevel(), conf.GetConf().Hertz.LogFileName, conf.GetConf().Hertz.LogMaxSize, conf.GetConf().Hertz.LogMaxBackups, conf.GetConf().Hertz.LogMaxAge,
@@ -66,6 +81,11 @@ func main() {
 	h.Use(hertztracing.ServerMiddleware(cfg))
 	h.Use(middleware.TraceLogMiddleware())
 	h.Use(middleware.AuthorizationMiddleware())
+
+	//
+	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
+		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
+	})))
 
 	registerMiddleware(h)
 

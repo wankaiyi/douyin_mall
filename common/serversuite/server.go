@@ -3,6 +3,7 @@ package serversuite
 import (
 	"douyin_mall/common/infra/nacos"
 	"douyin_mall/common/mtl"
+	kitexSentinel "github.com/alibaba/sentinel-golang/pkg/adapters/kitex"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/pkg/transmeta"
 	"github.com/cloudwego/kitex/server"
@@ -24,6 +25,8 @@ func (s CommonServerSuite) Options() []server.Option {
 		server.WithSuite(tracing.NewServerSuite()),
 		server.WithRegistry(r),
 		server.WithTracer(prometheus.NewServerTracer("", "", prometheus.WithDisableServer(true), prometheus.WithRegistry(mtl.Registry))),
+		//sentinel 中间件
+		server.WithMiddleware(kitexSentinel.SentinelServerMiddleware()),
 	}
 
 	return opts
