@@ -42,11 +42,12 @@ func (s *GetCartService) Run(req *cart.GetCartReq) (resp *cart.GetCartResp, err 
 		productIds[i] = (int64)(item.ProductId)
 	}
 
-	getProductListResp, err := rpc.ProductClient.SelectProductList(ctx, &product.SelectProductListReq{
+	productListReq := &product.SelectProductListReq{
 		Ids: productIds,
-	})
+	}
+	getProductListResp, err := rpc.ProductClient.SelectProductList(ctx, productListReq)
 	if err != nil {
-		klog.CtxErrorf(ctx, "rpc查询商品信息失败，req: %v, err: %v", req, err)
+		klog.CtxErrorf(ctx, "rpc查询商品信息失败，req: %v, err: %v", productListReq, err)
 		return nil, errors.WithStack(err)
 	}
 

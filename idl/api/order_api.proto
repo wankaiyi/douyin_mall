@@ -9,90 +9,45 @@ import "api.proto";
 //import "common.proto";
 
 message Order {
-  int64 id = 1;
-  int64 productId = 2;
-  int64 userId = 3;
-  int64 deliveryId = 4;
-  string quantity = 5;
-  string price = 6;
-  string description = 7;
-  int32 status = 8;
+  string order_id = 1;
+  Address address = 2;
+  repeated Product products = 3;
+  double cost = 4;
+  int32 status = 5;
+  string created_at = 6;
 }
 
-message OrderRequest {
-  int64 orderId = 1 [(api.form) = "orderId"];
+message Address {
+  string name = 1;
+  string phone_number = 2;
+  string province = 3;
+  string city = 4;
+  string region = 5;
+  string detail_address = 6;
 }
 
-message OrderResponse {
-  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
-  string status_msg = 2;
-  repeated Order orders = 3;//定义订单数组
+message Product {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  string picture = 4;
+  double price = 5;
+  int32 quantity = 6;
 }
 
-message OrderInsertRequest {
-  int64 id = 1 [(api.form) = "id"];
-  int64 productId = 2 [(api.form) = "productId"];
-  int64 userId = 3 [(api.form) = "userId"];
-  int64 deliveryId = 4 [(api.form) = "deliveryId"];
-  string quantity = 5 [(api.form) = "quantity"];
-  string price = 6 [(api.form) = "price"];
-  string description = 7 [(api.form) = "description"];
-  int32 status = 8 [(api.form) = "status"];
+message ListOrderRequest {
 }
 
-message OrderInsertResponse {
-  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
-  string status_msg = 2;
+message ListOrderResponse {
+  repeated Order orders = 1;
+  int32 status_code = 2;
+  string status_msg = 3;
 }
 
-message OrderSelectRequest {
-}
-
-message OrderSelectResponse {
-  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
-  string status_msg = 2;
-  Order order = 3;
-}
-
-message OrderDeleteRequest {
-  int64 id = 1;
-}
-
-message OrderDeleteResponse {
-  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
-  string status_msg = 2;
-}
-
-message OrderUpdateRequest {
-  int64 id = 1 [(api.form) = "id"];
-  int64 productId = 2 [(api.form) = "productId"];
-  int64 userId = 3 [(api.form) = "userId"];
-  int64 deliveryId = 4 [(api.form) = "deliveryId"];
-  string quantity = 5 [(api.form) = "quantity"];
-  string price = 6 [(api.form) = "price"];
-  string description = 7 [(api.form) = "description"];
-  int32 status = 8 [(api.form) = "status"];
-}
-
-message OrderUpdateResponse {
-  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
-  string status_msg = 2;
-}
 service OrderService {
 
-  rpc OrderInsert(OrderInsertRequest) returns (OrderInsertResponse) {
-    option (api.post) = "/order/insert";
+  rpc ListOrder(ListOrderRequest) returns (ListOrderResponse) {
+    option (api.get) = "/order/list";
   }
 
-  rpc OrderSelect(OrderSelectRequest) returns (OrderSelectResponse) {
-    option (api.post) = "/order/select";
-  }
-
-  rpc OrderDelete(OrderDeleteRequest) returns (OrderDeleteResponse) {
-    option (api.post) = "/order/delete";
-  }
-
-  rpc OrderUpdate(OrderUpdateRequest) returns (OrderUpdateResponse) {
-    option (api.post) = "/order/update";
-  }
 }

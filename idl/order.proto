@@ -15,23 +15,31 @@ service OrderService {
 message Address {
   string name = 1;
   string phone_number = 2;
-  int32 default_status = 3;
-  string province = 4;
-  string city = 5;
-  string region = 6;
-  string detail_address = 7;
+  string province = 3;
+  string city = 4;
+  string region = 5;
+  string detail_address = 6;
+}
+
+message Product {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  string picture = 4;
+  double price = 5;
+  int32 quantity = 6;
 }
 
 message PlaceOrderReq {
   int32 user_id = 1;
-
   Address address = 2;
   repeated OrderItem order_items = 3;
+  double total_cost = 4;
 }
 
 message OrderItem {
   cart.CartItem item = 1;
-  float cost = 2;
+  double cost = 2;
 }
 
 message OrderResult {
@@ -49,11 +57,11 @@ message ListOrderReq {
 }
 
 message Order {
-  OrderItem order_items = 1;
-  string order_id = 2;
-  int32 user_id = 3;
-  Address address = 4;
-  int32 created_at = 5;
+  string order_id = 1;
+  Address address = 2;
+  repeated Product products = 3;
+  double cost = 4;
+  string created_at = 5;
   int32 status = 6;
 }
 

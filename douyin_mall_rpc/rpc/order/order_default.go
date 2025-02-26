@@ -33,39 +33,3 @@ func MarkOrderPaid(ctx context.Context, req *order.MarkOrderPaidReq, callOptions
 	}
 	return resp, nil
 }
-
-func GetOrder(ctx context.Context, req *order.GetOrderReq, callOptions ...callopt.Option) (resp *order.GetOrderResp, err error) {
-	resp, err = defaultClient.GetOrder(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "GetOrder call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func InsertOrder(ctx context.Context, req *order.InsertOrderReq, callOptions ...callopt.Option) (resp *order.InsertOrderResp, err error) {
-	resp, err = defaultClient.InsertOrder(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "InsertOrder call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func DeleteOrder(ctx context.Context, req *order.DeleteOrderReq, callOptions ...callopt.Option) (resp *order.DeleteOrderResp, err error) {
-	resp, err = defaultClient.DeleteOrder(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "DeleteOrder call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
-
-func UpdateOrder(ctx context.Context, req *order.UpdateOrderReq, callOptions ...callopt.Option) (resp *order.UpdateOrderResp, err error) {
-	resp, err = defaultClient.UpdateOrder(ctx, req, callOptions...)
-	if err != nil {
-		klog.CtxErrorf(ctx, "UpdateOrder call failed,err =%+v", err)
-		return nil, err
-	}
-	return resp, nil
-}
