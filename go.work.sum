@@ -388,11 +388,10 @@ github.com/cloudwego/dynamicgo v0.2.0/go.mod h1:zTbRLRyBdP+OLalvkiwWPnvg84v1Uung
 github.com/cloudwego/frugal v0.1.14/go.mod h1:zFBA63ne4+Tz4qayRZFZf+ZVwGqTzb+1Xe3ZDCq+Wfc=
 github.com/cloudwego/gopkg v0.0.0-20240731030152-5e0df5ad4e40/go.mod h1:32yKw2zkpTMtuX6amJR0EMK79f0vGPr67UcArCOlZLU=
 github.com/cloudwego/gopkg v0.1.2/go.mod h1:WoNTdXDPdvL97cBmRUWXVGkh2l2UFmpd9BUvbW2r0Aw=
+github.com/cloudwego/gopkg v0.1.3-0.20241115063537-a218fe69d609/go.mod h1:FQuXsRWRsSqJLsMVd5SYzp8/Z1y5gXKnVvRrWUOsCMI=
 github.com/cloudwego/kitex v0.9.1/go.mod h1:CBMfRKBuZ9EeSEfeoveC7cR6JG4lY1Bpo+d0Eb7zUDA=
 github.com/cloudwego/kitex-examples v0.2.4 h1:RQ2KdusbMGVWl5Vk5CvsD0bmGgxlMq347oPRtsC4kiY=
 github.com/cloudwego/kitex-examples v0.2.4/go.mod h1:AV67gQ4SGwlp/6sghlVovT/edKL/W0f4alTGt2rsxZg=
-github.com/cloudwego/kitex-examples v0.3.3 h1:VkAHDmmWTY/3TY52yF9T8F/CKBT1wmssB2hnanqlWjM=
-github.com/cloudwego/kitex-examples v0.3.3/go.mod h1:bh79UiY/QiYL7MvmqAp7RVmNsIKmn66WpbOG47Jxwo8=
 github.com/cloudwego/netpoll v0.2.5/go.mod h1:1T2WVuQ+MQw6h6DpE45MohSvDTKdy2DlzCx2KsnPI4E=
 github.com/cloudwego/netpoll v0.6.0/go.mod h1:xVefXptcyheopwNDZjDPcfU6kIjZXZ4nY550k1yH9eQ=
 github.com/cloudwego/netpoll-http2 v0.0.6 h1:+jdkMKGj7ifRqWOdyT/hqzhXklmqh/H4lyOdrAVkI/U=
