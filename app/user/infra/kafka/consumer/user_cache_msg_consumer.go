@@ -121,6 +121,10 @@ func InitUserCacheMessageConsumer() {
 	consumerConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
 	consumerConfig.Consumer.Offsets.Retry.Max = 3
 
+	gtoupId := "cache-user-info"
+	if conf.GetConf().Env == "dev" {
+		gtoupId += "-dev"
+	}
 	cGroup, err := sarama.NewConsumerGroup(conf.GetConf().Kafka.BizKafka.BootstrapServers, "cache-user-info-dev", consumerConfig)
 	if err != nil {
 		panic(err)
