@@ -71,6 +71,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"LockProductQuantity": kitex.NewMethodInfo(
+		lockProductQuantityHandler,
+		newLockProductQuantityArgs,
+		newLockProductQuantityResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 	"SelectCategory": kitex.NewMethodInfo(
 		selectCategoryHandler,
 		newSelectCategoryArgs,
@@ -1417,6 +1424,159 @@ func (p *UpdateProductResult) GetResult() interface{} {
 	return p.Success
 }
 
+func lockProductQuantityHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.ProductLockQuantityRequest)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).LockProductQuantity(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *LockProductQuantityArgs:
+		success, err := handler.(product.ProductCatalogService).LockProductQuantity(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*LockProductQuantityResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newLockProductQuantityArgs() interface{} {
+	return &LockProductQuantityArgs{}
+}
+
+func newLockProductQuantityResult() interface{} {
+	return &LockProductQuantityResult{}
+}
+
+type LockProductQuantityArgs struct {
+	Req *product.ProductLockQuantityRequest
+}
+
+func (p *LockProductQuantityArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.ProductLockQuantityRequest)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *LockProductQuantityArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *LockProductQuantityArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *LockProductQuantityArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *LockProductQuantityArgs) Unmarshal(in []byte) error {
+	msg := new(product.ProductLockQuantityRequest)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var LockProductQuantityArgs_Req_DEFAULT *product.ProductLockQuantityRequest
+
+func (p *LockProductQuantityArgs) GetReq() *product.ProductLockQuantityRequest {
+	if !p.IsSetReq() {
+		return LockProductQuantityArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *LockProductQuantityArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *LockProductQuantityArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type LockProductQuantityResult struct {
+	Success *product.ProductLockQuantityResponse
+}
+
+var LockProductQuantityResult_Success_DEFAULT *product.ProductLockQuantityResponse
+
+func (p *LockProductQuantityResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.ProductLockQuantityResponse)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *LockProductQuantityResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *LockProductQuantityResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *LockProductQuantityResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *LockProductQuantityResult) Unmarshal(in []byte) error {
+	msg := new(product.ProductLockQuantityResponse)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *LockProductQuantityResult) GetSuccess() *product.ProductLockQuantityResponse {
+	if !p.IsSetSuccess() {
+		return LockProductQuantityResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *LockProductQuantityResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.ProductLockQuantityResponse)
+}
+
+func (p *LockProductQuantityResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *LockProductQuantityResult) GetResult() interface{} {
+	return p.Success
+}
+
 func selectCategoryHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	switch s := arg.(type) {
 	case *streaming.Args:
@@ -2726,6 +2886,16 @@ func (p *kClient) UpdateProduct(ctx context.Context, Req *product.UpdateProductR
 	_args.Req = Req
 	var _result UpdateProductResult
 	if err = p.c.Call(ctx, "UpdateProduct", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) LockProductQuantity(ctx context.Context, Req *product.ProductLockQuantityRequest) (r *product.ProductLockQuantityResponse, err error) {
+	var _args LockProductQuantityArgs
+	_args.Req = Req
+	var _result LockProductQuantityResult
+	if err = p.c.Call(ctx, "LockProductQuantity", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
