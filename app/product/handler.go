@@ -120,3 +120,10 @@ func (s *ProductCatalogServiceImpl) SelectProductList(ctx context.Context, req *
 
 	return resp, err
 }
+
+// LockProductQuantity implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) LockProductQuantity(ctx context.Context, req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
+	resp, err = service.NewLockProductQuantityService(ctx).Run(req)
+
+	return resp, err
+}

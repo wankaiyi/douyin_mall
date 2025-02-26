@@ -79,6 +79,15 @@ func UpdateProduct(ctx context.Context, req *product.UpdateProductReq, callOptio
 	return resp, nil
 }
 
+func LockProductQuantity(ctx context.Context, req *product.ProductLockQuantityRequest, callOptions ...callopt.Option) (resp *product.ProductLockQuantityResponse, err error) {
+	resp, err = defaultClient.LockProductQuantity(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "LockProductQuantity call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func SelectCategory(ctx context.Context, req *product.CategorySelectReq, callOptions ...callopt.Option) (resp *product.CategorySelectResp, err error) {
 	resp, err = defaultClient.SelectCategory(ctx, req, callOptions...)
 	if err != nil {

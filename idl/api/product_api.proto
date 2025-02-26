@@ -91,6 +91,20 @@ message ProductUpdateResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
   string status_msg = 2;
 }
+
+//锁库存
+message ProductLockQuantity{
+  int64 id = 1[(api.body)= "id"];
+  int64 quantity = 2[(api.body)= "quantity"];
+}
+message ProductLockQuantityRequest {
+  repeated ProductLockQuantity products = 1[(api.body)= "products"];
+}
+message ProductLockQuantityResponse {
+  int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
+  string status_msg = 2;
+}
+
 service ProductService {
 
   rpc Search(ProductRequest) returns (ProductResponse) {
@@ -111,6 +125,10 @@ service ProductService {
 
   rpc ProductUpdate(ProductUpdateRequest) returns (ProductUpdateResponse) {
     option (api.post) = "/product/update";
+  }
+
+  rpc ProductLockQuantity(ProductLockQuantityRequest) returns (ProductLockQuantityResponse) {
+    option (api.post) = "/product/lockQuantity";
   }
 
   rpc ProductSelectList(ProductSelectListRequest) returns (ProductSelectListResponse) {

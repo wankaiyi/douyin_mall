@@ -35,6 +35,7 @@ func Register(r *server.Hertz) {
 		_product := root.Group("/product", _productMw()...)
 		_product.POST("/delete", append(_productdeleteMw(), product.ProductDelete)...)
 		_product.POST("/insert", append(_productinsertMw(), product.ProductInsert)...)
+		_product.POST("/lockQuantity", append(_productlockquantityMw(), product.ProductLockQuantity)...)
 		_product.POST("/search", append(_searchMw(), product.Search)...)
 		_product.POST("/select", append(_productselectMw(), product.ProductSelect)...)
 		_product.POST("/selectList", append(_productselectlistMw(), product.ProductSelectList)...)

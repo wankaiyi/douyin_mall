@@ -19,6 +19,7 @@ type Client interface {
 	SelectProductList(ctx context.Context, Req *product.SelectProductListReq, callOptions ...callopt.Option) (r *product.SelectProductListResp, err error)
 	DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error)
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
+	LockProductQuantity(ctx context.Context, Req *product.ProductLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductLockQuantityResponse, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
 	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
 	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
@@ -96,6 +97,11 @@ func (p *kProductCatalogServiceClient) DeleteProduct(ctx context.Context, Req *p
 func (p *kProductCatalogServiceClient) UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UpdateProduct(ctx, Req)
+}
+
+func (p *kProductCatalogServiceClient) LockProductQuantity(ctx context.Context, Req *product.ProductLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductLockQuantityResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.LockProductQuantity(ctx, Req)
 }
 
 func (p *kProductCatalogServiceClient) SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error) {

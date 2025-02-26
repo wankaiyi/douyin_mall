@@ -290,3 +290,23 @@ func ProductSelectList(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// ProductLockQuantity .
+// @router /product/lockQuantity [POST]
+func ProductLockQuantity(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req product.ProductLockQuantityRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewProductLockQuantityService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}
