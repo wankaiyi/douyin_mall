@@ -5,6 +5,8 @@ import (
 	"context"
 	"crypto/md5"
 	"douyin_mall/common/constant"
+	keyModel "douyin_mall/common/infra/hot_key_client/model/key"
+	"douyin_mall/common/infra/hot_key_client/processor"
 	"douyin_mall/product/biz/dal/mysql"
 	redis "douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
@@ -41,14 +43,20 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		},
 	}
 	dslBytes, _ := sonic.Marshal(queryBody)
-	//TODO 将dsl计算hashcode
-	// 创建一个 MD5 哈希对象
-	hasher := md5.New()
-	hasher.Write(dslBytes)
-	md5Bytes := hasher.Sum(nil)
+	//将dsl计算hashcode
+	harsher := md5.New()
+	harsher.Write(dslBytes)
+	md5Bytes := harsher.Sum(nil)
 	//从redis查找该hashcode对应的缓存数据
 	dslKey := "product:dslBytes:" + string(md5Bytes)
-	dslCache, err := redis.RedisClient.Get(context.Background(), dslKey).Result()
+	KeyConf := keyModel.NewKeyConf1(constant.ProductService)
+	hotkeyModel := keyModel.NewHotKeyModelWithConfig(dslKey, &KeyConf)
+	var dslCache string
+	localDslCache := processor.GetValue(*hotkeyModel)
+	if localDslCache != nil {
+		dslCache = localDslCache.(string)
+	}
+
 	//搜索返回的id
 	var searchIds []int64
 
@@ -85,6 +93,8 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			//将es返回的数据缓存到redis
 			dslCacheToRedis, _ := sonic.Marshal(searchIds)
 			_, _ = redis.RedisClient.Set(context.Background(), dslKey, dslCacheToRedis, 5*time.Minute).Result()
+			marshalString, _ := sonic.MarshalString(searchIds)
+			processor.SmartSet(*hotkeyModel, marshalString)
 		}
 	}
 	var products []*product.Product = make([]*product.Product, 0)
@@ -99,7 +109,18 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	}
 	//先判断redis是否存在数据，如果存在，则直接返回数据
 	if len(keys) > 0 {
-		values, err := redis.RedisClient.MGet(context.Background(), keys...).Result()
+		//加入hotkey
+		var keysKey string = "product:keys:" + string(md5Bytes)
+		keysConf := keyModel.NewKeyConf1(constant.ProductService)
+		keysHotkeyModel := keyModel.NewHotKeyModelWithConfig(keysKey, &keysConf)
+		var values []interface{}
+		localKeysCache := processor.GetValue(*keysHotkeyModel)
+		if localKeysCache != nil {
+			values = localKeysCache.([]interface{})
+		} else {
+			values, err = redis.RedisClient.MGet(context.Background(), keys...).Result()
+			processor.SmartSet(*keysHotkeyModel, values)
+		}
 		for i, value := range values {
 			idStr := keys[i][len("product:"):] // 提取ID部分
 			if value == nil {
