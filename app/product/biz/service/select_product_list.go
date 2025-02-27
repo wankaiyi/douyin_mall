@@ -22,12 +22,11 @@ func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp 
 	// 创建实体类
 	products, err := model.SelectProductList(mysql.DB, s.ctx, req.Ids)
 	if err != nil {
-		klog.Error("mysql error:%v", err)
-		resp = &product.SelectProductListResp{
+		klog.CtxErrorf(s.ctx, "查询商品列表失败, error:%v", err)
+		return &product.SelectProductListResp{
 			StatusCode: 6003,
 			StatusMsg:  constant.GetMsg(6003),
-		}
-		return
+		}, nil
 	}
 	var productList []*product.Product
 	for i := range products {
@@ -39,10 +38,9 @@ func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp 
 			Price:       products[i].Price,
 		})
 	}
-	resp = &product.SelectProductListResp{
+	return &product.SelectProductListResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		Products:   productList,
-	}
-	return
+	}, nil
 }

@@ -8,6 +8,7 @@ import (
 	"douyin_mall/product/biz/task"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type DeleteProductService struct {
@@ -22,11 +23,8 @@ func (s *DeleteProductService) Run(req *product.DeleteProductReq) (resp *product
 	// 根据id删除商品
 	err = model.DeleteProduct(mysql.DB, s.ctx, req.Id)
 	if err != nil {
-		resp = &product.DeleteProductResp{
-			StatusCode: 6002,
-			StatusMsg:  constant.GetMsg(6002),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "产品数据库删除失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//发送到kafka
 	defer func() {
@@ -34,12 +32,11 @@ func (s *DeleteProductService) Run(req *product.DeleteProductReq) (resp *product
 			ID: req.Id,
 		})
 		if err != nil {
-			klog.Error("delete product error:%v", err)
+			klog.CtxErrorf(s.ctx, "删除信号发送kafka失败, error:%v", err)
 		}
 	}()
-	resp = &product.DeleteProductResp{
+	return &product.DeleteProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

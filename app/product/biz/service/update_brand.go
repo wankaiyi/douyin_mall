@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type UpdateBrandService struct {
@@ -25,15 +26,11 @@ func (s *UpdateBrandService) Run(req *product.BrandUpdateReq) (resp *product.Bra
 		Icon:        req.Icon,
 	})
 	if err != nil {
-		resp = &product.BrandUpdateResp{
-			StatusCode: 6020,
-			StatusMsg:  constant.GetMsg(6020),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "更新品牌失败, err: %v", err)
+		return nil, err
 	}
-	resp = &product.BrandUpdateResp{
+	return &product.BrandUpdateResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

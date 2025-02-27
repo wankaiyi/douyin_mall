@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type LockProductQuantityService struct {
@@ -36,17 +37,20 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 	}
 	//如果库存锁定失败，则返回失败信息
 	if !canLock {
-		resp = &product.ProductLockQuantityResponse{
+		klog.CtxInfof(s.ctx, "库存不可被锁定，请稍后再试")
+		return &product.ProductLockQuantityResponse{
 			StatusCode: 6014,
 			StatusMsg:  constant.GetMsg(6014),
-		}
-		return
+		}, nil
 	}
 	//如果库存锁定成功，则更新库存信息
 	err = model.UpdateLockStock(mysql.DB, context.Background(), productQuantityMap)
-	resp = &product.ProductLockQuantityResponse{
+	if err != nil {
+		klog.CtxErrorf(s.ctx, "更新库存失败，原因：%v", err)
+		return nil, err
+	}
+	return &product.ProductLockQuantityResponse{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

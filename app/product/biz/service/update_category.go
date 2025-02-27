@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type UpdateCategoryService struct {
@@ -24,15 +25,14 @@ func (s *UpdateCategoryService) Run(req *product.CategoryUpdateReq) (resp *produ
 		Description: req.Description,
 	})
 	if err != nil {
-		resp = &product.CategoryUpdateResp{
+		klog.CtxErrorf(s.ctx, "更新分类失败, err: %v", err)
+		return &product.CategoryUpdateResp{
 			StatusCode: 6016,
 			StatusMsg:  constant.GetMsg(6016),
-		}
-		return
+		}, nil
 	}
-	resp = &product.CategoryUpdateResp{
+	return &product.CategoryUpdateResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

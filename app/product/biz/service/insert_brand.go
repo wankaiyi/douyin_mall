@@ -7,6 +7,7 @@ import (
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type InsertBrandService struct {
@@ -28,17 +29,12 @@ func (s *InsertBrandService) Run(req *product.BrandInsertReq) (resp *product.Bra
 	//调用插入数据库的方法
 	err = model.CreateBrand(mysql.DB, s.ctx, &brand)
 	if err != nil {
-		klog.Error("insert category failed, error:%v", err)
-		resp = &product.BrandInsertResp{
-			StatusCode: 6018,
-			StatusMsg:  constant.GetMsg(6018),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "产品数据库插入失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//返回响应
-	resp = &product.BrandInsertResp{
+	return &product.BrandInsertResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

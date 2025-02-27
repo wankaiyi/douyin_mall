@@ -18,17 +18,12 @@ func NewSelectProductService(ctx context.Context) *SelectProductService {
 
 // Run create note info
 func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product.SelectProductResp, err error) {
-	// 创建实体类
 	pro, err := model.SelectProduct(mysql.DB, s.ctx, req.Id)
 	if err != nil {
-		klog.Error("mysql error:%v", err)
-		resp = &product.SelectProductResp{
-			StatusCode: 6003,
-			StatusMsg:  constant.GetMsg(6003),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "查询商品失败, error:%v", err)
+		return nil, err
 	}
-	resp = &product.SelectProductResp{
+	return &product.SelectProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		Product: &product.Product{
@@ -43,6 +38,5 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 			CategoryId:    pro.CategoryId,
 			BrandId:       pro.BrandId,
 		},
-	}
-	return
+	}, nil
 }

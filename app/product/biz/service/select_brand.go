@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type SelectBrandService struct {
@@ -19,13 +20,10 @@ func NewSelectBrandService(ctx context.Context) *SelectBrandService {
 func (s *SelectBrandService) Run(req *product.BrandSelectReq) (resp *product.BrandSelectResp, err error) {
 	brand, err := model.SelectBrand(mysql.DB, s.ctx, req.BrandId)
 	if err != nil {
-		resp = &product.BrandSelectResp{
-			StatusCode: 6021,
-			StatusMsg:  constant.GetMsg(6021),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "查询品牌失败, error: %v", err)
+		return nil, err
 	}
-	resp = &product.BrandSelectResp{
+	return &product.BrandSelectResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		Brand: &product.Brand{
@@ -33,6 +31,5 @@ func (s *SelectBrandService) Run(req *product.BrandSelectReq) (resp *product.Bra
 			Name:        brand.Name,
 			Description: brand.Description,
 		},
-	}
-	return
+	}, nil
 }

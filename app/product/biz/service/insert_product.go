@@ -8,6 +8,7 @@ import (
 	"douyin_mall/product/biz/task"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type InsertProductService struct {
@@ -35,24 +36,19 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 	//调用插入数据库的方法
 	err = model.CreateProduct(mysql.DB, s.ctx, &pro)
 	if err != nil {
-		klog.Error("insert product error:%v", err)
-		resp = &product.InsertProductResp{
-			StatusCode: 6000,
-			StatusMsg:  constant.GetMsg(6000),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "产品数据库插入失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//发送到kafka
-	func() {
+	defer func() {
 		err := task.AddProduct(&pro)
 		if err != nil {
-			klog.Error("insert product error:%v", err)
+			klog.CtxErrorf(s.ctx, "产品数据库插入信号发送kafka失败, error:%v", err)
 		}
 	}()
 	//返回响应
-	resp = &product.InsertProductResp{
+	return &product.InsertProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }
