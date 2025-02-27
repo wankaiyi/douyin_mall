@@ -7,6 +7,7 @@ import (
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type DeleteBrandService struct {
@@ -21,17 +22,12 @@ func (s *DeleteBrandService) Run(req *product.BrandDeleteReq) (resp *product.Bra
 	//调用插入数据库的方法
 	err = model.DeleteBrand(mysql.DB, s.ctx, req.BrandId)
 	if err != nil {
-		klog.Error("insert category failed, error:%v", err)
-		resp = &product.BrandDeleteResp{
-			StatusCode: 6019,
-			StatusMsg:  constant.GetMsg(6019),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "品牌数据库删除失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//返回响应
-	resp = &product.BrandDeleteResp{
+	return &product.BrandDeleteResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

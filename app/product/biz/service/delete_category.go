@@ -7,6 +7,7 @@ import (
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type DeleteCategoryService struct {
@@ -21,17 +22,12 @@ func (s *DeleteCategoryService) Run(req *product.CategoryDeleteReq) (resp *produ
 	//调用插入数据库的方法
 	err = model.DeleteCategory(mysql.DB, s.ctx, req.CategoryId)
 	if err != nil {
-		klog.Error("insert category failed, error:%v", err)
-		resp = &product.CategoryDeleteResp{
-			StatusCode: 6015,
-			StatusMsg:  constant.GetMsg(6015),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "分类数据库删除失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//返回响应
-	resp = &product.CategoryDeleteResp{
+	return &product.CategoryDeleteResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

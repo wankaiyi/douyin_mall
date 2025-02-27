@@ -13,17 +13,15 @@ var (
 )
 
 func InitClient() {
-	once.Do(func() {
-		elasticsearchConf := conf.GetConf().Elasticsearch
-		var err error
-		ElasticClient, err = elasticsearch7.NewClient(elasticsearch7.Config{
-			Addresses: []string{"http://" + elasticsearchConf.Host + ":" + elasticsearchConf.Port},
-			Username:  elasticsearchConf.Username,
-			Password:  elasticsearchConf.Password,
-		})
-		if err != nil {
-			klog.Error(err)
-			return
-		}
+	elasticsearchConf := conf.GetConf().Elasticsearch
+	var err error
+	ElasticClient, err = elasticsearch7.NewClient(elasticsearch7.Config{
+		Addresses: []string{"http://" + elasticsearchConf.Host + ":" + elasticsearchConf.Port},
+		Username:  elasticsearchConf.Username,
+		Password:  elasticsearchConf.Password,
 	})
+	if err != nil {
+		klog.Errorf("es客户端初始化失败, err: %v", err)
+		return
+	}
 }

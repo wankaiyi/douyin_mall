@@ -35,22 +35,18 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 	}
 	err = model.UpdateProduct(mysql.DB, s.ctx, &pro)
 	if err != nil {
-		resp = &product.UpdateProductResp{
-			StatusCode: 6001,
-			StatusMsg:  constant.GetMsg(6001),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "更新商品失败,error:%v", err)
+		return nil, err
 	}
 	//发送到kafka
 	defer func() {
 		err := task.UpdateProduct(&pro)
 		if err != nil {
-			klog.Error("update product error:%v", err)
+			klog.CtxErrorf(s.ctx, "推送到kafka失败,error:%v", err)
 		}
 	}()
-	resp = &product.UpdateProductResp{
+	return &product.UpdateProductResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(6001),
-	}
-	return
+	}, nil
 }

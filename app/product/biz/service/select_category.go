@@ -6,6 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 type SelectCategoryService struct {
@@ -19,13 +20,10 @@ func NewSelectCategoryService(ctx context.Context) *SelectCategoryService {
 func (s *SelectCategoryService) Run(req *product.CategorySelectReq) (resp *product.CategorySelectResp, err error) {
 	category, err := model.SelectCategory(mysql.DB, s.ctx, req.CategoryId)
 	if err != nil {
-		resp = &product.CategorySelectResp{
-			StatusCode: 6017,
-			StatusMsg:  constant.GetMsg(6017),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "查询分类失败, err: %v", err)
+		return nil, err
 	}
-	resp = &product.CategorySelectResp{
+	return &product.CategorySelectResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		Category: &product.Category{
@@ -33,6 +31,5 @@ func (s *SelectCategoryService) Run(req *product.CategorySelectReq) (resp *produ
 			Name:        category.Name,
 			Description: category.Description,
 		},
-	}
-	return
+	}, nil
 }

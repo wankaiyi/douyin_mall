@@ -7,6 +7,7 @@ import (
 	"douyin_mall/product/biz/model"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 )
 
 type InsertCategoryService struct {
@@ -27,17 +28,12 @@ func (s *InsertCategoryService) Run(req *product.CategoryInsertReq) (resp *produ
 	//调用插入数据库的方法
 	err = model.CreateCategory(mysql.DB, s.ctx, &category)
 	if err != nil {
-		klog.Error("insert category failed, error:%v", err)
-		resp = &product.CategoryInsertResp{
-			StatusCode: 6014,
-			StatusMsg:  constant.GetMsg(6014),
-		}
-		return
+		klog.CtxErrorf(s.ctx, "分类数据库插入失败, error:%v", err)
+		return nil, errors.WithStack(err)
 	}
 	//返回响应
-	resp = &product.CategoryInsertResp{
+	return &product.CategoryInsertResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
-	}
-	return
+	}, nil
 }

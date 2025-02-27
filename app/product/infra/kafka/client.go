@@ -19,6 +19,7 @@ func InitClient() {
 	// 配置生产者
 	err = InitProducer()
 	if err != nil {
+		klog.Errorf("kafka生产者客户端初始化失败, err:%v", err)
 		return
 	}
 
@@ -37,7 +38,8 @@ func InitProducer() (err error) {
 	Producer, err = sarama.NewSyncProducer(brokers, config)
 	if err != nil {
 		klog.Error("Failed to start producer:", err)
+		return err
 	}
 	klog.Info("Successfully connected to kafka", Producer)
-	return
+	return nil
 }
