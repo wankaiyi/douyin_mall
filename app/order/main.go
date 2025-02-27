@@ -10,6 +10,7 @@ import (
 	"douyin_mall/order/biz/dal"
 	"douyin_mall/order/biz/dal/redis"
 	"douyin_mall/order/biz/task"
+	"douyin_mall/order/infra/kafka"
 	"douyin_mall/order/infra/rpc"
 	"douyin_mall/order/utils"
 	"github.com/xxl-job/xxl-job-executor-go"
@@ -42,6 +43,7 @@ func main() {
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
 	rpc.InitClient()
+	kafka.Init()
 	utils.InitSnowflake()
 
 	//启动hotKeyClient
@@ -97,6 +99,8 @@ func xxljobInit() {
 	})
 
 	exec.RegTask("CleanNodeIDTask", task.CleanNodeIDTask)
+	exec.RegTask("CancelOrderTask", task.CancelOrderTask)
+
 	err := exec.Run()
 	if err != nil {
 		return

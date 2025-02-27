@@ -44,6 +44,7 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 	msg := strconv.Itoa(int(orderId))
 
 	kafka.SendDelayMsg(&sarama.ProducerMessage{
+		// todo 防止掉单主动延时查询支付宝，5秒太短了，可以设置一个时间梯度，比如10秒，30秒，1分钟
 		Topic: "__delay-seconds-5",
 		Value: sarama.StringEncoder(msg),
 		Key:   sarama.StringEncoder("check-payment"),

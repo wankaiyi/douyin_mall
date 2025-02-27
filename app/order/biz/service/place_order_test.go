@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/order/biz/dal"
+	"douyin_mall/order/infra/kafka"
 	"douyin_mall/order/kitex_gen/cart"
 	order "douyin_mall/order/kitex_gen/order"
 	"douyin_mall/order/utils"
@@ -13,6 +14,7 @@ func TestPlaceOrder_Run(t *testing.T) {
 	ctx := context.Background()
 	dal.Init()
 	utils.InitSnowflake()
+	kafka.Init()
 
 	s := NewPlaceOrderService(ctx)
 	// init req and assert value

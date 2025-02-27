@@ -13,9 +13,9 @@ func ServerInterceptor(next endpoint.Endpoint) endpoint.Endpoint {
 		traceId, ok := metainfo.GetPersistentValue(ctx, constant.TraceId)
 		if ok {
 			context.WithValue(ctx, constant.TraceId, traceId)
-		} else {
+		} /*else {
 			panic("未找到traceId")
-		}
+		}*/
 		userId, ok := metainfo.GetPersistentValue(ctx, constant.UserId)
 		if ok {
 			context.WithValue(ctx, constant.UserId, userId)

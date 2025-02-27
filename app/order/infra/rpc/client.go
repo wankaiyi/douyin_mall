@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"douyin_mall/order/conf"
+	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 
@@ -14,6 +15,7 @@ import (
 
 var (
 	ProductClient productcatalogservice.Client
+	PaymentClient paymentservice.Client
 	once          sync.Once
 	err           error
 	registryAddr  string
@@ -28,6 +30,7 @@ func InitClient() {
 			CurrentServiceName: conf.GetConf().Kitex.Service,
 		})
 		initProductClient()
+		InitPaymentClient()
 	})
 }
 
@@ -35,5 +38,12 @@ func initProductClient() {
 	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite)
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
+	}
+}
+
+func InitPaymentClient() {
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite)
+	if err != nil {
+		klog.Fatal("init payment client failed: ", err)
 	}
 }

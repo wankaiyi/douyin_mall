@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	commonconstant "douyin_mall/common/constant"
 	"douyin_mall/order/biz/dal/mysql"
 	"douyin_mall/order/biz/model"
+	"douyin_mall/order/infra/kafka/constant"
+	"douyin_mall/order/infra/kafka/producer"
 	order "douyin_mall/order/kitex_gen/order"
 	"douyin_mall/order/utils"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -21,8 +24,8 @@ func NewPlaceOrderService(ctx context.Context) *PlaceOrderService {
 // Run create note info
 func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrderResp, err error) {
 	ctx := s.ctx
+	orderId := utils.GetSnowflakeID()
 	err = mysql.DB.Transaction(func(tx *gorm.DB) error {
-		orderId := utils.GetSnowflakeID()
 		newOrder := &model.Order{
 			OrderID:       orderId,
 			UserID:        req.UserId,
@@ -62,6 +65,13 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 	}
 	// todo 批量锁定库存
 
-	// todo 延时取消订单
-	return
+	// 延时取消订单
+	producer.SendDelayOrder(orderId, constant.DelayTopic1mLevel)
+	return &order.PlaceOrderResp{
+		Order: &order.OrderResult{
+			OrderId: orderId,
+		},
+		StatusCode: 0,
+		StatusMsg:  commonconstant.GetMsg(0),
+	}, nil
 }
