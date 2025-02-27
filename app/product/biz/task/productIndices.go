@@ -1,6 +1,7 @@
 package task
 
 import (
+	"bytes"
 	"context"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
@@ -10,7 +11,6 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
-	"strings"
 )
 
 func ProduceIndicesInit() {
@@ -19,23 +19,22 @@ func ProduceIndicesInit() {
 		Index: []string{"product"},
 	}.Do(nil, elastic.ElasticClient)
 	if err != nil {
-		klog.Error(err)
+		klog.Errorf("查询索引库product失败,err:%v", err)
 		return
 	}
 	//如果product不存在，就创建这个索引库
 	if productIndicesExist.StatusCode != 200 {
 		SettingData, err := sonic.Marshal(vo.ProductSearchMappingSetting)
-		s := string(SettingData)
-		fmt.Printf("%v", s)
 		if err != nil {
+			klog.Errorf("序列化ProductSearchMappingSetting失败,err:%v", err)
 			return
 		}
 		create, err := esapi.IndicesCreateRequest{
 			Index: "product",
-			Body:  strings.NewReader(s),
+			Body:  bytes.NewReader(SettingData),
 		}.Do(context.Background(), elastic.ElasticClient)
 		if err != nil {
-			klog.Info(err)
+			klog.Errorf("创建索引库product失败,err:%v", err)
 		}
 		body := create.Body
 		fmt.Printf("%v", body)
@@ -48,7 +47,7 @@ func ProduceIndicesInit() {
 		var products []model.Product
 		result := mysql.DB.Table("tb_product").Select("*").Find(&products)
 		if result.Error != nil {
-			klog.Error(result.Error)
+			klog.Errorf("查询数据库失败,err:%v", result.Error)
 			return
 		}
 		//2 遍历数据，将数据转换为sonic格式
@@ -61,11 +60,15 @@ func ProduceIndicesInit() {
 			}
 			sonicData, _ := sonic.Marshal(dataVo)
 			//3 调用esapi.BulkRequest将数据导入到product索引库中
-			_, _ = esapi.IndexRequest{
+			_, err = esapi.IndexRequest{
 				Index:   "product",
-				Body:    strings.NewReader(string(sonicData)),
+				Body:    bytes.NewReader(sonicData),
 				Refresh: "true",
 			}.Do(context.Background(), elastic.ElasticClient)
+			if err != nil {
+				klog.Errorf("导入数据到索引库product失败,err:%v", err)
+				return
+			}
 		}
 	}
 }

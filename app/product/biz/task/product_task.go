@@ -12,6 +12,8 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
+	"github.com/pkg/errors"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -31,6 +33,9 @@ func AddProduct(product *model.Product) (err error) {
 			Picture:     product.Picture,
 		},
 	})
+	if err != nil {
+		return err
+	}
 	_, _, err = kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
@@ -38,7 +43,7 @@ func AddProduct(product *model.Product) (err error) {
 	if err != nil {
 		return err
 	}
-	return
+	return nil
 }
 func DeleteProduct(product *model.Product) (err error) {
 	//TODO 用专门的结构体来封装发送上去的数据
@@ -50,11 +55,17 @@ func DeleteProduct(product *model.Product) (err error) {
 			ID: product.ID,
 		},
 	})
-	kf.Producer.SendMessage(&sarama.ProducerMessage{
+	if err != nil {
+		return err
+	}
+	_, _, err = kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
 	})
-	return
+	if err != nil {
+		return err
+	}
+	return nil
 }
 func UpdateProduct(product *model.Product) (err error) {
 	//TODO 用专门的结构体来封装发送上去的数据
@@ -70,11 +81,17 @@ func UpdateProduct(product *model.Product) (err error) {
 			Picture:     product.Picture,
 		},
 	})
-	kf.Producer.SendMessage(&sarama.ProducerMessage{
+	if err != nil {
+		return err
+	}
+	_, _, err = kf.Producer.SendMessage(&sarama.ProducerMessage{
 		Topic: kf.Topic,
 		Value: sarama.ByteEncoder(sonicData),
 	})
-	return
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func DeleteProductToElasticSearch(id int64) {
@@ -87,14 +104,21 @@ func DeleteProductToElasticSearch(id int64) {
 	}
 	sonicData, err := sonic.Marshal(body)
 	if err != nil {
+		klog.Errorf("[DeleteProductToElasticSearch]%v 序列化失败, err: %v", body, err)
 		return
 	}
-	request, _ := esapi.DeleteByQueryRequest{
+	request, err := esapi.DeleteByQueryRequest{
 		Index: []string{"product"},
 		Body:  strings.NewReader(string(sonicData)),
 	}.Do(context.Background(), elastic.ElasticClient)
 	//1 调用esapi.DeleteRequest删除product索引库中id为product.ID的数据
-	print(request.StatusCode) //2 打印返回的状态码
+	if err != nil {
+		klog.Errorf("es删除产品数据失败,err:%v", err)
+		return
+	}
+	if request.StatusCode != http.StatusOK {
+		klog.Errorf("es删除产品数据失败, StatusCode:%d", request.StatusCode)
+	}
 }
 func DeleteProductToRedis(id int64) {
 	key := "product:" + strconv.FormatInt(id, 10)
@@ -119,14 +143,17 @@ func UpdateProductToElasticSearch(p *vo.ProductSendToKafka) {
 	}
 	sonicData, err := sonic.Marshal(body)
 	if err != nil {
+		klog.Errorf("[UpdateProductToElasticSearch]%v 序列化失败, err: %v", body, err)
 		return
 	}
-	request, _ := esapi.DeleteByQueryRequest{
+	request, err := esapi.DeleteByQueryRequest{
 		Index: []string{"product"},
 		Body:  strings.NewReader(string(sonicData)),
 	}.Do(context.Background(), elastic.ElasticClient)
 	//1 调用esapi.DeleteRequest删除product索引库中id为product.ID的数据
-	print(request.StatusCode) //2 打印返回的状态码
+	if err != nil || request.StatusCode != http.StatusOK {
+		klog.Errorf("es更新产品数据失败")
+	}
 }
 func UpdateProductToRedis(product *vo.ProductSendToKafka) {
 	pro := vo.ProductRedisDataVo{
@@ -140,7 +167,7 @@ func UpdateProductToRedis(product *vo.ProductSendToKafka) {
 	//4 调用redis的set方法将数据导入到redis缓存中
 	marshal, err := sonic.MarshalString(pro)
 	if err != nil {
-		klog.Error("序列化失败", err)
+		klog.Errorf("序列化失败,err:%v", errors.WithStack(err))
 		return
 	}
 	_, err = redis.RedisClient.Set(context.Background(), key, marshal, 1*time.Hour).Result()
@@ -157,7 +184,10 @@ func AddProductToElasticSearch(product *vo.ProductSendToKafka) {
 		Name:        product.Name,
 		Description: product.Description,
 	}
-	sonicData, _ := sonic.Marshal(pro)
+	sonicData, err := sonic.Marshal(pro)
+	if err != nil {
+		klog.Error("序列化失败", errors.WithStack(err))
+	}
 	//3 调用esapi.BulkRequest将数据导入到product索引库中
 	response, _ := esapi.IndexRequest{
 		Index: "product",
@@ -198,9 +228,9 @@ func (h ProductKafkaHandler) ConsumeClaim(session sarama.ConsumerGroupSession, c
 	count := 0
 	batchSize := 10
 	for msg := range claim.Messages() {
-		klog.CtxInfof(context.Background(), "消费者接受到消息，Received message: Topic=%s, Partition=%d, Offset=%d, Key=%s, Value=%s \n",
+		klog.Infof("消费者接受到消息，Received message: Topic=%s, Partition=%d, Offset=%d, Key=%s, Value=%s \n",
 			msg.Topic, msg.Partition, msg.Offset, string(msg.Key), string(msg.Value))
-		session.MarkMessage(msg, "开始消费")
+		session.MarkMessage(msg, "start")
 		value := msg.Value //消息内容
 		dataVo := vo.ProductKafkaDataVO{}
 		_ = sonic.Unmarshal(value, &dataVo)
@@ -245,7 +275,7 @@ func Consumer() {
 			handler,
 		)
 		if err != nil {
-			panic(err)
+			klog.Error("Error from consumer: ", err)
 		}
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"douyin_mall/product/infra/elastic"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/xxl-job/xxl-job-executor-go"
 	"io"
@@ -19,6 +20,7 @@ func RefreshElastic(cxt context.Context, param *xxl.RunReq) string {
 	hlog.CtxInfof(cxt, "刷新Elastic开始 CheckAccountTask start")
 	err := refresh(cxt)
 	if err != nil {
+		klog.Errorf("刷新Elastic失败 CheckAccountTask failed, err: %v", err)
 		return err.Error()
 	}
 	return "刷新Elastic成功"
@@ -28,7 +30,8 @@ func refresh(ctx context.Context) (err error) {
 	//从数据库获取数据
 	allProduct, err := model.SelectProductAll(mysql.DB, ctx)
 	if err != nil {
-		return
+		klog.Errorf("从数据库获取数据失败 CheckAccountTask failed, err: %v", err)
+		return err
 	}
 	productMap := map[int64]model.Product{}
 	for i := range allProduct {
@@ -45,18 +48,24 @@ func refresh(ctx context.Context) (err error) {
 	}
 	searchIdBytes, err := sonic.Marshal(queryBody)
 	if err != nil {
-		return
+		klog.Errorf("序列化es查询参数失败 CheckAccountTask failed, err: %v", err)
+		return err
 	}
 	searchIdResponse, err := esapi.SearchRequest{
 		Index: []string{"product"},
 		Body:  strings.NewReader(string(searchIdBytes)),
 	}.Do(ctx, elastic.ElasticClient)
 	//解析数据
-	searchIdResponssBytes, _ := io.ReadAll(searchIdResponse.Body)
+	searchIdResponssBytes, err := io.ReadAll(searchIdResponse.Body)
+	if err != nil {
+		klog.Errorf("解析es查询结果失败 CheckAccountTask failed, err: %v", err)
+		return err
+	}
 	elasticSearchVo := vo.ProductSearchAllDataVo{}
 	err = sonic.Unmarshal(searchIdResponssBytes, &elasticSearchVo)
 	if err != nil {
-		return
+		klog.Errorf("反序列化es查询结果失败 CheckAccountTask failed, err: %v", err)
+		return err
 	}
 	hits := elasticSearchVo.Hits.Hits
 	var bulkBody []byte
@@ -76,10 +85,12 @@ func refresh(ctx context.Context) (err error) {
 		}
 		updateBytes, err := sonic.Marshal(update)
 		if err != nil {
+			klog.Errorf("序列化es更新参数失败 CheckAccountTask failed, err: %v", err)
 			return err
 		}
 		docBytes, err := sonic.Marshal(doc)
 		if err != nil {
+			klog.Errorf("序列化es更新参数失败 CheckAccountTask failed, err: %v", err)
 			return err
 		}
 		bulkBody = append(bulkBody, updateBytes...)
@@ -91,10 +102,12 @@ func refresh(ctx context.Context) (err error) {
 		Body:  bytes.NewReader(bulkBody),
 	}.Do(ctx, elastic.ElasticClient)
 	if err != nil {
-		return
+		klog.Errorf("批量刷新es失败 CheckAccountTask failed, err: %v", err)
+		return err
 	}
 	if bulkResponse.StatusCode != 200 {
-		return
+		klog.Errorf("批量刷新es失败 CheckAccountTask failed, err: %v", err)
+		return err
 	}
 	return
 }
