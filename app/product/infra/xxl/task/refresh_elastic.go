@@ -111,5 +111,6 @@ func refresh(ctx context.Context, index int64, total int64) (err error) {
 		klog.Errorf("批量刷新es失败 CheckAccountTask failed, err: %v", err)
 		return err
 	}
+	klog.CtxInfof(ctx, "刷新Elastic成功,index:%d,total:%d", index, total)
 	return
 }
