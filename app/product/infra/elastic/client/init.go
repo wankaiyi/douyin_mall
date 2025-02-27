@@ -1,15 +1,13 @@
-package elastic
+package client
 
 import (
 	"douyin_mall/product/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	elasticsearch7 "github.com/elastic/go-elasticsearch/v7"
-	"sync"
 )
 
 var (
 	ElasticClient *elasticsearch7.Client
-	once          sync.Once
 )
 
 func InitClient() {

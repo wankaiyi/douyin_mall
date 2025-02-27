@@ -5,7 +5,8 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
-	"douyin_mall/product/biz/task"
+	producerModel "douyin_mall/product/infra/kafka/model"
+	"douyin_mall/product/infra/kafka/producer"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
@@ -28,7 +29,7 @@ func (s *DeleteProductService) Run(req *product.DeleteProductReq) (resp *product
 	}
 	//发送到kafka
 	defer func() {
-		err := task.DeleteProduct(&model.Product{
+		err := producer.DeleteToKafka(s.ctx, producerModel.DeleteProductSendToKafka{
 			ID: req.Id,
 		})
 		if err != nil {

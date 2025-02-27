@@ -6,7 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
-	"douyin_mall/product/infra/elastic"
+	"douyin_mall/product/infra/elastic/client"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -54,7 +54,7 @@ func refresh(ctx context.Context) (err error) {
 	searchIdResponse, err := esapi.SearchRequest{
 		Index: []string{"product"},
 		Body:  strings.NewReader(string(searchIdBytes)),
-	}.Do(ctx, elastic.ElasticClient)
+	}.Do(ctx, client.ElasticClient)
 	//解析数据
 	searchIdResponssBytes, err := io.ReadAll(searchIdResponse.Body)
 	if err != nil {
@@ -100,7 +100,7 @@ func refresh(ctx context.Context) (err error) {
 	bulkResponse, err := esapi.BulkRequest{
 		Index: "product",
 		Body:  bytes.NewReader(bulkBody),
-	}.Do(ctx, elastic.ElasticClient)
+	}.Do(ctx, client.ElasticClient)
 	if err != nil {
 		klog.Errorf("批量刷新es失败 CheckAccountTask failed, err: %v", err)
 		return err

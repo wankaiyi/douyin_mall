@@ -11,7 +11,7 @@ import (
 	redis "douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
-	"douyin_mall/product/infra/elastic"
+	"douyin_mall/product/infra/elastic/client"
 	product "douyin_mall/product/kitex_gen/product"
 	"encoding/json"
 	"github.com/bytedance/sonic"
@@ -73,7 +73,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		search, err := esapi.SearchRequest{
 			Index: []string{"product"},
 			Body:  bytes.NewReader(dslBytes),
-		}.Do(context.Background(), elastic.ElasticClient)
+		}.Do(context.Background(), client.ElasticClient)
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "es搜索失败, err: %v", err)
 			return nil, errors.WithStack(err)

@@ -5,7 +5,8 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
-	"douyin_mall/product/biz/task"
+	producerModel "douyin_mall/product/infra/kafka/model"
+	"douyin_mall/product/infra/kafka/producer"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
@@ -40,7 +41,13 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 	}
 	//发送到kafka
 	defer func() {
-		err := task.UpdateProduct(&pro)
+		err := producer.UpdateToKafka(s.ctx, producerModel.UpdateProductSendToKafka{
+			ID:          pro.ID,
+			Name:        pro.Name,
+			Description: pro.Description,
+			Price:       pro.Price,
+			Picture:     pro.Picture,
+		})
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "推送到kafka失败,error:%v", err)
 		}

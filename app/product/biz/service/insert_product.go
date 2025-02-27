@@ -5,7 +5,8 @@ import (
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
-	"douyin_mall/product/biz/task"
+	producerModel "douyin_mall/product/infra/kafka/model"
+	"douyin_mall/product/infra/kafka/producer"
 	product "douyin_mall/product/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
@@ -41,7 +42,13 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 	}
 	//发送到kafka
 	defer func() {
-		err := task.AddProduct(&pro)
+		err := producer.AddToKafka(s.ctx, producerModel.AddProductSendToKafka{
+			ID:          pro.ID,
+			Name:        pro.Name,
+			Price:       pro.Price,
+			Description: pro.Description,
+			Picture:     pro.Picture,
+		})
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "产品数据库插入信号发送kafka失败, error:%v", err)
 		}

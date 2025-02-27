@@ -1,4 +1,4 @@
-package task
+package check
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
-	"douyin_mall/product/infra/elastic"
+	"douyin_mall/product/infra/elastic/client"
 	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -17,7 +17,7 @@ func ProduceIndicesInit() {
 	// 构建请求
 	productIndicesExist, err := esapi.IndicesExistsRequest{
 		Index: []string{"product"},
-	}.Do(nil, elastic.ElasticClient)
+	}.Do(nil, client.ElasticClient)
 	if err != nil {
 		klog.Errorf("查询索引库product失败,err:%v", err)
 		return
@@ -32,7 +32,7 @@ func ProduceIndicesInit() {
 		create, err := esapi.IndicesCreateRequest{
 			Index: "product",
 			Body:  bytes.NewReader(SettingData),
-		}.Do(context.Background(), elastic.ElasticClient)
+		}.Do(context.Background(), client.ElasticClient)
 		if err != nil {
 			klog.Errorf("创建索引库product失败,err:%v", err)
 		}
@@ -64,7 +64,7 @@ func ProduceIndicesInit() {
 				Index:   "product",
 				Body:    bytes.NewReader(sonicData),
 				Refresh: "true",
-			}.Do(context.Background(), elastic.ElasticClient)
+			}.Do(context.Background(), client.ElasticClient)
 			if err != nil {
 				klog.Errorf("导入数据到索引库product失败,err:%v", err)
 				return

@@ -47,15 +47,13 @@ func main() {
 	go hotKeyClient.Start(redis.RedisClient, constant.ProductService)
 
 	elastic.InitClient()
-	kafka.InitClient()
+	kafka.Init()
 	opts := kitexInit()
 	rpc.InitClient()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 	//将任务注册到xxl-job中
 	go xxljobInit()
-	go task.ProduceIndicesInit()
-	go task.Consumer()
 	err := svr.Run()
 	if err != nil {
 		klog.Error(err.Error())
