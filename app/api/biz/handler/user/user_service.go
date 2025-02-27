@@ -208,3 +208,23 @@ func AddReceiveAddress(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// GetReceiveAddresses .
+// @router /user/address [GET]
+func GetReceiveAddresses(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req user.Empty
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewGetReceiveAddressesService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

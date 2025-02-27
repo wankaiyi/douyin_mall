@@ -24,14 +24,16 @@ func NewAddReceiveAddressService(Context context.Context, RequestContext *app.Re
 func (h *AddReceiveAddressService) Run(req *user.AddReceiveAddressRequest) (resp *user.AddReceiveAddressResponse, err error) {
 	ctx := h.Context
 	addReceiveAddressResp, err := rpc.UserClient.AddReceiveAddress(ctx, &rpcUser.AddReceiveAddressReq{
-		UserId:        ctx.Value(constant.UserId).(int32),
-		Name:          req.Name,
-		PhoneNumber:   req.PhoneNumber,
-		DefaultStatus: req.DefaultStatus,
-		Province:      req.Province,
-		City:          req.City,
-		Region:        req.Region,
-		DetailAddress: req.DetailAddress,
+		UserId: ctx.Value(constant.UserId).(int32),
+		ReceiveAddress: &rpcUser.ReceiveAddress{
+			Name:          req.Name,
+			PhoneNumber:   req.PhoneNumber,
+			DefaultStatus: req.DefaultStatus,
+			Province:      req.Province,
+			City:          req.City,
+			Region:        req.Region,
+			DetailAddress: req.DetailAddress,
+		},
 	})
 	if err != nil {
 		hlog.CtxErrorf(ctx, "rpc调用添加收货地址错误，req：%v，err：%v", req, err)

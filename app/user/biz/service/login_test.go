@@ -12,7 +12,7 @@ func TestLogin_Run(t *testing.T) {
 	// init req and assert value
 
 	req := &user.LoginReq{
-		Email:    "123@qq.com",
+		Username: "123",
 		Password: "123",
 	}
 	resp, err := s.Run(req)

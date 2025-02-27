@@ -69,3 +69,12 @@ func AddReceiveAddress(ctx context.Context, req *user.AddReceiveAddressReq, call
 	}
 	return resp, nil
 }
+
+func GetReceiveAddress(ctx context.Context, req *user.GetReceiveAddressReq, callOptions ...callopt.Option) (resp *user.GetReceiveAddressResp, err error) {
+	resp, err = defaultClient.GetReceiveAddress(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "GetReceiveAddress call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

@@ -4,6 +4,7 @@ import (
 	"douyin_mall/common/middleware"
 	"douyin_mall/rpc/kitex_gen/auth/authservice"
 	"douyin_mall/rpc/kitex_gen/cart/cartservice"
+	"douyin_mall/rpc/kitex_gen/checkout/checkoutservice"
 	"douyin_mall/rpc/kitex_gen/order/orderservice"
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"douyin_mall/rpc/kitex_gen/product/productcatalogservice"
@@ -21,16 +22,17 @@ import (
 )
 
 var (
-	AuthClient    authservice.Client
-	UserClient    userservice.Client
-	PaymentClient paymentservice.Client
-	ProductClient productcatalogservice.Client
-	CartClient    cartservice.Client
-	OrderClient   orderservice.Client
-	once          sync.Once
-	err           error
-	registryAddr  string
-	commonSuite   client.Option
+	AuthClient     authservice.Client
+	UserClient     userservice.Client
+	PaymentClient  paymentservice.Client
+	ProductClient  productcatalogservice.Client
+	CartClient     cartservice.Client
+	OrderClient    orderservice.Client
+	CheckoutClient checkoutservice.Client
+	once           sync.Once
+	err            error
+	registryAddr   string
+	commonSuite    client.Option
 )
 
 func InitClient() {
@@ -46,6 +48,7 @@ func InitClient() {
 		initPaymentClient()
 		initCartClient()
 		InitOrderClient()
+		InitCheckoutClient()
 	})
 }
 
@@ -87,5 +90,12 @@ func InitOrderClient() {
 	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
+	}
+}
+
+func InitCheckoutClient() {
+	CheckoutClient, err = checkoutservice.NewClient("checkout-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	if err != nil {
+		klog.Fatal("init checkout client failed: ", err)
 	}
 }

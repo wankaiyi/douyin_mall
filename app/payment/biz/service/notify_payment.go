@@ -27,11 +27,13 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 	rsync := redsync.GetRedsync()
 	mutexName := "order_" + orderId
 	mutex := rsync.NewMutex(mutexName)
+
 	//加锁
 	if err := mutex.Lock(); err != nil {
-		klog.CtxErrorf(s.ctx, "获取互斥锁失败，lock filed,orderId:%s,,err:%s", orderId, err.Error())
+		klog.CtxErrorf(s.ctx, "获取互斥锁失败，lock failed,orderId:%s,,err:%s", orderId, err.Error())
 		return nil, err
 	}
+	defer mutex.Unlock()
 
 	//todo:通过订单号查询订单记录，检查订单状态是否已支付，未支付则更新订单状态，已支付则直接返回
 	//todo:通过订单得到userId,得到订单金额

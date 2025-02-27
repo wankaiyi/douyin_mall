@@ -35,7 +35,7 @@ func CreateOrder(ctx context.Context, db *gorm.DB, order *Order) error {
 }
 
 func GetOrdersByUserId(ctx context.Context, db *gorm.DB, id int32) (orderList []Order, err error) {
-	err = db.WithContext(ctx).Where(&Order{UserID: id}).Find(&orderList).Error
+	err = db.WithContext(ctx).Model(&Order{}).Where(&Order{UserID: id}).Find(&orderList).Error
 	return
 }
 
@@ -78,4 +78,11 @@ func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, err
 			Status:  OrderStatusUnpaid,
 		}).Update("status", OrderStatusPaid)
 	return tx.RowsAffected, tx.Error
+}
+
+func GetOrder(ctx context.Context, db *gorm.DB, userId int32, orderId string) (order *Order, err error) {
+	err = db.WithContext(ctx).Model(&Order{}).
+		Where(&Order{UserID: userId, OrderID: orderId}).
+		First(&order).Error
+	return
 }

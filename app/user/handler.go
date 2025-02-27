@@ -57,3 +57,10 @@ func (s *UserServiceImpl) AddReceiveAddress(ctx context.Context, req *user.AddRe
 
 	return resp, err
 }
+
+// GetReceiveAddress implements the UserServiceImpl interface.
+func (s *UserServiceImpl) GetReceiveAddress(ctx context.Context, req *user.GetReceiveAddressReq) (resp *user.GetReceiveAddressResp, err error) {
+	resp, err = service.NewGetReceiveAddressService(ctx).Run(req)
+
+	return resp, err
+}
