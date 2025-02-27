@@ -70,3 +70,12 @@ func GetOverdueOrder(ctx context.Context, db *gorm.DB, placeTime time.Time) (ord
 		Pluck("order_id", &orderIdList).Error
 	return
 }
+
+func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, error) {
+	tx := db.WithContext(ctx).Model(&Order{}).
+		Where(&Order{
+			OrderID: orderId,
+			Status:  OrderStatusUnpaid,
+		}).Update("status", OrderStatusPaid)
+	return tx.RowsAffected, tx.Error
+}

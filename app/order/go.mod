@@ -14,7 +14,6 @@ require (
 	github.com/bytedance/sonic v1.12.7
 	github.com/cloudwego/fastpb v0.0.5
 	github.com/cloudwego/kitex v0.12.2
-	github.com/google/uuid v1.6.0
 	github.com/kitex-contrib/config-nacos v0.4.1
 	github.com/kr/pretty v0.3.1
 	github.com/nacos-group/nacos-sdk-go v1.1.5
@@ -61,6 +60,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
