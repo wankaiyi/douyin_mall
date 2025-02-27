@@ -72,17 +72,12 @@ func selectAndCacheUserAddresses(ctx context.Context, userId int32) error {
 			return err
 		}
 		addressStrs[i] = string(addressStr)
-		//addressStrs = append(addressStrs, string(addressStr))
 	}
-	//bytes, err := sonic.Marshal(addresses)
 	err = redisClient.Eval(ctx, luaScript, []string{key}, addressStrs).Err()
 	if err != nil {
 		return err
 	}
-	//err = redisClient.RPush(ctx, key, addressStrs).Err()
-	//if err != nil {
-	//	return err
-	//}
+
 	// 设置过期时间和access token的过期时间一致
 	err = redisClient.Expire(ctx, key, time.Hour*2).Err()
 	if err != nil {
@@ -121,11 +116,11 @@ func InitUserCacheMessageConsumer() {
 	consumerConfig.Consumer.Offsets.Initial = sarama.OffsetNewest
 	consumerConfig.Consumer.Offsets.Retry.Max = 3
 
-	gtoupId := "cache-user-info"
+	groupId := "cache-user-info"
 	if conf.GetConf().Env == "dev" {
-		gtoupId += "-dev"
+		groupId += "-dev"
 	}
-	cGroup, err := sarama.NewConsumerGroup(conf.GetConf().Kafka.BizKafka.BootstrapServers, "cache-user-info-dev", consumerConfig)
+	cGroup, err := sarama.NewConsumerGroup(conf.GetConf().Kafka.BizKafka.BootstrapServers, groupId, consumerConfig)
 	if err != nil {
 		panic(err)
 	}

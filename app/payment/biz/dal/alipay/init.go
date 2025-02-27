@@ -97,7 +97,7 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string
 	bodyMap.Set("subject", subject)
 	bodyMap.Set("product_code", product_code)
 	//定时关闭订单
-	expireTime := time.Now().Local().Add(time.Minute * 5).Format("2006-01-02 15:04:05")
+	expireTime := time.Now().Local().Add(time.Minute * 10).Format("2006-01-02 15:04:05")
 	bodyMap.Set("time_expire", expireTime)
 	paymentUrl, err := Client.TradePagePay(ctx, bodyMap)
 	if err != nil {
