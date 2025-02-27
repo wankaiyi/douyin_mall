@@ -2,6 +2,7 @@ package alipay
 
 import (
 	"context"
+	"douyin_mall/common/constant"
 	"douyin_mall/payment/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/go-pay/gopay"
@@ -35,9 +36,9 @@ var (
 )
 
 func Init() {
-	AlipayPublicContentPath, _ := os.Open(conf.GetConf().AliPay.AliPayPublicContentPath)
-	AlipayRootContentPath, _ := os.Open(conf.GetConf().AliPay.AliPayRootContentPath)
-	AppPublicContentPath, _ := os.Open(conf.GetConf().AliPay.AppPublicContentPath)
+	AlipayPublicContentPath, _ := os.Open(constant.AliPayPublicContentPath)
+	AlipayRootContentPath, _ := os.Open(constant.AliPayRootContentPath)
+	AppPublicContentPath, _ := os.Open(constant.AppPublicContentPath)
 	defer AlipayPublicContentPath.Close()
 	defer AlipayRootContentPath.Close()
 	defer AppPublicContentPath.Close()
@@ -73,7 +74,8 @@ func Init() {
 							SetCharset(alipay.UTF8)
 
 	// 自动同步验签（只支持证书模式）
-	// 传入 alipayPublicCert.crt 内容
+	// 传入 alipay_public_cert.crt 内容
+	klog.CtxInfof(context.Background(), "支付宝自动同步验签,%+v", AlipayPublicContent)
 	Client.AutoVerifySign(AlipayPublicContent)
 
 	// 公钥证书模式，需要传入证书，以下两种方式二选一
