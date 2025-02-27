@@ -52,8 +52,10 @@ func main() {
 	opts := kitexInit()
 	//将server服务注册到nacos
 	svr := paymentservice.NewServer(new(PaymentServiceImpl), opts...)
-	//将任务注册到xxl-job中
-	go xxljobInit()
+	if os.Getenv("env") != "dev" {
+		//将任务注册到xxl-job中
+		go xxljobInit()
+	}
 
 	err := svr.Run()
 	if err != nil {
