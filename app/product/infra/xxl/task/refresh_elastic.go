@@ -8,7 +8,6 @@ import (
 	"douyin_mall/product/biz/vo"
 	"douyin_mall/product/infra/elastic/client"
 	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/xxl-job/xxl-job-executor-go"
@@ -17,8 +16,11 @@ import (
 )
 
 func RefreshElastic(cxt context.Context, param *xxl.RunReq) string {
-	hlog.CtxInfof(cxt, "刷新Elastic开始 CheckAccountTask start")
-	err := refresh(cxt)
+	index := param.BroadcastIndex
+	total := param.BroadcastTotal
+
+	klog.CtxInfof(cxt, "刷新Elastic开始 CheckAccountTask start")
+	err := refresh(cxt, index, total)
 	if err != nil {
 		klog.Errorf("刷新Elastic失败 CheckAccountTask failed, err: %v", err)
 		return err.Error()
@@ -26,9 +28,9 @@ func RefreshElastic(cxt context.Context, param *xxl.RunReq) string {
 	return "刷新Elastic成功"
 }
 
-func refresh(ctx context.Context) (err error) {
+func refresh(ctx context.Context, index int64, total int64) (err error) {
 	//从数据库获取数据
-	allProduct, err := model.SelectProductAll(mysql.DB, ctx)
+	allProduct, err := model.SelectProductAll(mysql.DB, ctx, index, total)
 	if err != nil {
 		klog.Errorf("从数据库获取数据失败 CheckAccountTask failed, err: %v", err)
 		return err
