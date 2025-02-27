@@ -1,7 +1,9 @@
 package producer
 
 import (
+	"context"
 	"douyin_mall/common/infra/kafka/model"
+	"douyin_mall/common/infra/kafka/tracing"
 	"douyin_mall/order/conf"
 	"douyin_mall/order/infra/kafka/constant"
 	model2 "douyin_mall/order/infra/kafka/model"
@@ -9,6 +11,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
+	"go.opentelemetry.io/otel"
 )
 
 var (
@@ -46,17 +49,19 @@ func InitDelayOrderProducer() {
 
 }
 
-func sendMessage(topic string, message []byte, key string) {
+func sendMessage(ctx context.Context, topic string, message []byte, key string) {
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
 		Value: sarama.StringEncoder(message),
 		Key:   sarama.StringEncoder(key),
 	}
 
+	otel.GetTextMapPropagator().Inject(ctx, tracing.NewProducerMessageCarrier(msg))
+
 	producer.Input() <- msg
 }
 
-func SendDelayOrder(orderId string, delayLevel int8) {
+func SendDelayOrder(ctx context.Context, orderId string, delayLevel int8) {
 	delayOrderMessage := model2.DelayOrderMessage{OrderID: orderId, Level: delayLevel}
 
 	delayMsg := &model.DelayMessage{
@@ -66,5 +71,5 @@ func SendDelayOrder(orderId string, delayLevel int8) {
 		Value: delayOrderMessage.ToJson(),
 	}
 	delayMsgBytes, _ := sonic.Marshal(delayMsg)
-	sendMessage(constant.DelayTopic, delayMsgBytes, constant.DelayCancelOrderKeyPrefix+orderId)
+	sendMessage(ctx, constant.DelayTopic, delayMsgBytes, constant.DelayCancelOrderKeyPrefix+orderId)
 }

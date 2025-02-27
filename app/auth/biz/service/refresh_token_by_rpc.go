@@ -26,7 +26,7 @@ func (s *RefreshTokenByRPCService) Run(req *auth.RefreshTokenReq) (resp *auth.Re
 			RefreshToken: newRefreshToken,
 		}
 
-		producer.SendUserCacheMessage(userId)
+		producer.SendUserCacheMessage(s.ctx, userId)
 
 		return
 	}

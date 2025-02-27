@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"douyin_mall/common/infra/kafka/tracing"
 	"douyin_mall/user/biz/dal/mysql"
 	"douyin_mall/user/biz/dal/redis"
 	"douyin_mall/user/biz/model"
@@ -12,6 +13,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
+	"go.opentelemetry.io/otel"
 	"time"
 )
 
@@ -20,6 +22,7 @@ type msgConsumerGroup struct{}
 func (msgConsumerGroup) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
 func (msgConsumerGroup) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
 func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
+	ctx := sess.Context()
 	for msg := range claim.Messages() {
 		klog.Infof("收到消息，topic:%q partition:%d offset:%d  value:%s\n", msg.Topic, msg.Partition, msg.Offset, string(msg.Value))
 
@@ -27,23 +30,29 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 		err := sonic.Unmarshal(msg.Value, &userCacheMsg)
 		if err != nil {
 			klog.Errorf("反序列化消息失败，err：%v", err)
-			return err
+			continue
 		}
+
+		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
+		_, span := otel.Tracer("delay-order-consumer").Start(msgCtx, "consume-delay-order-message")
 
 		err = selectAndCacheUserInfo(sess.Context(), userCacheMsg.UserId)
 		if err != nil {
 			klog.Errorf("缓存用户信息失败，err：%v", err)
-			return err
+			span.End()
+			continue
 		}
 
 		err = selectAndCacheUserAddresses(sess.Context(), userCacheMsg.UserId)
 		if err != nil {
 			klog.Errorf("缓存用户地址失败，err：%v", err)
-			return err
+			span.End()
+			continue
 		}
 
 		sess.MarkMessage(msg, "")
 		sess.Commit()
+		span.End()
 	}
 	return nil
 }

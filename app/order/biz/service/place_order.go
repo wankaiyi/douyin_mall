@@ -66,7 +66,7 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 	// todo 批量锁定库存
 
 	// 延时取消订单
-	producer.SendDelayOrder(orderId, constant.DelayTopic1mLevel)
+	producer.SendDelayOrder(ctx, orderId, constant.DelayTopic1mLevel)
 	return &order.PlaceOrderResp{
 		Order: &order.OrderResult{
 			OrderId: orderId,

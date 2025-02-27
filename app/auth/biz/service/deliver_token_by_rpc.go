@@ -30,7 +30,7 @@ func (s *DeliverTokenByRPCService) Run(req *auth.DeliverTokenReq) (resp *auth.De
 		return nil, err
 	}
 
-	producer.SendUserCacheMessage(userId)
+	producer.SendUserCacheMessage(ctx, userId)
 
 	return &auth.DeliveryResp{
 		StatusCode:   0,

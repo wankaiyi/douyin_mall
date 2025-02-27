@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"douyin_mall/common/infra/kafka/tracing"
 	"douyin_mall/order/biz/dal/mysql"
 	"douyin_mall/order/biz/model"
 	"douyin_mall/order/conf"
@@ -16,6 +17,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 	"github.com/pkg/errors"
+	"go.opentelemetry.io/otel"
 	"strings"
 )
 
@@ -40,24 +42,29 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 			klog.Errorf("解析消息失败，topic:%q partition:%d offset:%d  value:%s\n", topic, msg.Partition, msg.Offset, string(msg.Value))
 			sess.MarkMessage(msg, "")
 			sess.Commit()
-			return err
+			continue
 		}
+
+		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
+		_, span := otel.Tracer("delay-order-consumer").Start(msgCtx, "consume-delay-order-message")
+		otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
 
 		orderId := delayCancelOrderMessage.OrderID
 		unpaid, err := checkOrderUnpaid(ctx, orderId)
 		if err != nil {
-			return err
+			span.End()
+			continue
 		}
 		if unpaid {
 			// 继续发消息或取消订单
 			switch delayCancelOrderMessage.Level {
 			case constant.DelayTopic1mLevel:
 				{
-					producer.SendDelayOrder(orderId, constant.DelayTopic4mLevel)
+					producer.SendDelayOrder(ctx, orderId, constant.DelayTopic4mLevel)
 				}
 			case constant.DelayTopic4mLevel:
 				{
-					producer.SendDelayOrder(orderId, constant.DelayTopic5mLevel)
+					producer.SendDelayOrder(ctx, orderId, constant.DelayTopic5mLevel)
 				}
 			case constant.DelayTopic5mLevel:
 				{
@@ -67,6 +74,7 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 			}
 		}
 
+		span.End()
 		sess.MarkMessage(msg, "")
 		sess.Commit()
 	}

@@ -1,11 +1,14 @@
 package producer
 
 import (
+	"context"
 	"douyin_mall/auth/conf"
+	"douyin_mall/common/infra/kafka/tracing"
 	"github.com/IBM/sarama"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
+	"go.opentelemetry.io/otel"
 	"strconv"
 )
 
@@ -44,12 +47,14 @@ func InitUserCacheMessageProducer() {
 
 }
 
-func sendMessage(topic string, message []byte, key string) {
+func sendMessage(ctx context.Context, topic string, message []byte, key string) {
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
 		Value: sarama.StringEncoder(message),
 		Key:   sarama.StringEncoder(key),
 	}
+
+	otel.GetTextMapPropagator().Inject(ctx, tracing.NewProducerMessageCarrier(msg))
 
 	producer.Input() <- msg
 }
@@ -58,10 +63,10 @@ type UserCacheMessage struct {
 	UserId int32 `json:"user_id"`
 }
 
-func SendUserCacheMessage(userId int32) {
+func SendUserCacheMessage(ctx context.Context, userId int32) {
 	msg := UserCacheMessage{
 		UserId: userId,
 	}
 	msgStr, _ := sonic.Marshal(msg)
-	sendMessage("auth_service_deliver_token", msgStr, strconv.FormatInt(int64(userId), 10))
+	sendMessage(ctx, "auth_service_deliver_token", msgStr, strconv.FormatInt(int64(userId), 10))
 }
