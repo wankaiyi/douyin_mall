@@ -102,7 +102,6 @@ message ReceiveAddress {
   string city = 6;
   string region = 7;
   string detail_address = 8;
-  string created_at = 9;
 }
 
 message Empty {}

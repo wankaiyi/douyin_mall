@@ -23,6 +23,7 @@ type Address struct {
 }
 
 type AddressInfo struct {
+	ID            int32  `json:"id"`
 	Name          string `json:"name"`
 	PhoneNumber   string `json:"phone_number"`
 	DefaultStatus int8   `json:"default_status"`
@@ -56,7 +57,7 @@ func UpdateAddress(ctx context.Context, db *gorm.DB, addr Address) error {
 
 func GetAddressList(ctx context.Context, db *gorm.DB, userId int32) ([]AddressInfo, error) {
 	var addressList []AddressInfo
-	err := db.WithContext(ctx).Model(Address{}).Select("name, phone_number, default_status, province, city, region, detail_address").Where(Address{UserId: userId}).Find(&addressList).Error
+	err := db.WithContext(ctx).Model(Address{}).Select("id, name, phone_number, default_status, province, city, region, detail_address").Where(Address{UserId: userId}).Find(&addressList).Error
 	if err != nil {
 		return addressList, err
 	}

@@ -65,3 +65,8 @@ func _addreceiveaddressMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _getreceiveaddressesMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

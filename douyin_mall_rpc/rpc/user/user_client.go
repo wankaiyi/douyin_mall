@@ -19,6 +19,7 @@ type RPCClient interface {
 	DeleteUser(ctx context.Context, Req *user.DeleteUserReq, callOptions ...callopt.Option) (r *user.DeleteUserResp, err error)
 	GetUserRoleById(ctx context.Context, Req *user.GetUserRoleByIdReq, callOptions ...callopt.Option) (r *user.GetUserRoleByIdResp, err error)
 	AddReceiveAddress(ctx context.Context, Req *user.AddReceiveAddressReq, callOptions ...callopt.Option) (r *user.AddReceiveAddressResp, err error)
+	GetReceiveAddress(ctx context.Context, Req *user.GetReceiveAddressReq, callOptions ...callopt.Option) (r *user.GetReceiveAddressResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -73,4 +74,8 @@ func (c *clientImpl) GetUserRoleById(ctx context.Context, Req *user.GetUserRoleB
 
 func (c *clientImpl) AddReceiveAddress(ctx context.Context, Req *user.AddReceiveAddressReq, callOptions ...callopt.Option) (r *user.AddReceiveAddressResp, err error) {
 	return c.kitexClient.AddReceiveAddress(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) GetReceiveAddress(ctx context.Context, Req *user.GetReceiveAddressReq, callOptions ...callopt.Option) (r *user.GetReceiveAddressResp, err error) {
+	return c.kitexClient.GetReceiveAddress(ctx, Req, callOptions...)
 }
