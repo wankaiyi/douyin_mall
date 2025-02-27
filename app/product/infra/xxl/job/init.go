@@ -24,7 +24,7 @@ func XxlJobInit() {
 		exec.Stop()
 	})
 
-	exec.RegTask("CleanNodeIDTask", task.RefreshElastic)
+	exec.RegTask("RefreshElastic", task.RefreshElastic)
 
 	err := exec.Run()
 	if err != nil {
