@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
+	redsync "douyin_mall/checkout/biz/dal/red_sync"
 	"douyin_mall/checkout/infra/rpc"
 	checkout "douyin_mall/checkout/kitex_gen/checkout"
 	"douyin_mall/common/constant"
-	redsync "douyin_mall/payment/biz/dal/red_sync"
 	"douyin_mall/rpc/kitex_gen/cart"
 	"douyin_mall/rpc/kitex_gen/order"
 	"douyin_mall/rpc/kitex_gen/payment"
@@ -60,7 +60,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		Name:          req.Address.GetName(),
 		PhoneNumber:   req.Address.GetPhoneNumber(),
 		DetailAddress: req.Address.GetDetailAddress(),
-		City:          req.Address.City,
+		City:          req.Address.GetCity(),
 		Province:      req.Address.GetProvince(),
 		Region:        req.Address.GetRegion(),
 	}

@@ -37,6 +37,7 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 
 	//todo:通过订单号查询订单记录，检查订单状态是否已支付，未支付则更新订单状态，已支付则直接返回
 	//todo:通过订单得到userId,得到订单金额
+	//todo:无论成功失败，都需要解锁库存
 	if tradeStatus != "TRADE_SUCCESS" {
 		klog.CtxErrorf(s.ctx, "orderId:%s,pay filed,tradeStatus:%s", orderId, tradeStatus)
 		resp = &payment.NotifyPaymentResp{
