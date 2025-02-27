@@ -10,6 +10,7 @@ service OrderService {
   rpc PlaceOrder(PlaceOrderReq) returns (PlaceOrderResp) {}
   rpc ListOrder(ListOrderReq) returns (ListOrderResp) {}
   rpc MarkOrderPaid(MarkOrderPaidReq) returns (MarkOrderPaidResp) {}
+  rpc GetOrder(GetOrderReq) returns (GetOrderResp) {}
 }
 
 message Address {
@@ -79,4 +80,15 @@ message MarkOrderPaidReq {
 message MarkOrderPaidResp {
   int32 status_code = 1;
   string status_msg = 2;
+}
+
+message GetOrderReq {
+  int32 user_id = 1;
+  string order_id = 2;
+}
+
+message GetOrderResp {
+  Order order = 1;
+  int32 status_code = 2;
+  string status_msg = 3;
 }

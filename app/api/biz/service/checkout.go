@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/api/infra/rpc"
+	"douyin_mall/common/constant"
 	"douyin_mall/rpc/kitex_gen/user"
 	"errors"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -22,22 +23,20 @@ func NewCheckoutService(Context context.Context, RequestContext *app.RequestCont
 }
 
 func (h *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.CheckoutResp, err error) {
-	//defer func() {
-	// hlog.CtxInfof(h.Context, "req = %+v", req)
-	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
-	//}()
 	address := &user.AddReceiveAddressReq{
-		UserId:        h.Context.Value("user_id").(int32),
-		Name:          req.Address.GetName(),
-		PhoneNumber:   req.Address.GetPhoneNumber(),
-		City:          req.Address.GetCity(),
-		Province:      req.GetAddress().GetProvince(),
-		Region:        req.Address.Region,
-		DefaultStatus: req.Address.GetDefaultStatus(),
-		DetailAddress: req.Address.GetDetailAddress(),
+		UserId: h.Context.Value(constant.UserId).(int32),
+		ReceiveAddress: &user.ReceiveAddress{
+			Name:          req.Address.GetName(),
+			PhoneNumber:   req.Address.GetPhoneNumber(),
+			City:          req.Address.GetCity(),
+			Province:      req.GetAddress().GetProvince(),
+			Region:        req.Address.Region,
+			DefaultStatus: req.Address.GetDefaultStatus(),
+			DetailAddress: req.Address.GetDetailAddress(),
+		},
 	}
 	checkoutResp, err := rpc.CheckoutClient.Checkout(h.Context, &rpcCheckout.CheckoutReq{
-		UserId:  uint32(h.Context.Value("user_id").(int32)),
+		UserId:  uint32(h.Context.Value(constant.UserId).(int32)),
 		Address: address,
 	})
 	if err != nil {
