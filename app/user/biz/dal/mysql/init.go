@@ -32,5 +32,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-
+	if conf.GetConf().Env == "dev" {
+		DB = DB.Debug()
+	}
 }

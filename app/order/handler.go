@@ -36,3 +36,10 @@ func (s *OrderServiceImpl) GetOrder(ctx context.Context, req *order.GetOrderReq)
 
 	return resp, err
 }
+
+// SmartSearchOrder implements the OrderServiceImpl interface.
+func (s *OrderServiceImpl) SmartSearchOrder(ctx context.Context, req *order.SmartSearchOrderReq) (resp *order.SmartSearchOrderResp, err error) {
+	resp, err = service.NewSmartSearchOrderService(ctx).Run(req)
+
+	return resp, err
+}

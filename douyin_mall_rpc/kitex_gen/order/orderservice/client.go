@@ -15,6 +15,7 @@ type Client interface {
 	ListOrder(ctx context.Context, Req *order.ListOrderReq, callOptions ...callopt.Option) (r *order.ListOrderResp, err error)
 	MarkOrderPaid(ctx context.Context, Req *order.MarkOrderPaidReq, callOptions ...callopt.Option) (r *order.MarkOrderPaidResp, err error)
 	GetOrder(ctx context.Context, Req *order.GetOrderReq, callOptions ...callopt.Option) (r *order.GetOrderResp, err error)
+	SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOrderReq, callOptions ...callopt.Option) (r *order.SmartSearchOrderResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -64,4 +65,9 @@ func (p *kOrderServiceClient) MarkOrderPaid(ctx context.Context, Req *order.Mark
 func (p *kOrderServiceClient) GetOrder(ctx context.Context, Req *order.GetOrderReq, callOptions ...callopt.Option) (r *order.GetOrderResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetOrder(ctx, Req)
+}
+
+func (p *kOrderServiceClient) SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOrderReq, callOptions ...callopt.Option) (r *order.SmartSearchOrderResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.SmartSearchOrder(ctx, Req)
 }

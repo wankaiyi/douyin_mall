@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -13,17 +14,23 @@ const (
 )
 
 type Order struct {
-	OrderID       string  `gorm:"primarykey;type:varchar(64)"`
-	UserID        int32   `gorm:"not null;type:int;index:idx_user_id"`
-	TotalCost     float64 `gorm:"not null;type:decimal(10,2)"`
-	Name          string  `gorm:"not null;type:varchar(64)"`
-	PhoneNumber   string  `gorm:"not null;type:char(11)"`
-	Province      string  `gorm:"not null;type:varchar(64)"`
-	City          string  `gorm:"not null;type:varchar(64)"`
-	Region        string  `gorm:"not null;type:varchar(64)"`
-	DetailAddress string  `gorm:"not null;type:varchar(255)"`
-	Status        int32   `gorm:"not null;type:int;default:0"`
-	CreatedAt     time.Time
+	OrderID       string      `gorm:"primarykey;type:varchar(64)"`
+	UserID        int32       `gorm:"not null;type:int;index:idx_user_id_created_at"`
+	TotalCost     float64     `gorm:"not null;type:decimal(10,2)"`
+	Name          string      `gorm:"not null;type:varchar(64)"`
+	PhoneNumber   string      `gorm:"not null;type:char(11)"`
+	Province      string      `gorm:"not null;type:varchar(64)"`
+	City          string      `gorm:"not null;type:varchar(64)"`
+	Region        string      `gorm:"not null;type:varchar(64)"`
+	DetailAddress string      `gorm:"not null;type:varchar(255)"`
+	Status        int32       `gorm:"not null;type:int;default:0"`
+	CreatedAt     time.Time   `gorm:"index:idx_user_id_created_at"`
+	OrderItems    []OrderItem `gorm:"foreignKey:OrderID;references:OrderID"`
+}
+
+type OrderInfo struct {
+	Order
+	orderItems []OrderItem
 }
 
 func (o *Order) TableName() string {
@@ -35,7 +42,10 @@ func CreateOrder(ctx context.Context, db *gorm.DB, order *Order) error {
 }
 
 func GetOrdersByUserId(ctx context.Context, db *gorm.DB, id int32) (orderList []Order, err error) {
-	err = db.WithContext(ctx).Model(&Order{}).Where(&Order{UserID: id}).Find(&orderList).Error
+	err = db.WithContext(ctx).Model(&Order{}).
+		Where(&Order{UserID: id}).
+		Preload("OrderItems").
+		Find(&orderList).Error
 	return
 }
 
@@ -83,6 +93,33 @@ func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, err
 func GetOrder(ctx context.Context, db *gorm.DB, userId int32, orderId string) (order *Order, err error) {
 	err = db.WithContext(ctx).Model(&Order{}).
 		Where(&Order{UserID: userId, OrderID: orderId}).
+		Preload("OrderItems").
 		First(&order).Error
+	return
+}
+
+func SmartSearchOrder(ctx context.Context, db *gorm.DB, userId int32, terms []string, startTime string, endTime string) (orderList []Order, err error) {
+	var likeConditions []string
+	var args []interface{}
+	for _, keyword := range terms {
+		likeConditions = append(likeConditions, "oi.product_name LIKE ? OR oi.product_description LIKE ?")
+		args = append(args, "%"+keyword+"%", "%"+keyword+"%")
+	}
+
+	query := strings.Join(likeConditions, " OR ")
+
+	tx := db.WithContext(ctx).Model(&Order{}).
+		Select("tb_order.*").
+		Joins("INNER JOIN tb_order_item oi ON oi.order_id = tb_order.order_id").
+		Where("tb_order.user_id = ?", userId)
+
+	if startTime != "" && endTime != "" {
+		tx = tx.Where("tb_order.created_at between ? and ?", startTime, endTime)
+	}
+	if terms != nil && len(terms) > 0 {
+		tx = tx.Where(query, args...)
+	}
+	err = tx.Preload("OrderItems").
+		Find(&orderList).Error
 	return
 }

@@ -24,8 +24,11 @@ func InitCasbin() {
 		klog.Errorf("连接数据库失败: %v", err)
 		panic(err)
 	}
-	if err := db.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
+	if err = db.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
+	}
+	if conf.GetConf().Env == "dev" {
+		db = db.Debug()
 	}
 
 	adapter, err := gormadapter.NewAdapterByDB(db)

@@ -658,6 +658,101 @@ func (x *GetOrderResp) fastReadField3(buf []byte, _type int8) (offset int, err e
 	return offset, err
 }
 
+func (x *SmartSearchOrderReq) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SmartSearchOrderReq[number], err)
+}
+
+func (x *SmartSearchOrderReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	x.UserId, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *SmartSearchOrderReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.Uuid, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *SmartSearchOrderReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.Question, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *SmartSearchOrderResp) FastRead(buf []byte, _type int8, number int32) (offset int, err error) {
+	switch number {
+	case 1:
+		offset, err = x.fastReadField1(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	case 3:
+		offset, err = x.fastReadField3(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
+	default:
+		offset, err = fastpb.Skip(buf, _type, number)
+		if err != nil {
+			goto SkipFieldError
+		}
+	}
+	return offset, nil
+SkipFieldError:
+	return offset, fmt.Errorf("%T cannot parse invalid wire-format data, error: %s", x, err)
+ReadFieldError:
+	return offset, fmt.Errorf("%T read field %d '%s' error: %s", x, number, fieldIDToName_SmartSearchOrderResp[number], err)
+}
+
+func (x *SmartSearchOrderResp) fastReadField1(buf []byte, _type int8) (offset int, err error) {
+	var v Order
+	offset, err = fastpb.ReadMessage(buf, _type, &v)
+	if err != nil {
+		return offset, err
+	}
+	x.Orders = append(x.Orders, &v)
+	return offset, nil
+}
+
+func (x *SmartSearchOrderResp) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.StatusCode, offset, err = fastpb.ReadInt32(buf, _type)
+	return offset, err
+}
+
+func (x *SmartSearchOrderResp) fastReadField3(buf []byte, _type int8) (offset int, err error) {
+	x.StatusMsg, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
 func (x *Address) FastWrite(buf []byte) (offset int) {
 	if x == nil {
 		return offset
@@ -1117,6 +1212,76 @@ func (x *GetOrderResp) fastWriteField2(buf []byte) (offset int) {
 }
 
 func (x *GetOrderResp) fastWriteField3(buf []byte) (offset int) {
+	if x.StatusMsg == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetStatusMsg())
+	return offset
+}
+
+func (x *SmartSearchOrderReq) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	return offset
+}
+
+func (x *SmartSearchOrderReq) fastWriteField1(buf []byte) (offset int) {
+	if x.UserId == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetUserId())
+	return offset
+}
+
+func (x *SmartSearchOrderReq) fastWriteField2(buf []byte) (offset int) {
+	if x.Uuid == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 2, x.GetUuid())
+	return offset
+}
+
+func (x *SmartSearchOrderReq) fastWriteField3(buf []byte) (offset int) {
+	if x.Question == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 3, x.GetQuestion())
+	return offset
+}
+
+func (x *SmartSearchOrderResp) FastWrite(buf []byte) (offset int) {
+	if x == nil {
+		return offset
+	}
+	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
+	offset += x.fastWriteField3(buf[offset:])
+	return offset
+}
+
+func (x *SmartSearchOrderResp) fastWriteField1(buf []byte) (offset int) {
+	if x.Orders == nil {
+		return offset
+	}
+	for i := range x.GetOrders() {
+		offset += fastpb.WriteMessage(buf[offset:], 1, x.GetOrders()[i])
+	}
+	return offset
+}
+
+func (x *SmartSearchOrderResp) fastWriteField2(buf []byte) (offset int) {
+	if x.StatusCode == 0 {
+		return offset
+	}
+	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetStatusCode())
+	return offset
+}
+
+func (x *SmartSearchOrderResp) fastWriteField3(buf []byte) (offset int) {
 	if x.StatusMsg == "" {
 		return offset
 	}
@@ -1590,6 +1755,76 @@ func (x *GetOrderResp) sizeField3() (n int) {
 	return n
 }
 
+func (x *SmartSearchOrderReq) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	return n
+}
+
+func (x *SmartSearchOrderReq) sizeField1() (n int) {
+	if x.UserId == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(1, x.GetUserId())
+	return n
+}
+
+func (x *SmartSearchOrderReq) sizeField2() (n int) {
+	if x.Uuid == "" {
+		return n
+	}
+	n += fastpb.SizeString(2, x.GetUuid())
+	return n
+}
+
+func (x *SmartSearchOrderReq) sizeField3() (n int) {
+	if x.Question == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetQuestion())
+	return n
+}
+
+func (x *SmartSearchOrderResp) Size() (n int) {
+	if x == nil {
+		return n
+	}
+	n += x.sizeField1()
+	n += x.sizeField2()
+	n += x.sizeField3()
+	return n
+}
+
+func (x *SmartSearchOrderResp) sizeField1() (n int) {
+	if x.Orders == nil {
+		return n
+	}
+	for i := range x.GetOrders() {
+		n += fastpb.SizeMessage(1, x.GetOrders()[i])
+	}
+	return n
+}
+
+func (x *SmartSearchOrderResp) sizeField2() (n int) {
+	if x.StatusCode == 0 {
+		return n
+	}
+	n += fastpb.SizeInt32(2, x.GetStatusCode())
+	return n
+}
+
+func (x *SmartSearchOrderResp) sizeField3() (n int) {
+	if x.StatusMsg == "" {
+		return n
+	}
+	n += fastpb.SizeString(3, x.GetStatusMsg())
+	return n
+}
+
 var fieldIDToName_Address = map[int32]string{
 	1: "Name",
 	2: "PhoneNumber",
@@ -1666,6 +1901,18 @@ var fieldIDToName_GetOrderReq = map[int32]string{
 
 var fieldIDToName_GetOrderResp = map[int32]string{
 	1: "Order",
+	2: "StatusCode",
+	3: "StatusMsg",
+}
+
+var fieldIDToName_SmartSearchOrderReq = map[int32]string{
+	1: "UserId",
+	2: "Uuid",
+	3: "Question",
+}
+
+var fieldIDToName_SmartSearchOrderResp = map[int32]string{
+	1: "Orders",
 	2: "StatusCode",
 	3: "StatusMsg",
 }

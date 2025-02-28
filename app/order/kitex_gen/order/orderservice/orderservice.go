@@ -43,6 +43,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"SmartSearchOrder": kitex.NewMethodInfo(
+		smartSearchOrderHandler,
+		newSmartSearchOrderArgs,
+		newSmartSearchOrderResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -721,6 +728,159 @@ func (p *GetOrderResult) GetResult() interface{} {
 	return p.Success
 }
 
+func smartSearchOrderHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(order.SmartSearchOrderReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(order.OrderService).SmartSearchOrder(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SmartSearchOrderArgs:
+		success, err := handler.(order.OrderService).SmartSearchOrder(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SmartSearchOrderResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSmartSearchOrderArgs() interface{} {
+	return &SmartSearchOrderArgs{}
+}
+
+func newSmartSearchOrderResult() interface{} {
+	return &SmartSearchOrderResult{}
+}
+
+type SmartSearchOrderArgs struct {
+	Req *order.SmartSearchOrderReq
+}
+
+func (p *SmartSearchOrderArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(order.SmartSearchOrderReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SmartSearchOrderArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SmartSearchOrderArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SmartSearchOrderArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SmartSearchOrderArgs) Unmarshal(in []byte) error {
+	msg := new(order.SmartSearchOrderReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SmartSearchOrderArgs_Req_DEFAULT *order.SmartSearchOrderReq
+
+func (p *SmartSearchOrderArgs) GetReq() *order.SmartSearchOrderReq {
+	if !p.IsSetReq() {
+		return SmartSearchOrderArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SmartSearchOrderArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SmartSearchOrderArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SmartSearchOrderResult struct {
+	Success *order.SmartSearchOrderResp
+}
+
+var SmartSearchOrderResult_Success_DEFAULT *order.SmartSearchOrderResp
+
+func (p *SmartSearchOrderResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(order.SmartSearchOrderResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SmartSearchOrderResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SmartSearchOrderResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SmartSearchOrderResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SmartSearchOrderResult) Unmarshal(in []byte) error {
+	msg := new(order.SmartSearchOrderResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SmartSearchOrderResult) GetSuccess() *order.SmartSearchOrderResp {
+	if !p.IsSetSuccess() {
+		return SmartSearchOrderResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SmartSearchOrderResult) SetSuccess(x interface{}) {
+	p.Success = x.(*order.SmartSearchOrderResp)
+}
+
+func (p *SmartSearchOrderResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SmartSearchOrderResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -766,6 +926,16 @@ func (p *kClient) GetOrder(ctx context.Context, Req *order.GetOrderReq) (r *orde
 	_args.Req = Req
 	var _result GetOrderResult
 	if err = p.c.Call(ctx, "GetOrder", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOrderReq) (r *order.SmartSearchOrderResp, err error) {
+	var _args SmartSearchOrderArgs
+	_args.Req = Req
+	var _result SmartSearchOrderResult
+	if err = p.c.Call(ctx, "SmartSearchOrder", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
