@@ -1,7 +1,7 @@
 package constant
 
 const (
-	AliPayPublicContentPath = "common/resource/alipay_cert/alipay_public_cert.crt"
-	AliPayRootContentPath   = "common/resource/alipay_cert/alipay_public_cert.crt"
-	AppPublicContentPath    = "common/resource/alipay_cert/alipay_public_cert.crt"
+	AliPayPublicContentPath = "resource/alipay_cert/alipay_public_cert.crt"
+	AliPayRootContentPath   = "resource/alipay_cert/alipayRootCert.crt"
+	AppPublicContentPath    = "resource/alipay_cert/appPublicCert.crt"
 )

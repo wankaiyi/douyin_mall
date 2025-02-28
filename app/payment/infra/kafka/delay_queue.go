@@ -4,7 +4,6 @@ import (
 	"context"
 	"douyin_mall/payment/conf"
 	"github.com/IBM/sarama"
-	"strings"
 	"time"
 )
 
@@ -61,11 +60,11 @@ func DelayQueueInit() {
 	config.Producer.Partitioner = sarama.NewRandomPartitioner // 随机分区
 
 	bizKafka := conf.GetConf().Kafka.BizKafka
-	brokers := strings.Split(bizKafka.BootstrapServers, ",")
-	consumerGroup, err := sarama.NewConsumerGroup(brokers, "check-group-test", config)
+
+	consumerGroup, err := sarama.NewConsumerGroup(bizKafka.BootstrapServers, "check-group-test", config)
 	// 连接 Kafka Broker
 
-	producer, err := sarama.NewSyncProducer(brokers, config)
+	producer, err := sarama.NewSyncProducer(bizKafka.BootstrapServers, config)
 
 	var consumer = NewConsumer(producer, 5*time.Second)
 

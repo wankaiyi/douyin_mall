@@ -7,7 +7,6 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"strconv"
-	"strings"
 )
 
 type ConsumerGroupHandler struct{}
@@ -50,8 +49,8 @@ func ConsumerGroupInit() {
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
 
 	bizKafka := conf.GetConf().Kafka.BizKafka
-	brokers := strings.Split(bizKafka.BootstrapServers, ",")
-	consumer, err := sarama.NewConsumerGroup(brokers, "check-group-test", config)
+
+	consumer, err := sarama.NewConsumerGroup(bizKafka.BootstrapServers, "check-group-test", config)
 	if err != nil {
 		panic(err)
 	}

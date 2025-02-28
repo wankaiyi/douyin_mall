@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	"douyin_mall/payment/conf"
+	"fmt"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
@@ -36,6 +37,8 @@ var (
 )
 
 func Init() {
+	cwd, _ := os.Getwd()
+	fmt.Println("当前工作目录:", cwd)
 	AlipayPublicContentPath, _ := os.Open(constant.AliPayPublicContentPath)
 	AlipayRootContentPath, _ := os.Open(constant.AliPayRootContentPath)
 	AppPublicContentPath, _ := os.Open(constant.AppPublicContentPath)
