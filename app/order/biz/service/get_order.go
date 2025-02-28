@@ -6,9 +6,7 @@ import (
 	"douyin_mall/common/utils"
 	"douyin_mall/order/biz/dal/mysql"
 	"douyin_mall/order/biz/model"
-	"douyin_mall/order/infra/rpc"
 	order "douyin_mall/order/kitex_gen/order"
-	"douyin_mall/rpc/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 )
@@ -35,36 +33,15 @@ func (s *GetOrderService) Run(req *order.GetOrderReq) (resp *order.GetOrderResp,
 		return nil, errors.WithStack(err)
 	}
 
-	productIdList := make([]int64, len(orderItems))
-
-	for i, item := range orderItems {
-		productIdList[i] = int64(item.ProductID)
-	}
-
-	productListReq := &product.SelectProductListReq{
-		Ids: productIdList,
-	}
-	getProductListResp, err := rpc.ProductClient.SelectProductList(ctx, productListReq)
-	if err != nil {
-		klog.CtxErrorf(ctx, "rpc查询商品信息失败, req: %v, error: %v", productListReq, err)
-		return nil, errors.WithStack(err)
-	}
-	productMap := make(map[int]*product.Product)
-	for _, p := range getProductListResp.Products {
-		productMap[int(p.Id)] = p
-	}
-
 	var products []*order.Product
 	for _, item := range orderItems {
-		p := productMap[int(item.ProductID)]
-		if p == nil {
-			continue
-		}
 		products = append(products, &order.Product{
-			Id:       int32(p.Id),
-			Name:     p.Name,
-			Price:    float64(p.Price),
-			Quantity: item.Quantity,
+			Id:          item.ProductID,
+			Name:        item.ProductName,
+			Price:       item.ProductPrice,
+			Quantity:    item.Quantity,
+			Picture:     item.ProductPicture,
+			Description: item.ProductDescription,
 		})
 	}
 	orderInfo := &order.Order{
