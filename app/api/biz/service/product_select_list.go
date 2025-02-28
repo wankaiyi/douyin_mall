@@ -36,9 +36,9 @@ func (h *ProductSelectListService) Run(req *product.ProductSelectListRequest) (r
 			Sale:          selectProduct.Products[i].Sale,
 			PublishStatus: selectProduct.Products[i].PublishStatus,
 			Picture:       selectProduct.Products[i].Picture,
-			Categories:    selectProduct.Products[i].Categories,
 			BrandId:       selectProduct.Products[i].BrandId,
 			CategoryId:    selectProduct.Products[i].CategoryId,
+			CategoryName:  selectProduct.Products[i].CategoryName,
 		})
 	}
 

@@ -30,7 +30,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 	var canLock bool = true
 	for _, pro := range productList {
 		//如果真实库存小于下单的数量，则库存锁定失败
-		if pro.RealStock < productQuantityMap[pro.ID] {
+		if pro.RealStock < productQuantityMap[pro.ProductId] {
 			canLock = false
 			break
 		}

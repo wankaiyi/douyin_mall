@@ -37,6 +37,7 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 			PublishStatus: pro.PublicState,
 			CategoryId:    pro.CategoryId,
 			BrandId:       pro.BrandId,
+			CategoryName:  pro.Category.Name,
 		},
 	}, nil
 }
