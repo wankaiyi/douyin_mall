@@ -8,7 +8,7 @@ WORKDIR /
 
 COPY . .
 
-WORKDIR /app/payment
+WORKDIR /app/hot_key_worker
 
 RUN echo 'https://mirrors.aliyun.com/alpine/v3.16/main' > /etc/apk/repositories && \
     echo 'https://mirrors.aliyun.com/alpine/v3.16/community' >> /etc/apk/repositories && \
