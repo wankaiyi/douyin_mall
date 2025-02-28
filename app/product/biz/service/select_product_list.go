@@ -31,11 +31,13 @@ func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp 
 	var productList []*product.Product
 	for i := range products {
 		productList = append(productList, &product.Product{
-			Id:          products[i].ID,
-			Name:        products[i].Name,
-			Description: products[i].Description,
-			Picture:     products[i].Picture,
-			Price:       products[i].Price,
+			Id:           products[i].ProductId,
+			Name:         products[i].ProductName,
+			Description:  products[i].ProductDescription,
+			Picture:      products[i].ProductPicture,
+			Price:        products[i].ProductPrice,
+			CategoryName: products[i].CategoryName,
+			CategoryId:   products[i].CategoryID,
 		})
 	}
 	return &product.SelectProductListResp{

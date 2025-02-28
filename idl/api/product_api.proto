@@ -17,7 +17,7 @@ message Product {
   string picture = 4;
   float price = 5;
 
-  repeated string categories = 6;
+  string category_name = 6;
   int64 stock=7;
   int64 sale=8;
   int64 publish_status=9;
@@ -135,6 +135,7 @@ service ProductService {
     option (api.post) = "/product/selectList";
   }
 
+  /***************************************************************************/
   rpc CategorySelect (CategorySelectRequest) returns (CategorySelectResponse) {
     option (api.post) = "/category/select";
   }
@@ -152,6 +153,7 @@ service ProductService {
   }
 
 
+  /***************************************************************************/
   rpc BrandSelect (BrandSelectRequest) returns (BrandSelectResponse) {
     option (api.post) = "/brand/select";
   }
