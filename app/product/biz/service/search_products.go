@@ -39,15 +39,15 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 					{
 						MultiMatch: &vo.ProductSearchMultiMatchQuery{
 							Query:  req.Query,
-							Fields: []string{"name", "description"},
+							Fields: []string{"name", "description", "category_name"},
 						},
 					},
-					{
-						MultiMatch: &vo.ProductSearchMultiMatchQuery{
-							Query:  req.CategoryName,
-							Fields: []string{"category_name"},
-						},
-					},
+					//{
+					//	MultiMatch: &vo.ProductSearchMultiMatchQuery{
+					//		Query:  req.CategoryName,
+					//		Fields: []string{"category_name"},
+					//	},
+					//},
 				},
 			},
 			//MultiMatch: &vo.ProductSearchMultiMatchQuery{
