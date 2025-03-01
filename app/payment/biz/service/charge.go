@@ -4,9 +4,10 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	"douyin_mall/payment/biz/dal/alipay"
-	"douyin_mall/payment/infra/kafka"
+	kafkaConstant "douyin_mall/payment/infra/kafka/constant"
+	"douyin_mall/payment/infra/kafka/producer"
+
 	payment "douyin_mall/payment/kitex_gen/payment"
-	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 	"strconv"
@@ -40,15 +41,8 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 		return nil, errors.WithStack(err)
 	}
 	//给kafka发送延时消息
-	producer := kafka.GetProducer()
-	msg := strconv.Itoa(int(orderId))
+	producer.SendCheckoutDelayMsg(s.ctx, strconv.FormatInt(orderId, 10), kafkaConstant.DelayTopic1mLevel)
 
-	kafka.SendDelayMsg(&sarama.ProducerMessage{
-		// todo 防止掉单主动延时查询支付宝，5秒太短了，可以设置一个时间梯度，比如10秒，30秒，1分钟
-		Topic: "__delay-seconds-5",
-		Value: sarama.StringEncoder(msg),
-		Key:   sarama.StringEncoder("check-payment"),
-	}, *producer)
 	resp = &payment.ChargeResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

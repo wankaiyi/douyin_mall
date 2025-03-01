@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	"douyin_mall/payment/biz/dal/alipay"
+	kafkaProducer "douyin_mall/payment/infra/kafka/producer"
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
@@ -42,5 +43,8 @@ func (s *CancelChargeService) Run(req *payment.CancelChargeReq) (resp *payment.C
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 	}
+	// 发送取消成功消息
+	kafkaProducer.SendCancelOrderMsg(s.ctx, req.OrderId)
+
 	return
 }
