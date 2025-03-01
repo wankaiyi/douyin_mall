@@ -84,8 +84,7 @@ message MarkOrderPaidResp {
 }
 
 message GetOrderReq {
-  int32 user_id = 1;
-  string order_id = 2;
+  string order_id = 1;
 }
 
 message GetOrderResp {

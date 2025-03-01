@@ -90,9 +90,9 @@ func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, err
 	return tx.RowsAffected, tx.Error
 }
 
-func GetOrder(ctx context.Context, db *gorm.DB, userId int32, orderId string) (order *Order, err error) {
+func GetOrder(ctx context.Context, db *gorm.DB, orderId string) (order *Order, err error) {
 	err = db.WithContext(ctx).Model(&Order{}).
-		Where(&Order{UserID: userId, OrderID: orderId}).
+		Where(&Order{OrderID: orderId}).
 		Preload("OrderItems").
 		First(&order).Error
 	return

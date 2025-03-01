@@ -20,7 +20,7 @@ func NewGetOrderService(ctx context.Context) *GetOrderService {
 // Run create note info
 func (s *GetOrderService) Run(req *order.GetOrderReq) (resp *order.GetOrderResp, err error) {
 	ctx := s.ctx
-	o, err := model.GetOrder(ctx, mysql.DB, req.UserId, req.OrderId)
+	o, err := model.GetOrder(ctx, mysql.DB, req.OrderId)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
