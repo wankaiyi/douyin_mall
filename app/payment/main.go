@@ -12,6 +12,7 @@ import (
 	"douyin_mall/payment/biz/dal/redis"
 	"douyin_mall/payment/biz/task"
 	kafka "douyin_mall/payment/infra/kafka"
+	"douyin_mall/payment/infra/rpc"
 	"github.com/xxl-job/xxl-job-executor-go"
 	"net"
 	"os"
@@ -42,6 +43,7 @@ func main() {
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
 
+	rpc.InitClient()
 	//初始化kafka
 	kafka.Init()
 

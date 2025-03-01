@@ -46,16 +46,16 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 
 	//得到用户地址
 	address := &order.Address{
-		Name:          req.Address.GetName(),
-		PhoneNumber:   req.Address.GetPhoneNumber(),
-		DetailAddress: req.Address.GetDetailAddress(),
-		City:          req.Address.GetCity(),
-		Province:      req.Address.GetProvince(),
-		Region:        req.Address.GetRegion(),
+		Name:          req.Address.ReceiveAddress.GetName(),
+		PhoneNumber:   req.Address.ReceiveAddress.GetPhoneNumber(),
+		DetailAddress: req.Address.ReceiveAddress.GetDetailAddress(),
+		City:          req.Address.ReceiveAddress.GetCity(),
+		Province:      req.Address.ReceiveAddress.GetProvince(),
+		Region:        req.Address.ReceiveAddress.GetRegion(),
 	}
 
 	//创建订单信息
-	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{UserId: int32(userId), Address: address, OrderItems: convertOrderItems(productItems)})
+	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{UserId: int32(userId), Address: address, OrderItems: convertCartProductItems2OrderItems(productItems)})
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "创建订单失败: %v ,参数:req:%+v", err, req)
 		return nil, errors.WithStack(err)
@@ -85,7 +85,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	return resp, nil
 }
 
-func convertOrderItems(productItems []*cart.Product) (orderItems []*order.OrderItem) {
+func convertCartProductItems2OrderItems(productItems []*cart.Product) (orderItems []*order.OrderItem) {
 	orderItems = make([]*order.OrderItem, len(productItems))
 	for _, item := range productItems {
 		orderItem := &order.OrderItem{

@@ -174,7 +174,7 @@ ReadFieldError:
 }
 
 func (x *ProductItem) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.ProductId, offset, err = fastpb.ReadString(buf, _type)
+	x.ProductId, offset, err = fastpb.ReadInt32(buf, _type)
 	return offset, err
 }
 
@@ -333,10 +333,10 @@ func (x *ProductItem) FastWrite(buf []byte) (offset int) {
 }
 
 func (x *ProductItem) fastWriteField1(buf []byte) (offset int) {
-	if x.ProductId == "" {
+	if x.ProductId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 1, x.GetProductId())
+	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetProductId())
 	return offset
 }
 
@@ -487,10 +487,10 @@ func (x *ProductItem) Size() (n int) {
 }
 
 func (x *ProductItem) sizeField1() (n int) {
-	if x.ProductId == "" {
+	if x.ProductId == 0 {
 		return n
 	}
-	n += fastpb.SizeString(1, x.GetProductId())
+	n += fastpb.SizeInt32(1, x.GetProductId())
 	return n
 }
 
