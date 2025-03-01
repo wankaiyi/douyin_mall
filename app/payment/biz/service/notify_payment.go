@@ -42,7 +42,6 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 
 	getOrderResp, err := rpc.OrderClient.GetOrder(s.ctx, &order.GetOrderReq{
 		OrderId: orderId,
-		UserId:  int32(userId),
 	})
 	if err != nil {
 		return nil, errors.WithStack(err)
