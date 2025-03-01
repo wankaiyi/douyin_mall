@@ -11,7 +11,6 @@ import (
 	"douyin_mall/common/clientsuite"
 	"douyin_mall/rpc/kitex_gen/cart/cartservice"
 	"douyin_mall/rpc/kitex_gen/order/orderservice"
-	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"douyin_mall/rpc/kitex_gen/product/productcatalogservice"
 	"github.com/cloudwego/kitex/client"
 )
@@ -20,7 +19,6 @@ var (
 	CartClient    cartservice.Client
 	ProductClient productcatalogservice.Client
 	OrderClient   orderservice.Client
-	PaymentClient paymentservice.Client
 	UserClient    userservice.Client
 
 	once         sync.Once
@@ -39,7 +37,6 @@ func InitClient() {
 		initProductClient()
 		initOrderClient()
 		initCartClient()
-		initPaymentClient()
 		initUserClient()
 
 	})
@@ -61,12 +58,6 @@ func initOrderClient() {
 	OrderClient, err = orderservice.NewClient("order-service", commonSuite)
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
-	}
-}
-func initPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite)
-	if err != nil {
-		klog.Fatal("init payment client failed: ", err)
 	}
 }
 func initUserClient() {

@@ -25,9 +25,10 @@ type ProductSearchAllDataVo struct {
 	} `json:"hits"`
 }
 type ProductSearchDataVo struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	ID          int64  `json:"id,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Description  string `json:"description,omitempty"`
+	ID           int64  `json:"id,omitempty"`
+	CategoryName string `json:"category_name,omitempty"`
 }
 
 type ProductSearchMapping struct {
@@ -38,9 +39,10 @@ type Mappings struct {
 }
 
 type Properties struct {
-	Name        Field `json:"name,omitempty"`
-	Description Field `json:"description,omitempty"`
-	ID          Field `json:"id,omitempty"`
+	Name         *Field `json:"name,omitempty"`
+	Description  *Field `json:"description,omitempty"`
+	ID           *Field `json:"id,omitempty"`
+	CategoryName *Field `json:"category_name,omitempty"`
 }
 
 type Field struct {
@@ -52,19 +54,24 @@ type Field struct {
 var ProductSearchMappingSetting = ProductSearchMapping{
 	Mappings: Mappings{
 		Properties: Properties{
-			Name: Field{
+			Name: &Field{
 				Type:     "text",
 				Analyzer: "ik_smart",
 				Index:    true,
 			},
-			Description: Field{
+			Description: &Field{
 				Type:     "text",
 				Analyzer: "ik_smart",
 				Index:    true,
 			},
-			ID: Field{
+			ID: &Field{
 				Type:  "keyword",
 				Index: true,
+			},
+			CategoryName: &Field{
+				Type:     "text",
+				Analyzer: "ik_smart",
+				Index:    true,
 			},
 		},
 	},
@@ -84,10 +91,16 @@ type ProductSearchQueryBody struct {
 }
 type ProductSearchTermQuery map[string]interface{}
 
+type ProductSearchBoolQuery struct {
+	Must   *[]*ProductSearchQuery `json:"must,omitempty"`
+	Should *[]*ProductSearchQuery `json:"should,omitempty"`
+}
+
 type ProductSearchQuery struct {
 	MultiMatch *ProductSearchMultiMatchQuery `json:"multi_match,omitempty"`
 	Match      *ProductSearchMatchQuery      `json:"match,omitempty"`
 	Term       *ProductSearchTermQuery       `json:"term,omitempty"`
+	Bool       *ProductSearchBoolQuery       `json:"bool,omitempty"`
 }
 
 type ProductSearchMultiMatchQuery struct {

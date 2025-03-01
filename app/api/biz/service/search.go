@@ -5,9 +5,9 @@ import (
 	product "douyin_mall/api/hertz_gen/api/product"
 	"douyin_mall/api/infra/rpc"
 	rpcproduct "douyin_mall/rpc/kitex_gen/product"
-	"errors"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/pkg/errors"
 )
 
 type SearchService struct {
@@ -21,17 +21,18 @@ func NewSearchService(Context context.Context, RequestContext *app.RequestContex
 
 func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductResponse, err error) {
 	client := rpc.ProductClient
-	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName})
+	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName, CategoryName: req.CategoryName})
 	if err != nil {
-		hlog.Error("商品搜索失败", err)
-		return nil, errors.New("商品搜索失败")
+		hlog.CtxErrorf(h.Context, "商品搜索失败: %v", errors.WithStack(err))
+		return nil, err
 	}
-	productList := []*product.Product{}
+	var productList []*product.Product
 	for i := range res.Results {
 		source := res.Results[i]
 		productList = append(productList, &product.Product{
-			Name:        source.Name,
-			Description: source.Description,
+			Name:         source.Name,
+			Description:  source.Description,
+			CategoryName: source.CategoryName,
 		})
 	}
 	resp = &product.ProductResponse{

@@ -68,6 +68,7 @@ message GetProductResp {
 
 message SearchProductsReq {
   string query = 1;
+  string categoryName = 2;
 }
 
 message SearchProductsResp {
