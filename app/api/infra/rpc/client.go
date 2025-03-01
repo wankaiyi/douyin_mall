@@ -12,13 +12,11 @@ import (
 	"os"
 	"time"
 
-	//prometheus "github.com/kitex-contrib/monitor-prometheus"
 	"sync"
 
 	"douyin_mall/common/clientsuite"
 	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/client"
-	//prometheus "github.com/kitex-contrib/monitor-prometheus"
 )
 
 var (
@@ -87,7 +85,7 @@ func initCartClient() {
 }
 
 func InitOrderClient() {
-	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithRPCTimeout(7*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
 	}

@@ -60,19 +60,6 @@ func main() {
 		address = conf.GetConf().Hertz.Address
 	}
 
-	// 加载流控规则（示例）
-	//_, err := flow.LoadRules([]*flow.Rule{
-	//	{
-	//		Resource:         "GET:/ping", // 资源名称（方法+路径）
-	//		Threshold:        1,           // QPS 阈值
-	//		ControlBehavior:  flow.Reject, // 直接拒绝
-	//		StatIntervalInMs: 1000,        // 统计窗口 1s
-	//	},
-	//})
-	//if err != nil {
-	//	panic(err)
-	//}
-
 	h := server.New(server.WithHostPorts(address), tracer)
 	log.InitLog(ServiceName,
 		conf.LogLevel(), conf.GetConf().Hertz.LogFileName, conf.GetConf().Hertz.LogMaxSize, conf.GetConf().Hertz.LogMaxBackups, conf.GetConf().Hertz.LogMaxAge,

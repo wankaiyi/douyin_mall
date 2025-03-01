@@ -6,9 +6,7 @@ import (
 	"douyin_mall/common/utils"
 	"douyin_mall/order/biz/dal/mysql"
 	"douyin_mall/order/biz/model"
-	"douyin_mall/order/infra/rpc"
 	order "douyin_mall/order/kitex_gen/order"
-	"douyin_mall/rpc/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 )
@@ -37,59 +35,18 @@ func (s *ListOrderService) Run(req *order.ListOrderReq) (resp *order.ListOrderRe
 		}, nil
 	}
 
-	orderIdList := make([]string, len(orderList))
-	for i, o := range orderList {
-		orderIdList[i] = o.OrderID
-	}
-
-	totalOrderItems, err := model.GetOrderItemsByOrderIdList(ctx, mysql.DB, orderIdList)
-	if err != nil {
-		klog.CtxErrorf(ctx, "数据库查询订单商品信息失败, error: %v", err)
-		return nil, errors.WithStack(err)
-	}
-
-	orderItemsMap := make(map[string][]*model.OrderItem)
-	productIdList := make([]int64, len(totalOrderItems))
-	for _, item := range orderIdList {
-		orderItemsMap[item] = make([]*model.OrderItem, 0)
-	}
-	for i, item := range totalOrderItems {
-		productIdList[i] = int64(item.ProductID)
-		if _, ok := orderItemsMap[item.OrderID]; ok {
-			orderItemsMap[item.OrderID] = append(orderItemsMap[item.OrderID], item)
-		}
-	}
-
-	productListReq := &product.SelectProductListReq{
-		Ids: productIdList,
-	}
-	getProductListResp, err := rpc.ProductClient.SelectProductList(ctx, productListReq)
-	if err != nil {
-		klog.CtxErrorf(ctx, "rpc查询商品信息失败, req: %v, error: %v", productListReq, err)
-		return nil, errors.WithStack(err)
-	}
-	productMap := make(map[int]*product.Product)
-	for _, p := range getProductListResp.Products {
-		productMap[int(p.Id)] = p
-	}
-
 	orders := make([]*order.Order, len(orderList))
 	for i, o := range orderList {
 		var products []*order.Product
-		orderItems := orderItemsMap[o.OrderID]
-		if orderItems == nil {
-			continue
-		}
+		orderItems := o.OrderItems
 		for _, item := range orderItems {
-			p := productMap[int(item.ProductID)]
-			if p == nil {
-				continue
-			}
 			products = append(products, &order.Product{
-				Id:       int32(p.Id),
-				Name:     p.Name,
-				Price:    float64(p.Price),
-				Quantity: item.Quantity,
+				Id:          item.ProductID,
+				Name:        item.ProductName,
+				Price:       item.ProductPrice,
+				Quantity:    item.Quantity,
+				Picture:     item.ProductPicture,
+				Description: item.ProductDescription,
 			})
 		}
 		orders[i] = &order.Order{

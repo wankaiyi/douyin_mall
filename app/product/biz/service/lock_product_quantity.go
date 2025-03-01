@@ -19,25 +19,28 @@ func NewLockProductQuantityService(ctx context.Context) *LockProductQuantityServ
 // Run create note info
 func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
 	originProducts := req.Products
-	var ids []int64 = make([]int64, 0)
-	var productQuantityMap map[int64]int64 = make(map[int64]int64)
+	var ids = make([]int64, 0)
+	var productQuantityMap = make(map[int64]int64)
 	for _, pro := range originProducts {
 		ids = append(ids, pro.Id)
 		productQuantityMap[pro.Id] = pro.Quantity
 	}
 	productList, err := model.SelectProductList(mysql.DB, context.Background(), ids)
 	//确定当前库存是否足够
-	var canLock bool = true
+	canLock := true
+	var lowStockProductId int64
+
 	for _, pro := range productList {
 		//如果真实库存小于下单的数量，则库存锁定失败
 		if pro.RealStock < productQuantityMap[pro.ProductId] {
 			canLock = false
+			lowStockProductId = pro.ProductId
 			break
 		}
 	}
 	//如果库存锁定失败，则返回失败信息
 	if !canLock {
-		klog.CtxInfof(s.ctx, "库存不可被锁定，请稍后再试")
+		klog.CtxInfof(s.ctx, "商品库存不足，无法锁定库存，productId：%v, quantity：%v", lowStockProductId, productQuantityMap[lowStockProductId])
 		return &product.ProductLockQuantityResponse{
 			StatusCode: 6014,
 			StatusMsg:  constant.GetMsg(6014),

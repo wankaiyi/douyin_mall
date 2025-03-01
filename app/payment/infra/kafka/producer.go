@@ -5,7 +5,6 @@ import (
 	"douyin_mall/payment/conf"
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"strings"
 )
 
 func GetProducer() *sarama.SyncProducer {
@@ -17,8 +16,7 @@ func GetProducer() *sarama.SyncProducer {
 
 	// 连接 Kafka Broker
 	bizKafka := conf.GetConf().Kafka.BizKafka
-	brokers := strings.Split(bizKafka.BootstrapServers, ",")
-	producer, err := sarama.NewSyncProducer(brokers, config)
+	producer, err := sarama.NewSyncProducer(bizKafka.BootstrapServers, config)
 	if err != nil {
 		panic(err)
 	}

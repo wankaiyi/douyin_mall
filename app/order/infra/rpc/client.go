@@ -1,10 +1,13 @@
 package rpc
 
 import (
+	"douyin_mall/common/middleware"
 	"douyin_mall/order/conf"
+	"douyin_mall/rpc/kitex_gen/doubao_ai/doubaoaiservice"
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
+	"time"
 
 	"sync"
 
@@ -14,6 +17,7 @@ import (
 )
 
 var (
+	DoubaoClient  doubaoaiservice.Client
 	ProductClient productcatalogservice.Client
 	PaymentClient paymentservice.Client
 	once          sync.Once
@@ -31,6 +35,7 @@ func InitClient() {
 		})
 		initProductClient()
 		InitPaymentClient()
+		InitDoubaoService()
 	})
 }
 
@@ -45,5 +50,12 @@ func InitPaymentClient() {
 	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite)
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
+	}
+}
+
+func InitDoubaoService() {
+	DoubaoClient, err = doubaoaiservice.NewClient("doubao-service", commonSuite, client.WithRPCTimeout(6*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	if err != nil {
+		klog.Fatal("init doubao client failed: ", err)
 	}
 }

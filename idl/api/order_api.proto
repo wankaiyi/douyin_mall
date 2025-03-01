@@ -44,10 +44,25 @@ message ListOrderResponse {
   string status_msg = 3;
 }
 
+message SmartOrderQueryRequest {
+  string question = 1;
+  string uuid = 2;
+}
+
+message SmartOrderQueryResponse {
+  repeated Order orders = 1;
+  int32 status_code = 2;
+  string status_msg = 3;
+}
+
 service OrderService {
 
   rpc ListOrder(ListOrderRequest) returns (ListOrderResponse) {
     option (api.get) = "/order/list";
+  }
+
+  rpc SmartOrderQuery(SmartOrderQueryRequest) returns (SmartOrderQueryResponse) {
+    option (api.post) = "/order/smart_query";
   }
 
 }

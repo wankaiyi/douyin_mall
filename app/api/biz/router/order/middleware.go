@@ -20,3 +20,8 @@ func _listorderMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _smartorderqueryMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

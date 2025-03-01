@@ -66,8 +66,8 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	md5Bytes := harsher.Sum(nil)
 	//从redis查找该hashcode对应的缓存数据
 	dslKey := "product:dslBytes:" + string(md5Bytes)
-	KeyConf := keyModel.NewKeyConf1(constant.ProductService)
-	hotkeyModel := keyModel.NewHotKeyModelWithConfig(dslKey, &KeyConf)
+	keyConf := keyModel.NewKeyConf1(constant.ProductService)
+	hotkeyModel := keyModel.NewHotKeyModelWithConfig(dslKey, &keyConf)
 	var dslCache string
 	localDslCache := processor.GetValue(*hotkeyModel)
 	if localDslCache != nil {

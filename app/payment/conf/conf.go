@@ -80,7 +80,7 @@ type ClsKafka struct {
 	TopicId  string `yaml:"topic_id"`
 }
 type BizKafka struct {
-	BootstrapServers string `yaml:"bootstrap_servers"`
+	BootstrapServers []string `yaml:"bootstrap_servers"`
 }
 
 type Jaeger struct {
@@ -151,12 +151,12 @@ func initConf() {
 		}
 		err := yaml.Unmarshal([]byte(data), &conf)
 		if err != nil {
-			klog.Error("Error parsing YAML: %v\n", err)
+			klog.Errorf("Error parsing YAML: %v\n", err)
 			return
 		}
 		_, err = pretty.Printf("%+v\n", conf)
 		if err != nil {
-			klog.Error("pretty print error - %v", err)
+			klog.Errorf("pretty print error - %v", err)
 		}
 	}, 5000)
 	conf.Env = GetEnv()
