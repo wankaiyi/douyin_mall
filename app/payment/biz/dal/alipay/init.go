@@ -2,7 +2,6 @@ package alipay
 
 import (
 	"context"
-	"douyin_mall/common/constant"
 	"douyin_mall/payment/conf"
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -39,9 +38,9 @@ var (
 func Init() {
 	cwd, _ := os.Getwd()
 	fmt.Println("当前工作目录:", cwd)
-	AlipayPublicContentPath, _ := os.Open(constant.AliPayPublicContentPath)
-	AlipayRootContentPath, _ := os.Open(constant.AliPayRootContentPath)
-	AppPublicContentPath, _ := os.Open(constant.AppPublicContentPath)
+	AlipayPublicContentPath, _ := os.Open("resource/alipay_cert/alipayPublicCert.crt")
+	AlipayRootContentPath, _ := os.Open("resource/alipay_cert/alipayRootCert.crt")
+	AppPublicContentPath, _ := os.Open("resource/alipay_cert/appPublicCert.crt")
 	defer AlipayPublicContentPath.Close()
 	defer AlipayRootContentPath.Close()
 	defer AppPublicContentPath.Close()
@@ -93,7 +92,7 @@ func Init() {
 
 }
 
-func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string, err error) {
+func Pay(ctx context.Context, orderId int64, totalAmount float32, userId int32) (result string, err error) {
 
 	// 构建支付请求参数
 	bodyMap := make(gopay.BodyMap)
@@ -101,6 +100,8 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32) (result string
 	bodyMap.Set("total_amount", totalAmount)
 	bodyMap.Set("subject", subject)
 	bodyMap.Set("product_code", product_code)
+	bodyMap.Set("query_options", userId)
+
 	//定时关闭订单
 	expireTime := time.Now().Local().Add(time.Minute * 10).Format("2006-01-02 15:04:05")
 	bodyMap.Set("time_expire", expireTime)

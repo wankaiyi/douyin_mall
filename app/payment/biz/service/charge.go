@@ -29,7 +29,7 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 	}
 	amount := req.Amount
 
-	paymentUrl, err := alipay.Pay(s.ctx, orderId, amount)
+	paymentUrl, err := alipay.Pay(s.ctx, orderId, amount, req.UserId)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "pay error: %s,req: %+v", err.Error(), req)
 		resp = &payment.ChargeResp{

@@ -4,7 +4,6 @@ import (
 	"context"
 	"douyin_mall/api/biz/utils"
 	"douyin_mall/api/infra/rpc"
-	"douyin_mall/common/constant"
 	rpcpayment "douyin_mall/rpc/kitex_gen/payment"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -31,7 +30,7 @@ func (h *NotifyService) Run(RequestContext *app.RequestContext) (err error) {
 	//hlog.CtxInfof(h.Context, "req = %+v", req)
 	//hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
-	AlipayPublicContentPath, _ := os.Open(constant.AliPayPublicContentPath)
+	AlipayPublicContentPath, _ := os.Open("resource/alipay_cert/alipay_public_cert.crt")
 	AlipayPublicContent, _ := io.ReadAll(AlipayPublicContentPath)
 
 	// 解析异步通知的参数
@@ -57,6 +56,7 @@ func (h *NotifyService) Run(RequestContext *app.RequestContext) (err error) {
 	notifyData["tradeStatus"] = notifyReq.GetString("trade_status")
 	//notifyData["alipayAmount"] = notifyReq.GetString("total_amount")
 	notifyData["orderId"] = notifyReq.GetString("out_trade_no")
+	notifyData["userId"] = notifyReq.GetString("query_options")
 
 	notifyPaymentResp, err := rpc.PaymentClient.NotifyPayment(h.Context, &rpcpayment.NotifyPaymentReq{
 		NotifyData: notifyData,
