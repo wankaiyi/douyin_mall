@@ -34,10 +34,26 @@ func NewSearchProductsService(ctx context.Context) *SearchProductsService {
 func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *product.SearchProductsResp, err error) {
 	queryBody := vo.ProductSearchQueryBody{
 		Query: &vo.ProductSearchQuery{
-			MultiMatch: &vo.ProductSearchMultiMatchQuery{
-				Query:  req.Query,
-				Fields: []string{"name", "description"},
+			Bool: &vo.ProductSearchBoolQuery{
+				Should: &[]*vo.ProductSearchQuery{
+					{
+						MultiMatch: &vo.ProductSearchMultiMatchQuery{
+							Query:  req.Query,
+							Fields: []string{"name", "description"},
+						},
+					},
+					{
+						MultiMatch: &vo.ProductSearchMultiMatchQuery{
+							Query:  req.CategoryName,
+							Fields: []string{"category_name"},
+						},
+					},
+				},
 			},
+			//MultiMatch: &vo.ProductSearchMultiMatchQuery{
+			//	Query:  req.Query,
+			//	Fields: []string{"name", "description"},
+			//},
 		},
 		Source: &vo.ProductSearchSource{
 			"id",
@@ -68,12 +84,11 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			return nil, errors.WithStack(err)
 		}
 	} else {
-		//如果缓存数据存在，则直接返回数据
 		//发往elastic
 		search, err := esapi.SearchRequest{
 			Index: []string{"product"},
 			Body:  bytes.NewReader(dslBytes),
-		}.Do(context.Background(), client.ElasticClient)
+		}.Do(s.ctx, client.ElasticClient)
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "es搜索失败, err: %v", err)
 			return nil, errors.WithStack(err)
@@ -174,14 +189,15 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		missingProducts := make([]*product.Product, len(list))
 		for i := range list {
 			p := product.Product{
-				Id:          list[i].ProductId,
-				Name:        list[i].ProductName,
-				Description: list[i].ProductDescription,
-				Picture:     list[i].ProductPicture,
-				Price:       list[i].ProductPrice,
-				Stock:       list[i].ProductStock,
-				Sale:        list[i].ProductSale,
-				CategoryId:  list[i].CategoryID,
+				Id:           list[i].ProductId,
+				Name:         list[i].ProductName,
+				Description:  list[i].ProductDescription,
+				Picture:      list[i].ProductPicture,
+				Price:        list[i].ProductPrice,
+				Stock:        list[i].ProductStock,
+				Sale:         list[i].ProductSale,
+				CategoryId:   list[i].CategoryID,
+				CategoryName: list[i].CategoryName,
 			}
 			missingProducts[i] = &p
 			productKey := "product:" + strconv.FormatInt(list[i].ProductId, 10)
