@@ -114,7 +114,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 
 			//将es返回的数据缓存到redis
 			dslCacheToRedis, _ := sonic.Marshal(searchIds)
-			_, err = redis.RedisClient.Set(context.Background(), dslKey, dslCacheToRedis, 5*time.Minute).Result()
+			_, err = redis.RedisClient.Set(s.ctx, dslKey, dslCacheToRedis, 5*time.Minute).Result()
 			if err != nil {
 				klog.CtxErrorf(s.ctx, "dsl搜索结果缓存到redis失败, err: %v", err)
 				return nil, errors.WithStack(err)
@@ -148,11 +148,22 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		if localKeysCache != nil {
 			values = localKeysCache.([]interface{})
 		} else {
-			values, err = redis.RedisClient.MGet(context.Background(), keys...).Result()
-			if err != nil {
-				klog.CtxErrorf(s.ctx, "redis获取dsl搜索结果失败, err: %v", err)
-				return nil, errors.WithStack(err)
+			for i := range keys {
+				result, _ := redis.RedisClient.HGetAll(s.ctx, keys[i]).Result()
+				if len(result) != 0 {
+					values = append(values, result)
+				} else {
+					idStr := keys[i][len("product:"):] // 提取ID部分
+					if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+						missingIds = append(missingIds, id)
+					}
+				}
 			}
+			//values, err = redis.RedisClient.MGet(context.Background(), keys...).Result()
+			//if err != nil {
+			//	klog.CtxErrorf(s.ctx, "redis获取dsl搜索结果失败, err: %v", err)
+			//	return nil, errors.WithStack(err)
+			//}
 			processor.SmartSet(*keysHotkeyModel, values)
 		}
 		for i, value := range values {
@@ -185,7 +196,6 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			klog.CtxErrorf(s.ctx, "从数据库中获取数据失败, err: %v", err)
 			return nil, errors.WithStack(err)
 		}
-		pipeline := redis.RedisClient.Pipeline()
 		missingProducts := make([]*product.Product, len(list))
 		for i := range list {
 			p := product.Product{
@@ -201,20 +211,19 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			}
 			missingProducts[i] = &p
 			productKey := "product:" + strconv.FormatInt(list[i].ProductId, 10)
-			marshalString, err := sonic.MarshalString(p)
+			_, err := redis.RedisClient.HSet(s.ctx, productKey, map[string]interface{}{
+				"id":          list[i].ProductId,
+				"name":        list[i].ProductName,
+				"description": list[i].ProductDescription,
+				"picture":     list[i].ProductPicture,
+				"stock":       list[i].ProductStock,
+				"LockStock":   list[i].ProductLockStock,
+			}).Result()
 			if err != nil {
-				klog.CtxErrorf(s.ctx, "product数据序列化失败, err: %v", err)
 				return nil, err
 			}
-			pipeline.Set(context.Background(), productKey, marshalString, 1*time.Hour)
 		}
 		products = append(products, missingProducts...)
-		//存入redis
-		_, err = pipeline.Exec(context.Background())
-		if err != nil {
-			klog.CtxErrorf(s.ctx, "product数据存入redis失败, err: %v", err)
-			return nil, errors.WithStack(err)
-		}
 	}
 	//将返回的数据返回到前端
 	resp = &product.SearchProductsResp{

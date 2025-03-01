@@ -86,6 +86,20 @@ func (s *ProductCatalogServiceImpl) UpdateCategory(ctx context.Context, req *pro
 	return resp, err
 }
 
+// SelectProductList implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) SelectProductList(ctx context.Context, req *product.SelectProductListReq) (resp *product.SelectProductListResp, err error) {
+	resp, err = service.NewSelectProductListService(ctx).Run(req)
+
+	return resp, err
+}
+
+// LockProductQuantity implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) LockProductQuantity(ctx context.Context, req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
+	resp, err = service.NewLockProductQuantityService(ctx).Run(req)
+
+	return resp, err
+}
+
 // SelectBrand implements the ProductCatalogServiceImpl interface.
 func (s *ProductCatalogServiceImpl) SelectBrand(ctx context.Context, req *product.BrandSelectReq) (resp *product.BrandSelectResp, err error) {
 	resp, err = service.NewSelectBrandService(ctx).Run(req)
@@ -110,20 +124,6 @@ func (s *ProductCatalogServiceImpl) DeleteBrand(ctx context.Context, req *produc
 // UpdateBrand implements the ProductCatalogServiceImpl interface.
 func (s *ProductCatalogServiceImpl) UpdateBrand(ctx context.Context, req *product.BrandUpdateReq) (resp *product.BrandUpdateResp, err error) {
 	resp, err = service.NewUpdateBrandService(ctx).Run(req)
-
-	return resp, err
-}
-
-// SelectProductList implements the ProductCatalogServiceImpl interface.
-func (s *ProductCatalogServiceImpl) SelectProductList(ctx context.Context, req *product.SelectProductListReq) (resp *product.SelectProductListResp, err error) {
-	resp, err = service.NewSelectProductListService(ctx).Run(req)
-
-	return resp, err
-}
-
-// LockProductQuantity implements the ProductCatalogServiceImpl interface.
-func (s *ProductCatalogServiceImpl) LockProductQuantity(ctx context.Context, req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
-	resp, err = service.NewLockProductQuantityService(ctx).Run(req)
 
 	return resp, err
 }
