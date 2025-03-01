@@ -11,7 +11,7 @@ import (
 	"douyin_mall/payment/biz/dal"
 	"douyin_mall/payment/biz/dal/redis"
 	"douyin_mall/payment/biz/task"
-	kafka2 "douyin_mall/payment/infra/kafka"
+	kafka "douyin_mall/payment/infra/kafka"
 	"github.com/xxl-job/xxl-job-executor-go"
 	"net"
 	"os"
@@ -41,10 +41,9 @@ func main() {
 	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
-	//klog.CtxInfof(context.Background(), "payment service start")
-	//初始化延时队列和消费者组
-	go kafka2.DelayQueueInit()
-	go kafka2.ConsumerGroupInit()
+
+	//初始化kafka
+	kafka.Init()
 
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.PaymentService)
@@ -54,7 +53,7 @@ func main() {
 	svr := paymentservice.NewServer(new(PaymentServiceImpl), opts...)
 	if os.Getenv("env") != "dev" {
 		//将任务注册到xxl-job中
-		go xxljobInit()
+		xxljobInit()
 	}
 
 	err := svr.Run()

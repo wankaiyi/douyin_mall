@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	redsync "douyin_mall/payment/biz/dal/red_sync"
+	"douyin_mall/payment/infra/kafka/producer"
 	"douyin_mall/payment/infra/rpc"
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"douyin_mall/rpc/kitex_gen/order"
@@ -72,6 +73,8 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 				StatusMsg:  constant.GetMsg(int(markOrderPaidResp.StatusCode)),
 			}, nil
 		}
+		//发送支付成功消息
+		producer.SendPaymentSuccessOrderIdMsg(s.ctx, orderId)
 	}
 
 	klog.CtxInfof(s.ctx, "订单已支付或已取消，无需更新订单状态")
@@ -80,8 +83,5 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 		StatusMsg:  constant.GetMsg(0),
 	}
 	return resp, nil
-
-	//todo:无论成功失败，都需要解锁库存
-	//defer
 
 }
