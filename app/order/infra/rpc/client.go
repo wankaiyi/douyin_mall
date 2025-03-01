@@ -5,6 +5,7 @@ import (
 	"douyin_mall/order/conf"
 	"douyin_mall/rpc/kitex_gen/doubao_ai/doubaoaiservice"
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
+	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"time"
@@ -20,6 +21,7 @@ var (
 	DoubaoClient  doubaoaiservice.Client
 	ProductClient productcatalogservice.Client
 	PaymentClient paymentservice.Client
+	UserClient    userservice.Client
 	once          sync.Once
 	err           error
 	registryAddr  string
@@ -35,7 +37,8 @@ func InitClient() {
 		})
 		initProductClient()
 		InitPaymentClient()
-		InitDoubaoService()
+		InitDoubaoClient()
+		InitUserClient()
 	})
 }
 
@@ -53,9 +56,16 @@ func InitPaymentClient() {
 	}
 }
 
-func InitDoubaoService() {
+func InitDoubaoClient() {
 	DoubaoClient, err = doubaoaiservice.NewClient("doubao-service", commonSuite, client.WithRPCTimeout(6*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init doubao client failed: ", err)
+	}
+}
+
+func InitUserClient() {
+	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	if err != nil {
+		klog.Fatal("init user client failed: ", err)
 	}
 }

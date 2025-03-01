@@ -55,6 +55,17 @@ message SmartOrderQueryResponse {
   string status_msg = 3;
 }
 
+message SmartPlaceOrderRequest {
+  string question = 1;
+  string uuid = 2;
+}
+
+message SmartPlaceOrderResponse {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string response = 3;
+}
+
 service OrderService {
 
   rpc ListOrder(ListOrderRequest) returns (ListOrderResponse) {
@@ -63,6 +74,10 @@ service OrderService {
 
   rpc SmartOrderQuery(SmartOrderQueryRequest) returns (SmartOrderQueryResponse) {
     option (api.post) = "/order/smart_query";
+  }
+
+  rpc SmartPlaceOrder(SmartPlaceOrderRequest) returns (SmartPlaceOrderResponse) {
+    option (api.post) = "/order/smart_place";
   }
 
 }

@@ -1,7 +1,6 @@
 package job
 
 import (
-	"douyin_mall/common/utils/env"
 	"douyin_mall/product/conf"
 	"douyin_mall/product/infra/xxl/task"
 	"github.com/cloudwego/kitex/server"
@@ -9,9 +8,6 @@ import (
 )
 
 func XxlJobInit() {
-	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "dev" {
-		return
-	}
 	exec := xxl.NewExecutor(
 		xxl.ServerAddr(conf.GetConf().XxlJob.XxlJobAddress+"/xxl-job-admin"),
 		xxl.AccessToken(conf.GetConf().XxlJob.AccessToken),

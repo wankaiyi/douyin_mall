@@ -51,3 +51,12 @@ func SmartSearchOrder(ctx context.Context, req *order.SmartSearchOrderReq, callO
 	}
 	return resp, nil
 }
+
+func SmartPlaceOrder(ctx context.Context, req *order.SmartPlaceOrderReq, callOptions ...callopt.Option) (resp *order.SmartPlaceOrderResp, err error) {
+	resp, err = defaultClient.SmartPlaceOrder(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "SmartPlaceOrder call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}

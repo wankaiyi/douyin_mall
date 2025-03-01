@@ -20,6 +20,7 @@ func Register(r *server.Hertz) {
 	{
 		_order := root.Group("/order", _orderMw()...)
 		_order.GET("/list", append(_listorderMw(), order.ListOrder)...)
+		_order.POST("/smart_place", append(_smartplaceorderMw(), order.SmartPlaceOrder)...)
 		_order.POST("/smart_query", append(_smartorderqueryMw(), order.SmartOrderQuery)...)
 	}
 }

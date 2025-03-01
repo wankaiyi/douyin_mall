@@ -50,3 +50,23 @@ func SmartOrderQuery(ctx context.Context, c *app.RequestContext) {
 	}
 	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
 }
+
+// SmartPlaceOrder .
+// @router /order/smart_place [POST]
+func SmartPlaceOrder(ctx context.Context, c *app.RequestContext) {
+	var err error
+	var req order.SmartPlaceOrderRequest
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+
+	resp, err := service.NewSmartPlaceOrderService(ctx, c).Run(&req)
+
+	if err != nil {
+		utils.SendErrResponse(ctx, c, consts.StatusOK, err)
+		return
+	}
+	utils.SendSuccessResponse(ctx, c, consts.StatusOK, resp)
+}

@@ -30,7 +30,7 @@ func (s *SmartSearchOrderService) Run(req *order.SmartSearchOrderReq) (resp *ord
 	}
 	analyzeResp, err := rpc.DoubaoClient.AnalyzeSearchOrderQuestion(ctx, searchOrderQuestionReq)
 	if err != nil {
-		klog.CtxErrorf(ctx, "rpc调用AI分析用户问题失败，req：%v, err：%v", searchOrderQuestionReq, err)
+		klog.CtxErrorf(ctx, "rpc调用AI分析用户查询订单问题失败，req：%v, err：%v", searchOrderQuestionReq, err)
 		return nil, errors.WithStack(err)
 	}
 

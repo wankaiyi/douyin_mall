@@ -6,6 +6,8 @@ option go_package = "/doubao_ai";
 
 service DoubaoAiService {
   rpc AnalyzeSearchOrderQuestion(SearchOrderQuestionReq) returns (SearchOrderQuestionResp) {}
+  rpc AnalyzePlaceOrderQuestion(PlaceOrderQuestionReq) returns (PlaceOrderQuestionResp) {}
+  rpc AddChatMessage(AddChatMessageReq) returns (AddChatMessageResp) {}
 }
 
 message SearchOrderQuestionReq {
@@ -20,4 +22,29 @@ message SearchOrderQuestionResp {
   string start_time = 3;
   string end_time = 4;
   repeated string search_terms = 5;
+}
+
+message PlaceOrderQuestionReq {
+  string question = 1;
+  string uuid = 2;
+  int32 user_id = 3;
+}
+
+message PlaceOrderQuestionResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string response = 3;
+}
+
+message AddChatMessageReq {
+  string content = 1;
+  string uuid = 2;
+  int32 user_id = 3;
+  string role = 4;
+  int32 scenario = 5;
+}
+
+message AddChatMessageResp {
+  int32 status_code = 1;
+  string status_msg = 2;
 }

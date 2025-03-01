@@ -22,6 +22,20 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"AnalyzePlaceOrderQuestion": kitex.NewMethodInfo(
+		analyzePlaceOrderQuestionHandler,
+		newAnalyzePlaceOrderQuestionArgs,
+		newAnalyzePlaceOrderQuestionResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
+	"AddChatMessage": kitex.NewMethodInfo(
+		addChatMessageHandler,
+		newAddChatMessageArgs,
+		newAddChatMessageResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -241,6 +255,312 @@ func (p *AnalyzeSearchOrderQuestionResult) GetResult() interface{} {
 	return p.Success
 }
 
+func analyzePlaceOrderQuestionHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(doubao_ai.PlaceOrderQuestionReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(doubao_ai.DoubaoAiService).AnalyzePlaceOrderQuestion(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *AnalyzePlaceOrderQuestionArgs:
+		success, err := handler.(doubao_ai.DoubaoAiService).AnalyzePlaceOrderQuestion(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*AnalyzePlaceOrderQuestionResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newAnalyzePlaceOrderQuestionArgs() interface{} {
+	return &AnalyzePlaceOrderQuestionArgs{}
+}
+
+func newAnalyzePlaceOrderQuestionResult() interface{} {
+	return &AnalyzePlaceOrderQuestionResult{}
+}
+
+type AnalyzePlaceOrderQuestionArgs struct {
+	Req *doubao_ai.PlaceOrderQuestionReq
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(doubao_ai.PlaceOrderQuestionReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) Unmarshal(in []byte) error {
+	msg := new(doubao_ai.PlaceOrderQuestionReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var AnalyzePlaceOrderQuestionArgs_Req_DEFAULT *doubao_ai.PlaceOrderQuestionReq
+
+func (p *AnalyzePlaceOrderQuestionArgs) GetReq() *doubao_ai.PlaceOrderQuestionReq {
+	if !p.IsSetReq() {
+		return AnalyzePlaceOrderQuestionArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AnalyzePlaceOrderQuestionArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type AnalyzePlaceOrderQuestionResult struct {
+	Success *doubao_ai.PlaceOrderQuestionResp
+}
+
+var AnalyzePlaceOrderQuestionResult_Success_DEFAULT *doubao_ai.PlaceOrderQuestionResp
+
+func (p *AnalyzePlaceOrderQuestionResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(doubao_ai.PlaceOrderQuestionResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) Unmarshal(in []byte) error {
+	msg := new(doubao_ai.PlaceOrderQuestionResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) GetSuccess() *doubao_ai.PlaceOrderQuestionResp {
+	if !p.IsSetSuccess() {
+		return AnalyzePlaceOrderQuestionResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) SetSuccess(x interface{}) {
+	p.Success = x.(*doubao_ai.PlaceOrderQuestionResp)
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AnalyzePlaceOrderQuestionResult) GetResult() interface{} {
+	return p.Success
+}
+
+func addChatMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(doubao_ai.AddChatMessageReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(doubao_ai.DoubaoAiService).AddChatMessage(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *AddChatMessageArgs:
+		success, err := handler.(doubao_ai.DoubaoAiService).AddChatMessage(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*AddChatMessageResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newAddChatMessageArgs() interface{} {
+	return &AddChatMessageArgs{}
+}
+
+func newAddChatMessageResult() interface{} {
+	return &AddChatMessageResult{}
+}
+
+type AddChatMessageArgs struct {
+	Req *doubao_ai.AddChatMessageReq
+}
+
+func (p *AddChatMessageArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(doubao_ai.AddChatMessageReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *AddChatMessageArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *AddChatMessageArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *AddChatMessageArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *AddChatMessageArgs) Unmarshal(in []byte) error {
+	msg := new(doubao_ai.AddChatMessageReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var AddChatMessageArgs_Req_DEFAULT *doubao_ai.AddChatMessageReq
+
+func (p *AddChatMessageArgs) GetReq() *doubao_ai.AddChatMessageReq {
+	if !p.IsSetReq() {
+		return AddChatMessageArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *AddChatMessageArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *AddChatMessageArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type AddChatMessageResult struct {
+	Success *doubao_ai.AddChatMessageResp
+}
+
+var AddChatMessageResult_Success_DEFAULT *doubao_ai.AddChatMessageResp
+
+func (p *AddChatMessageResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(doubao_ai.AddChatMessageResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *AddChatMessageResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *AddChatMessageResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *AddChatMessageResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *AddChatMessageResult) Unmarshal(in []byte) error {
+	msg := new(doubao_ai.AddChatMessageResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *AddChatMessageResult) GetSuccess() *doubao_ai.AddChatMessageResp {
+	if !p.IsSetSuccess() {
+		return AddChatMessageResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *AddChatMessageResult) SetSuccess(x interface{}) {
+	p.Success = x.(*doubao_ai.AddChatMessageResp)
+}
+
+func (p *AddChatMessageResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *AddChatMessageResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -256,6 +576,26 @@ func (p *kClient) AnalyzeSearchOrderQuestion(ctx context.Context, Req *doubao_ai
 	_args.Req = Req
 	var _result AnalyzeSearchOrderQuestionResult
 	if err = p.c.Call(ctx, "AnalyzeSearchOrderQuestion", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AnalyzePlaceOrderQuestion(ctx context.Context, Req *doubao_ai.PlaceOrderQuestionReq) (r *doubao_ai.PlaceOrderQuestionResp, err error) {
+	var _args AnalyzePlaceOrderQuestionArgs
+	_args.Req = Req
+	var _result AnalyzePlaceOrderQuestionResult
+	if err = p.c.Call(ctx, "AnalyzePlaceOrderQuestion", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) AddChatMessage(ctx context.Context, Req *doubao_ai.AddChatMessageReq) (r *doubao_ai.AddChatMessageResp, err error) {
+	var _args AddChatMessageArgs
+	_args.Req = Req
+	var _result AddChatMessageResult
+	if err = p.c.Call(ctx, "AddChatMessage", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

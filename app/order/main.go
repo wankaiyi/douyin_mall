@@ -48,7 +48,9 @@ func main() {
 
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.OrderService)
-	xxljobInit()
+	if conf.GetConf().Env != "dev" {
+		go xxljobInit()
+	}
 
 	opts := kitexInit()
 
@@ -83,9 +85,6 @@ func kitexInit() (opts []server.Option) {
 }
 
 func xxljobInit() {
-	if currentEnv, err := env.GetString("env"); err == nil && currentEnv == "dev" {
-		return
-	}
 	exec := xxl.NewExecutor(
 		xxl.ServerAddr(conf.GetConf().XxlJob.XxlJobAddress+"/xxl-job-admin"),
 		xxl.AccessToken(conf.GetConf().XxlJob.AccessToken),

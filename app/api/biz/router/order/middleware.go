@@ -25,3 +25,8 @@ func _smartorderqueryMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _smartplaceorderMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

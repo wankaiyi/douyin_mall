@@ -12,6 +12,8 @@ import (
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
 	AnalyzeSearchOrderQuestion(ctx context.Context, Req *doubao_ai.SearchOrderQuestionReq, callOptions ...callopt.Option) (r *doubao_ai.SearchOrderQuestionResp, err error)
+	AnalyzePlaceOrderQuestion(ctx context.Context, Req *doubao_ai.PlaceOrderQuestionReq, callOptions ...callopt.Option) (r *doubao_ai.PlaceOrderQuestionResp, err error)
+	AddChatMessage(ctx context.Context, Req *doubao_ai.AddChatMessageReq, callOptions ...callopt.Option) (r *doubao_ai.AddChatMessageResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -46,4 +48,14 @@ type kDoubaoAiServiceClient struct {
 func (p *kDoubaoAiServiceClient) AnalyzeSearchOrderQuestion(ctx context.Context, Req *doubao_ai.SearchOrderQuestionReq, callOptions ...callopt.Option) (r *doubao_ai.SearchOrderQuestionResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.AnalyzeSearchOrderQuestion(ctx, Req)
+}
+
+func (p *kDoubaoAiServiceClient) AnalyzePlaceOrderQuestion(ctx context.Context, Req *doubao_ai.PlaceOrderQuestionReq, callOptions ...callopt.Option) (r *doubao_ai.PlaceOrderQuestionResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.AnalyzePlaceOrderQuestion(ctx, Req)
+}
+
+func (p *kDoubaoAiServiceClient) AddChatMessage(ctx context.Context, Req *doubao_ai.AddChatMessageReq, callOptions ...callopt.Option) (r *doubao_ai.AddChatMessageResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.AddChatMessage(ctx, Req)
 }

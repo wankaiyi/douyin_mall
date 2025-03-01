@@ -17,6 +17,7 @@ type RPCClient interface {
 	MarkOrderPaid(ctx context.Context, Req *order.MarkOrderPaidReq, callOptions ...callopt.Option) (r *order.MarkOrderPaidResp, err error)
 	GetOrder(ctx context.Context, Req *order.GetOrderReq, callOptions ...callopt.Option) (r *order.GetOrderResp, err error)
 	SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOrderReq, callOptions ...callopt.Option) (r *order.SmartSearchOrderResp, err error)
+	SmartPlaceOrder(ctx context.Context, Req *order.SmartPlaceOrderReq, callOptions ...callopt.Option) (r *order.SmartPlaceOrderResp, err error)
 }
 
 func NewRPCClient(dstService string, opts ...client.Option) (RPCClient, error) {
@@ -63,4 +64,8 @@ func (c *clientImpl) GetOrder(ctx context.Context, Req *order.GetOrderReq, callO
 
 func (c *clientImpl) SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOrderReq, callOptions ...callopt.Option) (r *order.SmartSearchOrderResp, err error) {
 	return c.kitexClient.SmartSearchOrder(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) SmartPlaceOrder(ctx context.Context, Req *order.SmartPlaceOrderReq, callOptions ...callopt.Option) (r *order.SmartPlaceOrderResp, err error) {
+	return c.kitexClient.SmartPlaceOrder(ctx, Req, callOptions...)
 }
