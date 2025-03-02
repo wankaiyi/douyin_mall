@@ -21,6 +21,7 @@ func XxlJobInit() {
 	})
 
 	exec.RegTask("RefreshElastic", task.RefreshElastic)
+	exec.RegTask("SyncStockToDb", task.SyncStockToDb)
 
 	err := exec.Run()
 	if err != nil {

@@ -179,19 +179,28 @@ func PushToRedisStock(ctx context.Context, product Product, client *redis.Client
 	}
 }
 
+var BaseInfoPattern = "product:base:"
+
 func BaseInfoKey(ctx context.Context, id int64) string {
-	return "product:base:" + strconv.FormatInt(id, 10)
+	return BaseInfoPattern + strconv.FormatInt(id, 10)
 }
+
+var BaseInfoLockPattern = "product:base:lock"
+
 func BaseInfoLockKey(ctx context.Context, id int64) string {
-	return "product:base:lock:" + strconv.FormatInt(id, 10)
+	return BaseInfoLockPattern + strconv.FormatInt(id, 10)
 }
+
+var StockPattern = "product:stock:"
 
 func StockKey(ctx context.Context, id int64) string {
-	return "product:stock:" + strconv.FormatInt(id, 10)
+	return StockPattern + strconv.FormatInt(id, 10)
 }
 
+var StockLockPattern = "product:stock:lock:"
+
 func StockLockKey(ctx context.Context, id int64) string {
-	return "product:stock:lock:" + strconv.FormatInt(id, 10)
+	return StockLockPattern + strconv.FormatInt(id, 10)
 }
 
 // 安全地删除锁

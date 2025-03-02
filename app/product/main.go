@@ -54,9 +54,7 @@ func main() {
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 
-	if conf.GetConf().Env != "dev" {
-		go xxl.Init()
-	}
+	go xxl.Init()
 	err := svr.Run()
 	if err != nil {
 		klog.Error(err.Error())
