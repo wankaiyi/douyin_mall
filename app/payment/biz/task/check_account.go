@@ -7,6 +7,8 @@ import (
 	"douyin_mall/payment/biz/dal/alipay"
 	"douyin_mall/payment/biz/dal/mysql"
 	"douyin_mall/payment/biz/model"
+	"douyin_mall/payment/infra/rpc"
+	"douyin_mall/rpc/kitex_gen/order"
 	"encoding/csv"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app/client"
@@ -245,27 +247,27 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 			hlog.CtxErrorf(ctx, "strconv.ParseFloat error: %v", err)
 		}
 		//检查数据库中是否存在数据
-		//todo 获取根据订单号获取订单数据
+		orderResp, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{
+			OrderId: orderId,
+		})
 		if err != nil {
 			hlog.CtxErrorf(ctx, "获取订单数据失败,err： %v，orderId：%s", err, orderId)
 			return
 		}
-		var orderResp interface{}
-		var orderAmount float64
 
 		if orderResp == nil {
 			hlog.CtxErrorf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库中不存在!!!", orderId, alipayTradeNo, AlipayAmountFloat)
 			return
 			//订单金额与支付金额不一致
-		} else if orderAmount != AlipayAmountFloat {
-			hlog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, AlipayAmountFloat, orderAmount)
+		} else if orderResp.Order.Cost != AlipayAmountFloat {
+			hlog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
 
 			err := model.CreateCheckRecord(mysql.DB, ctx, &model.CheckRecord{
 				ReconDate:     time.Now().Local(),
 				OrderId:       orderId,
 				AlipayTradeNo: alipayTradeNo,
 				AlipayAmount:  AlipayAmountFloat,
-				LocalAmount:   orderAmount,
+				LocalAmount:   orderResp.Order.Cost,
 				Status:        commonConstant.InconsistentCheckRecordStatus,
 			})
 			if err != nil {
@@ -279,7 +281,7 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 			OrderId:       orderId,
 			AlipayTradeNo: alipayTradeNo,
 			AlipayAmount:  AlipayAmountFloat,
-			LocalAmount:   orderAmount,
+			LocalAmount:   orderResp.Order.Cost,
 			Status:        commonConstant.ConsistentCheckRecordStatus,
 		})
 		if err != nil {
@@ -287,7 +289,7 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 			return
 		}
 
-		hlog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, AlipayAmountFloat, orderAmount)
+		hlog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
 	}
 	defer wg.Done()
 
