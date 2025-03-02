@@ -216,17 +216,19 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 			Sale, _ := strconv.ParseInt(valueMap["sale"], 10, 64)
 			PublishStatus, _ := strconv.ParseInt(valueMap["publish_status"], 10, 64)
 			price, _ := strconv.ParseFloat(valueMap["price"], 64)
+			picture := valueMap["picture"]
 			productData := product.Product{
 				Id:            id,
 				Name:          valueMap["name"],
 				Description:   valueMap["description"],
-				Picture:       valueMap["picture"],
+				Picture:       picture,
 				Price:         float32(price),
 				Stock:         Stock,
 				Sale:          Sale,
 				PublishStatus: PublishStatus,
 			}
 			klog.CtxInfof(ctx, "valueMap的值:%v,productData:%v", valueMap, &productData)
+			klog.CtxInfof(ctx, "id:%v,picture:%v", id, picture)
 			products = append(products, &productData)
 		}
 	}
