@@ -85,8 +85,8 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	return resp, nil
 }
 
-func convertCartProductItems2OrderItems(productItems []*cart.Product) (orderItems []*order.OrderItem) {
-	orderItems = make([]*order.OrderItem, len(productItems))
+func convertCartProductItems2OrderItems(productItems []*cart.Product) []*order.OrderItem {
+	var orderItems []*order.OrderItem
 	for _, item := range productItems {
 		orderItem := &order.OrderItem{
 			Item: &cart.CartItem{
@@ -97,5 +97,5 @@ func convertCartProductItems2OrderItems(productItems []*cart.Product) (orderItem
 		}
 		orderItems = append(orderItems, orderItem)
 	}
-	return
+	return orderItems
 }

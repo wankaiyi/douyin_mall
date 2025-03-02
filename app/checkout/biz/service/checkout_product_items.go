@@ -89,7 +89,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 }
 
 func convertProductItem2OrderItem(ctx context.Context, productItems []*checkout.ProductItem) []*order.OrderItem {
-	var orderItems = make([]*order.OrderItem, len(productItems))
+	var orderItems []*order.OrderItem
 	for _, productItem := range productItems {
 		productResp, err := rpc.ProductClient.GetProduct(ctx, &product.GetProductReq{
 			Id: uint32(productItem.ProductId),
