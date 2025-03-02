@@ -35,6 +35,7 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 	for i := range res.Results {
 		source := res.Results[i]
 		productList = append(productList, &product.Product{
+			Id:            source.Id,
 			Name:          source.Name,
 			Description:   source.Description,
 			CategoryName:  source.CategoryName,

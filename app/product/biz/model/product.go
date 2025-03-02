@@ -19,12 +19,11 @@ type Product struct {
 	Sale        int64     `json:"sale"`
 	PublicState int64     `json:"public_state"`
 	LockStock   int64     `json:"lock_stock"`
-	CategoryId  int64     `json:"category_id"`
+	CategoryId  int64     `gorm:"index" json:"category_id"`
 	BrandId     int64     `json:"brand_id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	RealStock   int64     `gorm:"-" json:"quantity"`
-	Category    Category  `gorm:"foreignKey:category_id" json:"category"`
 }
 type ProductWithCategory struct {
 	ProductId          int64   `json:"product_id"`
@@ -217,4 +216,8 @@ func SafeDeleteLock(ctx context.Context, client *redis.Client, key string, value
 	} else {
 		return errors.New("锁不存在或过期")
 	}
+}
+func SetLock(ctx context.Context, client *redis.Client, key string, value string) (lock bool, err error) {
+	nx := client.SetNX(ctx, key, value, 2*time.Second)
+	return nx.Val(), nx.Err()
 }

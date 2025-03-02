@@ -8,7 +8,9 @@ import (
 	"douyin_mall/common/serversuite"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/product/biz/dal"
+	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/dal/redis"
+	"douyin_mall/product/biz/model"
 	"douyin_mall/product/infra/elastic"
 	"douyin_mall/product/infra/kafka"
 	"douyin_mall/product/infra/rpc"
@@ -41,6 +43,7 @@ func main() {
 	mtl.InitTracing(serviceName, conf.GetConf().Jaeger.Endpoint)
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
+	mysql.DB.AutoMigrate(&model.Product{})
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.ProductService)
 

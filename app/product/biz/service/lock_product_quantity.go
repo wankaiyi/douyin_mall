@@ -62,93 +62,18 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 			StatusMsg:  constant.GetMsg(0),
 		}, nil
 	} else {
-		hasError := false
+		var hasError = new(bool)
+		e := true
+		hasError = &e
 		var wg sync.WaitGroup
 		for _, id := range notExistIds {
 			wg.Add(1)
-			go func(context context.Context, id int64, wg *sync.WaitGroup) {
-				defer wg.Done()
-				//get lock
-				//lock里面设置uuid，
-				uuidString := uuid.New().String()
-				lockKey := model.StockLockKey(s.ctx, id)
-				nx := redisClient.RedisClient.SetNX(s.ctx, lockKey, uuidString, 1*time.Millisecond) //1000ms
-				if nx.Err() != nil {
-					klog.CtxErrorf(s.ctx, "redis setnx error, reason: %v", nx.Err())
-					hasError = true
-				}
-				stockKey := model.StockKey(s.ctx, id)
-				//获取锁成功
-				if nx.Val() {
-					//再次确认这个key是否存在
-					exist := redisClient.RedisClient.Exists(s.ctx, stockKey)
-					if exist.Err() != nil {
-						hasError = true
-						klog.CtxErrorf(s.ctx, "redis exist error, reason: %v", errors.WithStack(exist.Err()))
-					}
-					//key exists, do nothing
-					if exist.Val() == 1 {
-						return
-					} else {
-						//先从数据库获取数据
-						list, err := model.SelectProductList(mysql.DB, s.ctx, []int64{id})
-						if err != nil {
-							hasError = true
-							return
-						}
-						for _, pro := range list {
-							//然后推送到redis
-							err := model.PushToRedisStock(s.ctx, model.Product{
-								ID:          pro.ProductId,
-								Name:        pro.ProductName,
-								Description: pro.ProductDescription,
-								Picture:     pro.ProductPicture,
-								Price:       pro.ProductPrice,
-								Stock:       pro.ProductStock,
-								Sale:        pro.ProductSale,
-								PublicState: pro.ProductPublicState,
-								LockStock:   pro.ProductLockStock,
-								CategoryId:  pro.CategoryID,
-								RealStock:   pro.RealStock,
-							}, redisClient.RedisClient, stockKey)
-							if err != nil {
-								hasError = true
-								klog.CtxErrorf(s.ctx, "redis push error, reason: %v, productId: %v", errors.WithStack(err), id)
-								return
-							}
-						}
-					}
-					//释放锁
-					unlockScript := `
-						if redis.call("GET", KEYS[1]) == ARGV[1] then
-							return redis.call("DEL", KEYS[1])
-						else
-							return 0
-						end
-					`
-					keys := []string{lockKey}
-					args := []interface{}{uuidString}
-					unlockResult, err := redisClient.RedisClient.Eval(s.ctx, unlockScript, keys, args).Result()
-					if err != nil {
-						hasError = true
-						return
-					}
-					//如果锁删除失败
-					if unlockResult.(int64) != 1 {
-						hasError = true
-						return
-					}
-				} else {
-					klog.CtxInfof(s.ctx, "redis setnx error, reason: %v", nx.Err())
-					return
-				}
-
-			}(s.ctx, id, &wg)
+			go pushToRedis(s.ctx, id, &wg, *hasError)
 		}
 		wg.Wait()
 
 		//如果有异常，则睡眠500ms，再次尝试锁库存
-		if hasError {
+		if *hasError {
 			time.Sleep(500 * time.Millisecond)
 		}
 		err := lockQuantity(s.ctx, productQuantityMap)
@@ -198,4 +123,83 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error
 		return errors.New("锁库存失败")
 	}
 	return nil
+}
+
+func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError bool) {
+	defer wg.Done()
+	//get lock
+	//lock里面设置uuid，
+	uuidString := uuid.New().String()
+	lockKey := model.StockLockKey(ctx, id)
+	nx := redisClient.RedisClient.SetNX(ctx, lockKey, uuidString, 2*time.Second) //1000ms
+	if nx.Err() != nil {
+		klog.CtxErrorf(ctx, "redis setnx error, reason: %v", nx.Err())
+		hasError = true
+	}
+	stockKey := model.StockKey(ctx, id)
+	//获取锁成功
+	if nx.Val() {
+		//再次确认这个key是否存在
+		exist := redisClient.RedisClient.Exists(ctx, stockKey)
+		if exist.Err() != nil {
+			hasError = true
+			klog.CtxErrorf(ctx, "redis exist error, reason: %v", errors.WithStack(exist.Err()))
+		}
+		//key exists, do nothing
+		if exist.Val() == 1 {
+			return
+		} else {
+			//先从数据库获取数据
+			list, err := model.SelectProductList(mysql.DB, ctx, []int64{id})
+			if err != nil {
+				hasError = true
+				return
+			}
+			for _, pro := range list {
+				//然后推送到redis
+				err := model.PushToRedisStock(ctx, model.Product{
+					ID:          pro.ProductId,
+					Name:        pro.ProductName,
+					Description: pro.ProductDescription,
+					Picture:     pro.ProductPicture,
+					Price:       pro.ProductPrice,
+					Stock:       pro.ProductStock,
+					Sale:        pro.ProductSale,
+					PublicState: pro.ProductPublicState,
+					LockStock:   pro.ProductLockStock,
+					CategoryId:  pro.CategoryID,
+					RealStock:   pro.RealStock,
+				}, redisClient.RedisClient, stockKey)
+				if err != nil {
+					hasError = true
+					klog.CtxErrorf(ctx, "redis push error, reason: %v, productId: %v", errors.WithStack(err), id)
+					return
+				}
+			}
+		}
+		//释放锁
+		unlockScript := `
+						if redis.call("GET", KEYS[1]) == ARGV[1] then
+							return redis.call("DEL", KEYS[1])
+						else
+							return 0
+						end
+					`
+		keys := []string{lockKey}
+		args := []interface{}{uuidString}
+		unlockResult, err := redisClient.RedisClient.Eval(ctx, unlockScript, keys, args).Result()
+		if err != nil {
+			hasError = true
+			return
+		}
+		//如果锁删除失败
+		if unlockResult.(int64) != 1 {
+			hasError = true
+			return
+		}
+	} else {
+		klog.CtxInfof(ctx, "redis setnx error, reason: %v", nx.Err())
+		return
+	}
+
 }
