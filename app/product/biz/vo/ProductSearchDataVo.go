@@ -88,6 +88,8 @@ type ProductSearchQueryBody struct {
 	Query  *ProductSearchQuery  `json:"query,omitempty"`
 	Doc    *ProductSearchDoc    `json:"doc,omitempty"`
 	Source *ProductSearchSource `json:"_source,omitempty"`
+	From   *int64               `json:"from,omitempty"`
+	Size   *int64               `json:"size,omitempty"`
 }
 type ProductSearchTermQuery map[string]interface{}
 
