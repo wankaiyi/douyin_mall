@@ -16,12 +16,12 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-type ReleaseRealQuantityHandler struct {
+type ReleaseLockQuantityHandler struct {
 }
 
-func (ReleaseRealQuantityHandler) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
-func (ReleaseRealQuantityHandler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
-func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) (err error) {
+func (ReleaseLockQuantityHandler) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
+func (ReleaseLockQuantityHandler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
+func (h ReleaseLockQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) (err error) {
 	ctx := session.Context()
 	for msg := range claim.Messages() {
 		klog.Infof("消费者接受到消息，Received message: Topic=%s, Partition=%d, Offset=%d, Key=%s, Value=%s \n",
@@ -34,7 +34,7 @@ func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSes
 		_ = sonic.Unmarshal(value, &dataVo)
 		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
 		_, span := otel.Tracer(constant.ServiceName).Start(msgCtx, constant.AddService)
-		err := ReleaseRealQuantity(ctx, dataVo)
+		err := ReleaseLockQuantity(ctx, dataVo)
 		if err != nil {
 			klog.CtxErrorf(msgCtx, "消费者处理消息失败，err=%v", err)
 			return err
@@ -48,7 +48,7 @@ func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSes
 	return nil
 }
 
-func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySendToKafka) (err error) {
+func ReleaseLockQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySendToKafka) (err error) {
 	//根据orderId查询订单信息
 	orderData, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: dataVo.OrderID})
 	if err != nil {
@@ -59,15 +59,7 @@ func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySe
 	luaScript := `
 		local function process_keys(keys, quantities)
 			for i, key in ipairs(keys) do
-				local quantity = tonumber(quantities[i])
-				local stock = tonumber(redis.call('HGET', key, 'stock') or 0)
-				local lock_stock = tonumber(redis.call('HGET', key, 'lock_stock') or 0)
-				if stock - lock_stock <= quantity then
-					return 2
-				end
-			end
-			for i, key in ipairs(keys) do
-				redis.call('hincrby', key, 'stock', -quantity)
+				redis.call('hincrby', key, 'lock_stock', -quantity)
 			end
 			return 1
 		end
@@ -85,8 +77,8 @@ func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySe
 		return err
 	}
 	if result.(int64) != 1 {
-		klog.CtxErrorf(ctx, "库存不足")
-		return errors.New("库存不足")
+		klog.CtxErrorf(ctx, "redis执行异常，result=%v", result)
+		return errors.New("redis执行异常")
 	}
 	return nil
 }
