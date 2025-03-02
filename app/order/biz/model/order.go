@@ -123,3 +123,12 @@ func SmartSearchOrder(ctx context.Context, db *gorm.DB, userId int32, terms []st
 		Find(&orderList).Error
 	return
 }
+
+func SelectCanceledSuccessOrders(ctx context.Context, db *gorm.DB, orderIdList []string) (canceledOrderIdList []string, err error) {
+	err = db.WithContext(ctx).Model(&Order{}).
+		Select("order_id").
+		Where("order_id IN ? AND status = ?", orderIdList, OrderStatusCanceled).
+		Pluck("order_id", &canceledOrderIdList).
+		Error
+	return
+}

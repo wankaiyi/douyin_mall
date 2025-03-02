@@ -3,6 +3,7 @@ package rpc
 import (
 	"douyin_mall/common/middleware"
 	"douyin_mall/order/conf"
+	"douyin_mall/rpc/kitex_gen/checkout/checkoutservice"
 	"douyin_mall/rpc/kitex_gen/doubao_ai/doubaoaiservice"
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"douyin_mall/rpc/kitex_gen/user/userservice"
@@ -18,14 +19,15 @@ import (
 )
 
 var (
-	DoubaoClient  doubaoaiservice.Client
-	ProductClient productcatalogservice.Client
-	PaymentClient paymentservice.Client
-	UserClient    userservice.Client
-	once          sync.Once
-	err           error
-	registryAddr  string
-	commonSuite   client.Option
+	CheckoutClient checkoutservice.Client
+	DoubaoClient   doubaoaiservice.Client
+	ProductClient  productcatalogservice.Client
+	PaymentClient  paymentservice.Client
+	UserClient     userservice.Client
+	once           sync.Once
+	err            error
+	registryAddr   string
+	commonSuite    client.Option
 )
 
 func InitClient() {
@@ -39,18 +41,19 @@ func InitClient() {
 		InitPaymentClient()
 		InitDoubaoClient()
 		InitUserClient()
+		InitCheckoutClient()
 	})
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite)
+	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
 	}
 }
 
 func InitPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite)
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
 	}
@@ -64,8 +67,15 @@ func InitDoubaoClient() {
 }
 
 func InitUserClient() {
-	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init user client failed: ", err)
+	}
+}
+
+func InitCheckoutClient() {
+	CheckoutClient, err = checkoutservice.NewClient("checkout-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	if err != nil {
+		klog.Fatal("init checkout client failed: ", err)
 	}
 }

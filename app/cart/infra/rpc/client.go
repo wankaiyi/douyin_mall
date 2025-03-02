@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"douyin_mall/cart/conf"
+	"douyin_mall/common/middleware"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 
@@ -32,7 +33,7 @@ func InitClient() {
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite)
+	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
 	}
