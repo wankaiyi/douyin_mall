@@ -68,7 +68,7 @@ message GetProductResp {
 
 message SearchProductsReq {
   string query = 1;
-  string categoryName = 2;
+  int64 categoryId = 2;
   int64 page=3;
   int64 page_size=4;
 }

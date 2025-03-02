@@ -22,10 +22,10 @@ func NewSearchService(Context context.Context, RequestContext *app.RequestContex
 func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductResponse, err error) {
 	client := rpc.ProductClient
 	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{
-		Query:        req.ProductName,
-		CategoryName: req.CategoryName,
-		Page:         req.Page,
-		PageSize:     req.PageSize,
+		Query:      req.ProductName,
+		CategoryId: req.CategoryId,
+		Page:       req.Page,
+		PageSize:   req.PageSize,
 	})
 	if err != nil {
 		hlog.CtxErrorf(h.Context, "商品搜索失败: %v", errors.WithStack(err))

@@ -59,6 +59,7 @@ func ProduceIndicesInit() {
 				Description:  pro.ProductDescription,
 				ID:           pro.ProductId,
 				CategoryName: pro.CategoryName,
+				CategoryID:   pro.CategoryID,
 			}
 			sonicData, _ := sonic.Marshal(dataVo)
 			//3 调用esapi.BulkRequest将数据导入到product索引库中

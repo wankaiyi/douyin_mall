@@ -50,29 +50,20 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 					{
 						MultiMatch: &vo.ProductSearchMultiMatchQuery{
 							Query:  req.Query,
-							Fields: []string{"name", "description", "category_name"},
+							Fields: []string{"name", "description"},
 						},
 					},
-					//{
-					//	MultiMatch: &vo.ProductSearchMultiMatchQuery{
-					//		Query:  req.CategoryName,
-					//		Fields: []string{"category_name"},
-					//	},
-					//},
 				},
 			},
-			//MultiMatch: &vo.ProductSearchMultiMatchQuery{
-			//	Query:  req.Query,
-			//	Fields: []string{"name", "description"},
-			//},
 		},
 		Source: &vo.ProductSearchSource{
 			"id",
 		},
 	}
 	if req.Query == "" {
-		queryBody.Query.Bool = nil
-		queryBody.Query.MatchAll = &vo.All{}
+		queryBody.Query = &vo.ProductSearchQuery{
+			MatchAll: &vo.All{},
+		}
 	}
 	dslBytes, _ := sonic.Marshal(queryBody)
 	//将dsl计算hashcode

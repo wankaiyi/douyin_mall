@@ -29,6 +29,7 @@ type ProductSearchDataVo struct {
 	Description  string `json:"description,omitempty"`
 	ID           int64  `json:"id,omitempty"`
 	CategoryName string `json:"category_name,omitempty"`
+	CategoryID   int64  `json:"category_id,omitempty"`
 }
 
 type ProductSearchMapping struct {
@@ -43,6 +44,7 @@ type Properties struct {
 	Description  *Field `json:"description,omitempty"`
 	ID           *Field `json:"id,omitempty"`
 	CategoryName *Field `json:"category_name,omitempty"`
+	CategoryID   *Field `json:"category_id,omitempty"`
 }
 
 type Field struct {
@@ -72,6 +74,10 @@ var ProductSearchMappingSetting = ProductSearchMapping{
 				Type:     "text",
 				Analyzer: "ik_smart",
 				Index:    true,
+			},
+			CategoryID: &Field{
+				Type:  "keyword",
+				Index: true,
 			},
 		},
 	},

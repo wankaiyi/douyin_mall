@@ -348,7 +348,7 @@ func (x *SearchProductsReq) fastReadField1(buf []byte, _type int8) (offset int, 
 }
 
 func (x *SearchProductsReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryName, offset, err = fastpb.ReadString(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -1262,10 +1262,10 @@ func (x *SearchProductsReq) fastWriteField1(buf []byte) (offset int) {
 }
 
 func (x *SearchProductsReq) fastWriteField2(buf []byte) (offset int) {
-	if x.CategoryName == "" {
+	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteString(buf[offset:], 2, x.GetCategoryName())
+	offset += fastpb.WriteInt64(buf[offset:], 2, x.GetCategoryId())
 	return offset
 }
 
@@ -2011,10 +2011,10 @@ func (x *SearchProductsReq) sizeField1() (n int) {
 }
 
 func (x *SearchProductsReq) sizeField2() (n int) {
-	if x.CategoryName == "" {
+	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeString(2, x.GetCategoryName())
+	n += fastpb.SizeInt64(2, x.GetCategoryId())
 	return n
 }
 
@@ -2552,7 +2552,7 @@ var fieldIDToName_GetProductResp = map[int32]string{
 
 var fieldIDToName_SearchProductsReq = map[int32]string{
 	1: "Query",
-	2: "CategoryName",
+	2: "CategoryId",
 	3: "Page",
 	4: "PageSize",
 }
