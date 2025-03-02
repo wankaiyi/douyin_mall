@@ -18,7 +18,6 @@ import (
 	"github.com/cloudwego/kitex/server"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
-	"strings"
 )
 
 type msgConsumerGroup struct{}
@@ -30,11 +29,6 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 	for msg := range claim.Messages() {
 		topic := msg.Topic
 		klog.Infof("收到消息，topic:%q partition:%d offset:%d  value:%s\n", topic, msg.Partition, msg.Offset, string(msg.Value))
-		if !strings.HasPrefix(string(msg.Key), constant.DelayCancelOrderKeyPrefix) {
-			sess.MarkMessage(msg, "")
-			sess.Commit()
-			continue
-		}
 
 		var delayCancelOrderMessage model2.DelayOrderMessage
 		err := sonic.Unmarshal(msg.Value, &delayCancelOrderMessage)
@@ -90,11 +84,16 @@ func cancelOrder(ctx context.Context, orderId string) {
 	}
 
 	affectedRows, err := model.CancelOrder(ctx, mysql.DB, orderId)
-	if err != nil || affectedRows == 0 {
+	if err != nil {
 		klog.Errorf("取消订单失败，orderId:%s，err:%v", orderId, err)
 		return
 	}
+	if affectedRows == 0 {
+		// 主要是防止有支付成功回调请求并发，导致并发安全问题
+		klog.Infof("订单状态不是未支付，无法取消订单，orderId:%s", orderId)
+	}
 	klog.Info("订单取消成功，orderId:%s", orderId)
+	producer.SendCancelOrderSuccessMessage(ctx, orderId)
 }
 
 func cancelCharge(ctx context.Context, orderId string) error {

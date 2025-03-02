@@ -5,6 +5,7 @@ import (
 	"douyin_mall/auth/infra/kafka/producer"
 	auth "douyin_mall/auth/kitex_gen/auth"
 	"douyin_mall/auth/utils/jwt"
+	"douyin_mall/common/constant"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
@@ -34,7 +35,7 @@ func (s *DeliverTokenByRPCService) Run(req *auth.DeliverTokenReq) (resp *auth.De
 
 	return &auth.DeliveryResp{
 		StatusCode:   0,
-		StatusMsg:    "success",
+		StatusMsg:    constant.GetMsg(0),
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil

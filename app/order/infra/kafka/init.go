@@ -8,4 +8,5 @@ import (
 func Init() {
 	consumer.InitDelayOrderConsumer()
 	producer.InitDelayOrderProducer()
+	producer.InitCancelOrderSuccessProducer()
 }
