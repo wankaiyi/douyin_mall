@@ -12,7 +12,6 @@ import (
 	"douyin_mall/common/utils/feishu"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"time"
 
@@ -65,16 +64,8 @@ func main() {
 		conf.LogLevel(), conf.GetConf().Hertz.LogFileName, conf.GetConf().Hertz.LogMaxSize, conf.GetConf().Hertz.LogMaxBackups, conf.GetConf().Hertz.LogMaxAge,
 		h,
 		conf.GetConf().Kafka.ClsKafka.Usser, conf.GetConf().Kafka.ClsKafka.Password, conf.GetConf().Kafka.ClsKafka.TopicId)
-	h.Use(hertztracing.ServerMiddleware(cfg))
-	h.Use(middleware.TraceLogMiddleware())
-	h.Use(middleware.AuthorizationMiddleware())
 
-	//
-	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
-		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
-	})))
-
-	registerMiddleware(h)
+	registerMiddleware(h, cfg)
 
 	// add a ping route to test
 	h.GET("/ping", func(c context.Context, ctx *app.RequestContext) {
@@ -127,7 +118,7 @@ func main() {
 	h.Spin()
 }
 
-func registerMiddleware(h *server.Hertz) {
+func registerMiddleware(h *server.Hertz, cfg *hertztracing.Config) {
 
 	// pprof
 	if conf.GetConf().Hertz.EnablePprof {
@@ -175,14 +166,23 @@ func registerMiddleware(h *server.Hertz) {
 		//超时时间设定
 		MaxAge: 24 * time.Hour,
 	}))
+
+	h.Use(hertztracing.ServerMiddleware(cfg))
+	h.Use(middleware.TraceLogMiddleware())
+	h.Use(middleware.AuthorizationMiddleware())
+
+	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
+		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
+	})))
 }
 
 func FeishuAlertRecoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
 	currentEnv, getEnvErr := env.GetString("env")
 	if getEnvErr != nil {
-		klog.CtxErrorf(ctx, getEnvErr.Error())
+		hlog.CtxErrorf(ctx, getEnvErr.Error())
 	} else if currentEnv != "dev" {
 		errMsg := fmt.Sprintf("接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
+		hlog.CtxErrorf(ctx, "接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
 		feishu.SendFeishuAlert(ctx, conf.GetConf().Alert.FeishuWebhook, errMsg)
 	} else {
 		// dev环境打印日志
