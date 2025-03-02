@@ -149,7 +149,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			values = localKeysCache.([]interface{})
 		} else {
 			for i := range keys {
-				result, _ := redis.RedisClient.HGetAll(s.ctx, keys[i]).Result()
+				result, _ := redis.RedisClient.HGetAll(context.Background(), keys[i]).Result()
 				if len(result) != 0 {
 					values = append(values, result)
 				} else {
@@ -178,11 +178,15 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			} else {
 				//解析数据
 				productData := product.Product{}
-				err = sonic.UnmarshalString(value.(string), &productData)
+				marshal, err := sonic.Marshal(value)
 				if err != nil {
-					klog.CtxErrorf(s.ctx, "product数据反序列化失败, err: %v", err)
-					return nil, errors.WithStack(err)
+					return nil, err
 				}
+				err = sonic.Unmarshal(marshal, &productData)
+				//if err != nil {
+				//	klog.CtxErrorf(s.ctx, "product数据反序列化失败, err: %v", err)
+				//	return nil, errors.WithStack(err)
+				//}
 				products = append(products, &productData)
 			}
 		}
@@ -211,17 +215,29 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			}
 			missingProducts[i] = &p
 			productKey := "product:" + strconv.FormatInt(list[i].ProductId, 10)
-			_, err := redis.RedisClient.HSet(s.ctx, productKey, map[string]interface{}{
-				"id":          list[i].ProductId,
-				"name":        list[i].ProductName,
-				"description": list[i].ProductDescription,
-				"picture":     list[i].ProductPicture,
-				"stock":       list[i].ProductStock,
-				"LockStock":   list[i].ProductLockStock,
-			}).Result()
+			err := model.PushToRedis(context.Background(), model.Product{
+				ID:          list[i].ProductId,
+				Name:        list[i].ProductName,
+				Description: list[i].ProductDescription,
+				Picture:     list[i].ProductPicture,
+				Price:       list[i].ProductPrice,
+				Stock:       list[i].ProductStock,
+				LockStock:   list[i].ProductLockStock,
+			}, redis.RedisClient, productKey)
 			if err != nil {
+				klog.CtxErrorf(s.ctx, "product数据缓存到redis失败, err: %v", err)
 				return nil, err
 			}
+			//_, err := redis.RedisClient.HSet(s.ctx, productKey, map[string]interface{}{
+			//	"id":          list[i].ProductId,
+			//	"name":        list[i].ProductName,
+			//	"description": list[i].ProductDescription,
+			//	"picture":     list[i].ProductPicture,
+			//	"stock":       list[i].ProductStock,
+			//}).Result()
+			//if err != nil {
+			//	return nil, err
+			//}
 		}
 		products = append(products, missingProducts...)
 	}

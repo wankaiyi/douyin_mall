@@ -48,6 +48,8 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 			Price:       pro.Price,
 			Description: pro.Description,
 			Picture:     pro.Picture,
+			Stock:       pro.Stock,
+			LockStock:   pro.LockStock,
 		})
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "产品数据库插入信号发送kafka失败, error:%v", err)

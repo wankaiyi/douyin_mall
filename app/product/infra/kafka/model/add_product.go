@@ -6,4 +6,6 @@ type AddProductSendToKafka struct {
 	Description string  `json:"description,omitempty"`
 	Price       float32 `json:"price,omitempty"`
 	Picture     string  `json:"picture,omitempty"`
+	Stock       int64   `json:"stock,omitempty"`
+	LockStock   int64   `json:"lock_stock,omitempty"`
 }

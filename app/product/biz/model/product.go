@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"time"
 )
@@ -117,4 +118,20 @@ func UpdateLockStock(db *gorm.DB, ctx context.Context, productQuantityMap map[in
 	})
 
 	return err
+}
+
+func PushToRedis(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
+	_, err = client.HSet(ctx, key, map[string]interface{}{
+		"id":          product.ID,
+		"name":        product.Name,
+		"description": product.Description,
+		"picture":     product.Picture,
+		"price":       product.Price,
+		"stock":       product.Stock,
+		"lock_stock":  product.LockStock,
+	}).Result()
+	if err != nil {
+		return err
+	}
+	return nil
 }

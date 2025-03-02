@@ -20,7 +20,6 @@ func NewUpdateProductService(ctx context.Context) *UpdateProductService {
 
 // Run create note info
 func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product.UpdateProductResp, err error) {
-	// 根据id删除商品
 	pro := model.Product{
 		ID:          req.Id,
 		Name:        req.Name,
@@ -47,6 +46,8 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 			Description: pro.Description,
 			Price:       pro.Price,
 			Picture:     pro.Picture,
+			Stock:       pro.Stock,
+			LockStock:   pro.LockStock,
 		})
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "推送到kafka失败,error:%v", err)
