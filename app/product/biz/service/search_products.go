@@ -36,35 +36,51 @@ func NewSearchProductsService(ctx context.Context) *SearchProductsService {
 func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *product.SearchProductsResp, err error) {
 	from := new(int64)
 	size := new(int64)
-	var p int64 = 0
 	if req.Page >= 1 {
-		p = (req.Page - 1) * req.PageSize
+		*from = (req.Page - 1) * req.PageSize
 	}
-	from = &p
+	if req.PageSize < 1 {
+		*size = 0
+	} else {
+		size = &req.PageSize
+	}
 	size = &req.PageSize
 	queryBody := vo.ProductSearchQueryBody{
 		From: from,
 		Size: size,
 		Query: &vo.ProductSearchQuery{
 			Bool: &vo.ProductSearchBoolQuery{
-				Should: &[]*vo.ProductSearchQuery{
-					{
-						MultiMatch: &vo.ProductSearchMultiMatchQuery{
-							Query:  req.Query,
-							Fields: []string{"name", "description"},
-						},
-					},
-				},
+				Must:   &[]*vo.ProductSearchQuery{},
+				Should: &[]*vo.ProductSearchQuery{},
 			},
 		},
 		Source: &vo.ProductSearchSource{
 			"id",
 		},
 	}
-	if req.Query == "" {
-		queryBody.Query = &vo.ProductSearchQuery{
-			MatchAll: &vo.All{},
+	if req.Query != "" {
+		v := &vo.ProductSearchQuery{
+			MultiMatch: &vo.ProductSearchMultiMatchQuery{
+				Query:  req.Query,
+				Fields: []string{"name", "description"},
+			},
 		}
+		should := *queryBody.Query.Bool.Should
+		should = append(should, v)
+		queryBody.Query.Bool.Should = &should
+		must := *queryBody.Query.Bool.Must
+		must = append(must, v)
+		queryBody.Query.Bool.Must = &must
+	}
+	if req.CategoryId > 0 {
+		must := *queryBody.Query.Bool.Must
+		must = append(must, &vo.ProductSearchQuery{
+			MultiMatch: &vo.ProductSearchMultiMatchQuery{
+				Query:  req.CategoryId,
+				Fields: []string{"category_id"},
+			},
+		})
+		queryBody.Query.Bool.Must = &must
 	}
 	dslBytes, _ := sonic.Marshal(queryBody)
 	//将dsl计算hashcode

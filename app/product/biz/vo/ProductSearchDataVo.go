@@ -114,7 +114,7 @@ type ProductSearchQuery struct {
 type All struct {
 }
 type ProductSearchMultiMatchQuery struct {
-	Query  string   `json:"query,omitempty"`
+	Query  any      `json:"query,omitempty"`
 	Fields []string `json:"fields,omitempty"`
 }
 
