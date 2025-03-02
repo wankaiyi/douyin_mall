@@ -245,6 +245,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 				Stock:       list[i].ProductStock,
 				LockStock:   list[i].ProductLockStock,
 				PublicState: list[i].ProductPublicState,
+				Sale:        list[i].ProductSale,
 			}, redis.RedisClient, productKey)
 			if err != nil {
 				klog.CtxErrorf(s.ctx, "product数据缓存到redis失败, err: %v", err)

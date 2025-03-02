@@ -42,6 +42,7 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 			Price:         source.Price,
 			Sale:          source.Sale,
 			PublishStatus: source.PublishStatus,
+			Picture:       source.Picture,
 		})
 	}
 	resp = &product.ProductResponse{
