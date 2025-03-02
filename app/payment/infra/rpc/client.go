@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"douyin_mall/common/middleware"
 	"douyin_mall/user/conf"
 	"douyin_mall/user/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -43,25 +44,25 @@ func InitClient() {
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-catalog-service", commonSuite)
+	ProductClient, err = productcatalogservice.NewClient("product-catalog-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
 	}
 }
 func initCartClient() {
-	CartClient, err = cartservice.NewClient("cart-service", commonSuite)
+	CartClient, err = cartservice.NewClient("cart-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init cart client failed: ", err)
 	}
 }
 func initOrderClient() {
-	OrderClient, err = orderservice.NewClient("order-service", commonSuite)
+	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
 	}
 }
 func initUserClient() {
-	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	UserClient, err = userservice.NewClient("user-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init user client failed: ", err)
 	}

@@ -6,6 +6,7 @@ import (
 	"douyin_mall/order/infra/rpc"
 	"douyin_mall/order/kitex_gen/cart"
 	order "douyin_mall/order/kitex_gen/order"
+	"douyin_mall/rpc/kitex_gen/checkout"
 	"douyin_mall/rpc/kitex_gen/doubao_ai"
 	"douyin_mall/rpc/kitex_gen/product"
 	"douyin_mall/rpc/kitex_gen/user"
@@ -45,10 +46,11 @@ func NewSmartPlaceOrderService(ctx context.Context) *SmartPlaceOrderService {
 func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order.SmartPlaceOrderResp, err error) {
 	ctx := s.ctx
 	// AI对话
+	userId := req.UserId
 	placeOrderQuestionReq := &doubao_ai.PlaceOrderQuestionReq{
 		Question: req.Question,
 		Uuid:     req.Uuid,
-		UserId:   req.UserId,
+		UserId:   userId,
 	}
 	placeOrderQuestionResp, err := rpc.DoubaoClient.AnalyzePlaceOrderQuestion(ctx, placeOrderQuestionReq)
 	if err != nil {
@@ -76,10 +78,25 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 			return nil, err
 		}
 		// 请求结算接口进行下单
-		fmt.Println("addressId:", addressId)
-		fmt.Println("cartItems:", cartItems)
-		// todo 调用结算接口
-		customerChatMessage = "下单成功，请点击链接进行支付：" + "https://www.baidu.com"
+		items := make([]*checkout.ProductItem, len(cartItems))
+		for i, item := range cartItems {
+			items[i] = &checkout.ProductItem{
+				ProductId: item.ProductId,
+				Quantity:  item.Quantity,
+			}
+		}
+		checkoutProductItemsReq := &checkout.CheckoutProductItemsReq{
+			AddressId: int32(addressId),
+			Items:     items,
+			UserId:    userId,
+		}
+		checkoutProductItemsResp, err := rpc.CheckoutClient.CheckoutProductItems(ctx, checkoutProductItemsReq)
+		if err != nil {
+			klog.CtxErrorf(ctx, "rpc调用结算接口失败，req：%v, err：%v", checkoutProductItemsReq, err)
+			return nil, errors.WithStack(err)
+		}
+		klog.Infof("结算接口成功，req：%v, resp：%v", checkoutProductItemsReq, checkoutProductItemsResp)
+		customerChatMessage = "下单成功，请扫码进行支付：" + checkoutProductItemsResp.PaymentUrl
 	} else if strings.HasPrefix(aiResponse, specificSearchOrderPrefix) {
 		// 搜索商品
 		searchTerm, err := parseSearchTermResponse(aiResponse)
@@ -99,7 +116,7 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 		customerChatMessage = fmt.Sprintf("为您找到以下商品：%v", searchProductsResp.Results)
 	} else if strings.HasPrefix(aiResponse, specificGetAddressesPrefix) {
 		getReceiveAddressReq := &user.GetReceiveAddressReq{
-			UserId: req.UserId,
+			UserId: userId,
 		}
 		getReceiveAddressResp, err := rpc.UserClient.GetReceiveAddress(ctx, getReceiveAddressReq)
 		if err != nil {
@@ -119,7 +136,7 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 	_, err = rpc.DoubaoClient.AddChatMessage(ctx, &doubao_ai.AddChatMessageReq{
 		Content:  customerChatMessage,
 		Uuid:     req.Uuid,
-		UserId:   req.UserId,
+		UserId:   userId,
 		Role:     "assistant",
 		Scenario: 2,
 	})
@@ -145,7 +162,7 @@ func parseSearchTermResponse(aiResponse string) (string, error) {
 	return searchTermMatch, nil
 }
 
-func parsePlaceOrderResponse(aiResponse string) (int, []cart.CartItem, error) {
+func parsePlaceOrderResponse(aiResponse string) (int, []*cart.CartItem, error) {
 	// 检查是否包含特定字符串
 	if !regexp.MustCompile(regexp.QuoteMeta(specificPlaceOrderPrefix)).MatchString(aiResponse) {
 		return 0, nil, errors.Errorf("未检测到特定字符串: %s", specificPlaceOrderPrefix)
@@ -171,11 +188,11 @@ func parsePlaceOrderResponse(aiResponse string) (int, []cart.CartItem, error) {
 		return 0, nil, errors.New("未找到有效的 items")
 	}
 
-	var items []cart.CartItem
+	var items []*cart.CartItem
 	for _, match := range itemMatches {
 		productId, _ := strconv.ParseInt(match[1], 10, 32)
 		quantity, _ := strconv.ParseInt(match[2], 10, 32)
-		items = append(items, cart.CartItem{ProductId: (int32)(productId), Quantity: (int32)(quantity)})
+		items = append(items, &cart.CartItem{ProductId: (int32)(productId), Quantity: (int32)(quantity)})
 	}
 
 	return addressID, items, nil

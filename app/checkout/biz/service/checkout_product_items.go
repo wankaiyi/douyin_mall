@@ -22,8 +22,6 @@ func NewCheckoutProductItemsService(ctx context.Context) *CheckoutProductItemsSe
 
 // Run create note info
 func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq) (resp *checkout.CheckoutProductItemsResp, err error) {
-	// Finish your business logic.
-
 	//得到用户地址
 	getReceiveAddressResp, err := rpc.UserClient.GetReceiveAddress(s.ctx, &user.GetReceiveAddressReq{
 		UserId: req.UserId,
@@ -44,6 +42,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		klog.CtxErrorf(s.ctx, "用户地址不存在, address_id: %d", req.AddressId)
 		return nil, errors.New("用户地址不存在")
 	}
+
 	//创建订单
 	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{
 		UserId: req.UserId,
@@ -62,6 +61,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		return nil, errors.WithStack(err)
 	}
 	orderId := placeOrderResp.Order.OrderId
+
 	//得到订单金额
 	orderResp, err := rpc.OrderClient.GetOrder(s.ctx, &order.GetOrderReq{
 		OrderId: orderId,
@@ -80,19 +80,11 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		return nil, errors.WithStack(err)
 	}
 
-	//清空购物车
-	_, err = rpc.CartClient.EmptyCart(s.ctx, &cart.EmptyCartReq{UserId: req.UserId})
-	if err != nil {
-		klog.CtxErrorf(s.ctx, "清空购物车失败: %v,参数:req:%+v", err, req)
-		return nil, errors.WithStack(err)
-	}
-
 	resp = &checkout.CheckoutProductItemsResp{
 		StatusCode: chargeResp.StatusCode,
 		StatusMsg:  chargeResp.StatusMsg,
 		PaymentUrl: chargeResp.PaymentUrl,
 	}
-
 	return
 }
 
