@@ -7,8 +7,8 @@ import (
 
 type CartItem struct {
 	Base
-	UserId    int32 `gorm:"not null;type:int;index:idx_user_id"`
-	ProductId int32 `gorm:"not null;type:int;"`
+	UserId    int32 `gorm:"not null;type:int;uniqueIndex:idx_user_id_product_id"`
+	ProductId int32 `gorm:"not null;type:int;uniqueIndex:idx_user_id_product_id"`
 	Quantity  int32 `gorm:"not null;type:int;"`
 }
 
@@ -17,7 +17,20 @@ func (c CartItem) TableName() string {
 }
 
 func AddCartItem(ctx context.Context, db *gorm.DB, item *CartItem) error {
-	return db.WithContext(ctx).Create(item).Error
+	var count int64
+	err := db.WithContext(ctx).Model(&CartItem{}).
+		Where(&CartItem{UserId: item.UserId, ProductId: item.ProductId}).
+		Count(&count).Error
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return db.WithContext(ctx).Model(&CartItem{}).
+			Where(&CartItem{UserId: item.UserId, ProductId: item.ProductId}).
+			Update("quantity", gorm.Expr("quantity + ?", item.Quantity)).Error
+	} else {
+		return db.WithContext(ctx).Create(item).Error
+	}
 }
 
 func GetCartItemByUserId(ctx context.Context, db *gorm.DB, userId int32) ([]*CartItem, error) {

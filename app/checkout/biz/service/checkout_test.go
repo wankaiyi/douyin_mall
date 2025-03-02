@@ -15,7 +15,5 @@ func TestCheckout_Run(t *testing.T) {
 	resp, err := s.Run(req)
 	t.Logf("err: %v", err)
 	t.Logf("resp: %v", resp)
-
-	// todo: edit your unit test
-
+	
 }

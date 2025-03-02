@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/common/constant"
+	"douyin_mall/payment/biz/dal/alipay"
 	redsync "douyin_mall/payment/biz/dal/red_sync"
 	"douyin_mall/payment/infra/kafka/producer"
 	"douyin_mall/payment/infra/rpc"
@@ -64,10 +65,14 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 		})
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, err.Error())
+			//退款
+			refund(s.ctx, orderId, getOrderResp)
 			return nil, errors.WithStack(err)
 		}
 		if markOrderPaidResp.StatusCode != 0 {
 			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, markOrderPaidResp.StatusMsg)
+			//退款
+			refund(s.ctx, orderId, getOrderResp)
 			return &payment.NotifyPaymentResp{
 				StatusCode: markOrderPaidResp.StatusCode,
 				StatusMsg:  constant.GetMsg(int(markOrderPaidResp.StatusCode)),
@@ -84,4 +89,16 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 	}
 	return resp, nil
 
+}
+
+func refund(ctx context.Context, orderId string, getOrderResp *order.GetOrderResp) {
+	//退款
+	result, refundErr := alipay.Refund(ctx, orderId, getOrderResp.Order.Cost)
+	if refundErr != nil {
+		klog.CtxErrorf(ctx, "orderId:%s,退款失败,err:%s", orderId, refundErr.Error())
+	}
+	if !result {
+		klog.CtxErrorf(ctx, "orderId:%s,退款失败", orderId)
+	}
+	klog.CtxInfof(ctx, "orderId:%s,退款成功", orderId)
 }

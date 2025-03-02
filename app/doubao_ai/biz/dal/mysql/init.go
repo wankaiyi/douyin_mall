@@ -27,6 +27,7 @@ func Init() {
 	if err = DB.Use(tracing.NewPlugin(tracing.WithoutMetrics())); err != nil {
 		panic(err)
 	}
+	DB.DisableForeignKeyConstraintWhenMigrating = true
 	err = DB.AutoMigrate(&model.Message{})
 	if err != nil {
 		panic(err)

@@ -79,6 +79,14 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		klog.CtxErrorf(s.ctx, "支付失败rpc接口调用失败, error: %v", err)
 		return nil, errors.WithStack(err)
 	}
+
+	//清空购物车
+	_, err = rpc.CartClient.EmptyCart(s.ctx, &cart.EmptyCartReq{UserId: req.UserId})
+	if err != nil {
+		klog.CtxErrorf(s.ctx, "清空购物车失败: %v,参数:req:%+v", err, req)
+		return nil, errors.WithStack(err)
+	}
+
 	resp = &checkout.CheckoutProductItemsResp{
 		StatusCode: chargeResp.StatusCode,
 		StatusMsg:  chargeResp.StatusMsg,

@@ -18,7 +18,6 @@ func NewAddItemService(ctx context.Context) *AddItemService {
 
 // Run create note info
 func (s *AddItemService) Run(req *cart.AddItemReq) (resp *cart.AddItemResp, err error) {
-	// Finish your business logic.
 	ctx := s.ctx
 	err = model.AddCartItem(ctx, mysql.DB, &model.CartItem{
 		UserId:    req.UserId,
