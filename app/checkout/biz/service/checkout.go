@@ -27,7 +27,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	userId := req.UserId
 	//得到互斥锁
 	rsync := redsync.GetRedsync()
-	mutexName := "checkout_mutex_" + strconv.FormatInt(int64(userId), 0)
+	mutexName := "checkout_mutex_" + strconv.FormatInt(int64(userId), 10)
 	mutex := rsync.NewMutex(mutexName)
 	//加锁
 	if err := mutex.Lock(); err != nil {
