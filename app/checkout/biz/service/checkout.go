@@ -27,7 +27,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	userId := req.UserId
 	//得到互斥锁
 	rsync := redsync.GetRedsync()
-	mutexName := "checkout_mutex_" + strconv.FormatInt(int64(userId), 0)
+	mutexName := "checkout_mutex_" + strconv.FormatInt(int64(userId), 10)
 	mutex := rsync.NewMutex(mutexName)
 	//加锁
 	if err := mutex.Lock(); err != nil {
@@ -85,8 +85,8 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	return resp, nil
 }
 
-func convertCartProductItems2OrderItems(productItems []*cart.Product) (orderItems []*order.OrderItem) {
-	orderItems = make([]*order.OrderItem, len(productItems))
+func convertCartProductItems2OrderItems(productItems []*cart.Product) []*order.OrderItem {
+	var orderItems []*order.OrderItem
 	for _, item := range productItems {
 		orderItem := &order.OrderItem{
 			Item: &cart.CartItem{
@@ -97,5 +97,5 @@ func convertCartProductItems2OrderItems(productItems []*cart.Product) (orderItem
 		}
 		orderItems = append(orderItems, orderItem)
 	}
-	return
+	return orderItems
 }

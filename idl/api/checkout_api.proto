@@ -13,10 +13,7 @@ service CheckoutService {
   }
 }
 
-
-
 message CheckoutReq {
-  uint32 user_id = 1;
   user.AddReceiveAddressRequest address = 2;
 }
 
