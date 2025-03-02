@@ -21,11 +21,11 @@ func NewKafkaWriter(user, password, topicId string) *KafkaWriter {
 	config.Net.SASL.Enable = true
 	config.Net.SASL.User = user
 	config.Net.SASL.Password = password
+	config.Net.MaxOpenRequests = 1
 	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Version = sarama.V1_1_0_0
 	config.Producer.Compression = sarama.CompressionGZIP
-	config.Producer.Idempotent = true
 
 	producer, err := sarama.NewAsyncProducer([]string{"gz-producer.cls.tencentcs.com:9096"}, config)
 	if err != nil {
