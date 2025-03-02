@@ -6,13 +6,12 @@ import (
 	productModel "douyin_mall/product/biz/model"
 	"douyin_mall/product/infra/kafka/model"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"strconv"
 )
 
 func UpdateProductToRedis(ctx context.Context, product *model.UpdateProductSendToKafka) (err error) {
-	key := "product:" + strconv.FormatInt(product.ID, 10)
+	key := productModel.BaseInfoKey(ctx, product.ID)
 	//4 调用redis的set方法将数据导入到redis缓存中
-	err = productModel.PushToRedis(ctx, productModel.Product{
+	err = productModel.PushToRedisBaseInfo(ctx, productModel.Product{
 		ID:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
