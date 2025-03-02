@@ -3,11 +3,13 @@ package alipay
 import (
 	"context"
 	"douyin_mall/payment/conf"
+	"encoding/base64"
 	"fmt"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
 	"github.com/pkg/errors"
+	"github.com/skip2/go-qrcode"
 	"io"
 	"os"
 	"time"
@@ -32,7 +34,7 @@ var (
 	//订单标题
 	subject = "抖音商城-支付"
 	//产品码 沙箱环境仅支持value = FAST_INSTANT_TRADE_PAY
-	product_code = "FAST_INSTANT_TRADE_PAY"
+	product_code = "FACE_TO_FACE_PAYMENT"
 )
 
 func Init() {
@@ -100,17 +102,25 @@ func Pay(ctx context.Context, orderId int64, totalAmount float32, userId int32) 
 	bodyMap.Set("total_amount", totalAmount)
 	bodyMap.Set("subject", subject)
 	bodyMap.Set("product_code", product_code)
-	bodyMap.Set("query_options", userId)
+	//bodyMap.Set("query_options", userId)
 
-	//定时关闭订单
-	expireTime := time.Now().Local().Add(time.Minute * 10).Format("2006-01-02 15:04:05")
-	bodyMap.Set("time_expire", expireTime)
-	paymentUrl, err := Client.TradePagePay(ctx, bodyMap)
+	////定时关闭订单
+	//expireTime := time.Now().Local().Add(time.Minute * 10).Format("2006-01-02 15:04:05")
+	//bodyMap.Set("time_expire", expireTime)
+	resp, err := Client.TradePrecreate(ctx, bodyMap)
 	if err != nil {
 		return "", err
 	}
-	// 跳转到支付页面
-	return paymentUrl, nil
+	// 支付二维码
+	qrCodeUrl := resp.Response.QrCode
+	qrCodeBytes, err := qrcode.Encode(qrCodeUrl, qrcode.Medium, 256)
+	if err != nil {
+		klog.CtxErrorf(ctx, "生成支付二维码失败: %v", err)
+		return "", err
+	}
+	// 将二维码字节数组转换为Base64字符串
+	base64QRCode := base64.StdEncoding.EncodeToString(qrCodeBytes)
+	return base64QRCode, nil
 }
 
 //取消支付支付宝返回格式
