@@ -59,6 +59,10 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 			"id",
 		},
 	}
+	if req.Query == "" {
+		queryBody.Query.Bool = nil
+		queryBody.Query.MatchAll = &vo.All{}
+	}
 	dslBytes, _ := sonic.Marshal(queryBody)
 	//将dsl计算hashcode
 	harsher := md5.New()

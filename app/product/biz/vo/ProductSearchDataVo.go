@@ -99,10 +99,12 @@ type ProductSearchBoolQuery struct {
 type ProductSearchQuery struct {
 	MultiMatch *ProductSearchMultiMatchQuery `json:"multi_match,omitempty"`
 	Match      *ProductSearchMatchQuery      `json:"match,omitempty"`
+	MatchAll   *All                          `json:"match_all,omitempty"`
 	Term       *ProductSearchTermQuery       `json:"term,omitempty"`
 	Bool       *ProductSearchBoolQuery       `json:"bool,omitempty"`
 }
-
+type All struct {
+}
 type ProductSearchMultiMatchQuery struct {
 	Query  string   `json:"query,omitempty"`
 	Fields []string `json:"fields,omitempty"`
