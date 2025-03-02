@@ -3,6 +3,7 @@ package release_real_quantity
 import (
 	"context"
 	"douyin_mall/common/infra/kafka/tracing"
+	"douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/infra/kafka/constant"
 	"douyin_mall/product/infra/kafka/model"
 	rpc "douyin_mall/product/infra/rpc"
@@ -11,6 +12,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"go.opentelemetry.io/otel"
+	"strconv"
 )
 
 type ReleaseRealQuantityHandler struct {
@@ -47,13 +49,46 @@ func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSes
 
 func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySendToKafka) (err error) {
 	//根据orderId查询订单信息
-	_, err = rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: dataVo.OrderID})
+	orderData, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: dataVo.OrderID})
 	if err != nil {
 		return err
 	}
 	//从订单信息获取商品信息列表，其中包括各个商品的id和购买的数量
-
+	products := orderData.Order.Products
+	luaScript := `
+		local function process_keys(keys, quantities)
+			for i, key in ipairs(keys) do
+				local quantity = tonumber(quantities[i])
+				local stock = tonumber(redis.call('HGET', key, 'stock') or 0)
+				local lock_stock = tonumber(redis.call('HGET', key, 'lock_stock') or 0)
+				if stock - lock_stock <= quantity then
+					return {err = "2" .. key}
+				end
+			end
+			for i, key in ipairs(keys) do
+				local quantity = tonumber(quantities[i])
+				local stock = tonumber(redis.call('HGET', key, 'stock') or 0)
+				redis.call('HSET', key, 'stock', stock - quantity)
+			end
+			return {ok = "1"}
+		end
+		return process_keys(KEYS, ARGV)
+	`
+	keys := make([]string, 0)
+	args := make([]interface{}, 0)
+	for _, pro := range products {
+		keys = append(keys, "product:"+strconv.FormatInt(int64(pro.Id), 10))
+		args = append(args, pro.Quantity)
+	}
 	//开启事务，批量扣减商品的真实库存和锁定库存
+	result, err := redis.RedisClient.Eval(ctx, luaScript, keys, args).Result()
+	if err != nil {
+		return err
+	}
+	s := result.(string)
+	if s != "1" {
+
+	}
 	//提交事务
 	return nil
 }

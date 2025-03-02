@@ -8,7 +8,7 @@ import (
 	keyModel "douyin_mall/common/infra/hot_key_client/model/key"
 	"douyin_mall/common/infra/hot_key_client/processor"
 	"douyin_mall/product/biz/dal/mysql"
-	redis "douyin_mall/product/biz/dal/redis"
+	redisClient "douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
 	"douyin_mall/product/infra/elastic/client"
@@ -17,6 +17,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"io"
 	"strconv"
@@ -128,7 +129,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 
 			//将es返回的数据缓存到redis
 			dslCacheToRedis, _ := sonic.Marshal(searchIds)
-			_, err = redis.RedisClient.Set(s.ctx, dslKey, dslCacheToRedis, 5*time.Minute).Result()
+			_, err = redisClient.RedisClient.Set(s.ctx, dslKey, dslCacheToRedis, 5*time.Minute).Result()
 			if err != nil {
 				klog.CtxErrorf(s.ctx, "dsl搜索结果缓存到redis失败, err: %v", err)
 				return nil, errors.WithStack(err)
@@ -143,55 +144,36 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	}
 	var products []*product.Product = make([]*product.Product, 0)
 	//根据id从缓存或者数据库钟获取数据
-	//keys是redis的key
-	var keys []string = make([]string, 0, len(searchIds))
 	//根据返回的数据确认是否有缺失数据，有的话把当前的id存进去
 	var missingIds []int64
-	//将id转换为redis的key
-	for i := range searchIds {
-		keys = append(keys, "product:"+strconv.FormatInt(searchIds[i], 10))
-	}
 	//先判断redis是否存在数据，如果存在，则直接返回数据
-	if len(keys) > 0 {
+	if len(searchIds) > 0 {
 		//加入hotkey
-		var keysKey = "product:keys:" + string(md5Bytes)
+		var keysKey = searchHotkey(string(md5Bytes))
 		keysConf := keyModel.NewKeyConf1(constant.ProductService)
 		keysHotkeyModel := keyModel.NewHotKeyModelWithConfig(keysKey, &keysConf)
-		var values []interface{}
+		var values map[int64]map[string]string = make(map[int64]map[string]string)
 		localKeysCache := processor.GetValue(*keysHotkeyModel)
 		if localKeysCache != nil {
-			values = localKeysCache.([]interface{})
+			values = localKeysCache.(map[int64]map[string]string)
 		} else {
-			for i := range keys {
-				result, _ := redis.RedisClient.HGetAll(context.Background(), keys[i]).Result()
+			for _, id := range searchIds {
+				productKey := model.BaseInfoKey(s.ctx, id)
+				result, _ := redisClient.RedisClient.HGetAll(context.Background(), productKey).Result()
 				if len(result) != 0 {
-					values = append(values, result)
+					values[id] = result
 				} else {
-					idStr := keys[i][len("product:"):] // 提取ID部分
-					if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
-						missingIds = append(missingIds, id)
-					}
+					missingIds = append(missingIds, id)
 				}
 			}
-			//values, err = redis.RedisClient.MGet(context.Background(), keys...).Result()
-			//if err != nil {
-			//	klog.CtxErrorf(s.ctx, "redis获取dsl搜索结果失败, err: %v", err)
-			//	return nil, errors.WithStack(err)
-			//}
 			processor.SmartSet(*keysHotkeyModel, values)
 		}
-		for i, value := range values {
-			idStr := keys[i][len("product:"):] // 提取ID部分
+		for id, value := range values {
 			if value == nil {
-				if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
-					missingIds = append(missingIds, id)
-				} else {
-					klog.CtxErrorf(s.ctx, "productid转换失败, err: %v", err)
-					return nil, errors.WithStack(err)
-				}
+				missingIds = append(missingIds, id)
 			} else {
 				//解析数据
-				valueMap := value.(map[string]string)
+				valueMap := value
 				id, _ := strconv.ParseInt(valueMap["id"], 10, 64)
 				Stock, _ := strconv.ParseInt(valueMap["stock"], 10, 64)
 				Sale, _ := strconv.ParseInt(valueMap["sale"], 10, 64)
@@ -235,8 +217,8 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 				PublishStatus: list[i].ProductPublicState,
 			}
 			missingProducts[i] = &p
-			productKey := "product:" + strconv.FormatInt(list[i].ProductId, 10)
-			err := model.PushToRedis(context.Background(), model.Product{
+			productKey := model.BaseInfoKey(s.ctx, list[i].ProductId)
+			err := model.PushToRedisBaseInfo(context.Background(), model.Product{
 				ID:          list[i].ProductId,
 				Name:        list[i].ProductName,
 				Description: list[i].ProductDescription,
@@ -246,24 +228,98 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 				LockStock:   list[i].ProductLockStock,
 				PublicState: list[i].ProductPublicState,
 				Sale:        list[i].ProductSale,
-			}, redis.RedisClient, productKey)
+			}, redisClient.RedisClient, productKey)
 			if err != nil {
 				klog.CtxErrorf(s.ctx, "product数据缓存到redis失败, err: %v", err)
 				return nil, err
 			}
-			//_, err := redis.RedisClient.HSet(s.ctx, productKey, map[string]interface{}{
-			//	"id":          list[i].ProductId,
-			//	"name":        list[i].ProductName,
-			//	"description": list[i].ProductDescription,
-			//	"picture":     list[i].ProductPicture,
-			//	"stock":       list[i].ProductStock,
-			//}).Result()
-			//if err != nil {
-			//	return nil, err
-			//}
 		}
 		products = append(products, missingProducts...)
 	}
+
+	//根据商品id查询库存信息
+	var productStock map[int64]int64 = make(map[int64]int64)
+	for _, id := range searchIds {
+		stockKey := model.StockKey(s.ctx, id)
+		exists, err := redisClient.RedisClient.Exists(s.ctx, stockKey).Result()
+		if err != nil {
+			return nil, err
+		}
+		//如果存在，则从redis中获取数据
+		if exists == 1 {
+			//连续三次尝试
+			maxTry := 3
+			for i := 0; i < maxTry; i++ {
+				result, err := redisClient.RedisClient.HGetAll(s.ctx, stockKey).Result()
+				if err != nil {
+					if i == maxTry-1 {
+						return nil, errors.New("redis获取库存失败")
+					}
+				} else {
+					productStock[id], _ = strconv.ParseInt(result["stock"], 10, 64)
+					break
+				}
+			}
+		} else {
+			//不存在
+			//则先加锁
+			lockKey := model.StockLockKey(s.ctx, id)
+			uuidString := uuid.New().String()
+			result, err := redisClient.RedisClient.SetNX(s.ctx, lockKey, uuidString, 1000*time.Microsecond).Result()
+			//如果加锁失败
+			if err != nil || result == false {
+				//连续三次尝试
+				maxTry := 3
+				for i := 0; i < maxTry; i++ {
+					result, err := redisClient.RedisClient.HGetAll(s.ctx, stockKey).Result()
+					if err != nil {
+						if i == maxTry-1 {
+							return nil, errors.New("redis获取库存失败")
+						}
+					} else {
+						productStock[id], _ = strconv.ParseInt(result["stock"], 10, 64)
+						break
+					}
+				}
+			} else {
+				//如果加锁成功，则从数据库中获取数据
+				list, err := model.SelectProductList(mysql.DB, s.ctx, []int64{id})
+				if err != nil {
+					klog.CtxErrorf(s.ctx, "从数据库中获取数据失败, err: %v", err)
+					return nil, err
+				}
+				if len(list) == 1 {
+					productStock[id] = list[0].ProductStock
+					err := model.PushToRedisStock(s.ctx, model.Product{
+						ID:          id,
+						Name:        list[0].ProductName,
+						Description: list[0].ProductDescription,
+						Picture:     list[0].ProductPicture,
+						Price:       list[0].ProductPrice,
+						Stock:       list[0].ProductStock,
+						LockStock:   list[0].ProductLockStock,
+						PublicState: list[0].ProductPublicState,
+						Sale:        list[0].ProductSale,
+					}, redisClient.RedisClient, stockKey)
+					if err != nil {
+						return nil, err
+					}
+				} else if len(list) == 0 {
+					klog.CtxErrorf(s.ctx, "从数据库中获取数据失败, 商品id: %d 不存在", id)
+				} else {
+					klog.CtxErrorf(s.ctx, "从数据库中获取数据失败, 商品id: %d 存在多个", id)
+				}
+				err = model.SafeDeleteLock(s.ctx, redisClient.RedisClient, lockKey, uuidString)
+				if err != nil {
+					klog.CtxErrorf(s.ctx, "删除锁失败, err: %v", err)
+				}
+			}
+		}
+	}
+	for _, pro := range products {
+		pro.Stock = productStock[pro.Id]
+	}
+
 	//将返回的数据返回到前端
 	resp = &product.SearchProductsResp{
 		StatusCode: 0,
@@ -271,4 +327,8 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		Results:    products,
 	}
 	return
+}
+
+func searchHotkey(md string) string {
+	return "product:hotkey:" + md
 }

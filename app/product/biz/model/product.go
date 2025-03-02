@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -121,7 +122,7 @@ func UpdateLockStock(db *gorm.DB, ctx context.Context, productQuantityMap map[in
 	return err
 }
 
-func PushToRedis(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
+func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
 	//改用lua脚本实现
 	luaScript := `
 		local key = KEYS[1]
@@ -130,20 +131,18 @@ func PushToRedis(ctx context.Context, product Product, client *redis.Client, key
 		local description = ARGV[3]
 		local picture = ARGV[4]
 		local price = ARGV[5]
-		local stock = ARGV[6]
-		local lock_stock = ARGV[7]
-		local sale = ARGV[8]
-		local publish_status = ARGV[9]
+		local sale = ARGV[6]
+		local publish_status = ARGV[7]
 		
 		if redis.call("EXISTS", key) == 0 then
-			redis.call("HSET", key, "id", id, "name", name, "description", description, "picture", picture, "price", price, "stock", stock, "lock_stock", lock_stock,'sale',sale,'publish_status',publish_status)
+			redis.call("HSET", key, "id", id, "name", name, "description", description, "picture", picture, "price", price ,'sale',sale,'publish_status',publish_status)
 			return 1
 		else
 			return 0
 		end
 `
 	keys := []string{key}
-	args := []interface{}{product.ID, product.Name, product.Description, product.Picture, product.Price, product.Stock, product.LockStock, product.Sale, product.PublicState}
+	args := []interface{}{product.ID, product.Name, product.Description, product.Picture, product.Price, product.Sale, product.PublicState}
 	result, err := client.Eval(ctx, luaScript, keys, args).Result()
 	if err != nil {
 		return err
@@ -153,17 +152,69 @@ func PushToRedis(ctx context.Context, product Product, client *redis.Client, key
 	} else {
 		return errors.New("product already exists")
 	}
-	//_, err = client.HSet(ctx, key, map[string]interface{}{
-	//	"id":          product.ID,
-	//	"name":        product.Name,
-	//	"description": product.Description,
-	//	"picture":     product.Picture,
-	//	"price":       product.Price,
-	//	"stock":       product.Stock,
-	//	"lock_stock":  product.LockStock,
-	//}).Result()
-	//if err != nil {
-	//	return err
-	//}
-	//return nil
+}
+func PushToRedisStock(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
+	//改用lua脚本实现
+	luaScript := `
+		local key = KEYS[1]
+		local stock = ARGV[1]
+		local lock_stock = ARGV[2]
+		
+		if redis.call("EXISTS", key) == 0 then
+			redis.call("HSET", key, "stock", stock, "lock_stock", lock_stock)
+			return 1
+		else
+			return 0
+		end
+`
+	keys := []string{key}
+	args := []interface{}{product.Stock, product.LockStock}
+	result, err := client.Eval(ctx, luaScript, keys, args).Result()
+	if err != nil {
+		return err
+	}
+	if result.(int64) == 1 {
+		return nil
+	} else {
+		return errors.New("product stock already exists")
+	}
+}
+
+func BaseInfoKey(ctx context.Context, id int64) string {
+	return "product:base:" + strconv.FormatInt(id, 10)
+}
+func BaseInfoLockKey(ctx context.Context, id int64) string {
+	return "product:base:lock:" + strconv.FormatInt(id, 10)
+}
+
+func StockKey(ctx context.Context, id int64) string {
+	return "product:stock:" + strconv.FormatInt(id, 10)
+}
+
+func StockLockKey(ctx context.Context, id int64) string {
+	return "product:stock:lock:" + strconv.FormatInt(id, 10)
+}
+
+// 安全地删除锁
+func SafeDeleteLock(ctx context.Context, client *redis.Client, key string, value string) (err error) {
+	luaScript := `
+		local key = KEYS[1]
+		local value = ARGV[1]
+		if redis.call("GET", key) == value then
+			return redis.call("DEL", key)
+		else
+			return 0
+		end
+`
+	keys := []string{key}
+	args := []interface{}{value}
+	result, err := client.Eval(ctx, luaScript, keys, args).Result()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if result.(int64) == 1 {
+		return nil
+	} else {
+		return errors.New("锁不存在或过期")
+	}
 }

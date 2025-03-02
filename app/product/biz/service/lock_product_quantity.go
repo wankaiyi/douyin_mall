@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -36,7 +35,8 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 	var cmdMap = make(map[int64]*redis.IntCmd)
 	pipeline := redisClient.RedisClient.Pipeline()
 	for _, id := range ids {
-		cmd := pipeline.Exists(s.ctx, "product:"+strconv.FormatInt(id, 10))
+		productKey := model.BaseInfoKey(s.ctx, id)
+		cmd := pipeline.Exists(s.ctx, productKey)
 		cmdMap[id] = cmd
 	}
 	_, err = pipeline.Exec(s.ctx)
@@ -71,17 +71,17 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 				//get lock
 				//lock里面设置uuid，
 				uuidString := uuid.New().String()
-				lockKey := "product:lock:" + strconv.FormatInt(id, 10)
+				lockKey := model.StockLockKey(s.ctx, id)
 				nx := redisClient.RedisClient.SetNX(s.ctx, lockKey, uuidString, 1*time.Millisecond) //1000ms
 				if nx.Err() != nil {
 					klog.CtxErrorf(s.ctx, "redis setnx error, reason: %v", nx.Err())
 					hasError = true
 				}
-				productKey := "product:" + strconv.FormatInt(id, 10)
+				stockKey := model.StockKey(s.ctx, id)
 				//获取锁成功
 				if nx.Val() {
 					//再次确认这个key是否存在
-					exist := redisClient.RedisClient.Exists(s.ctx, productKey)
+					exist := redisClient.RedisClient.Exists(s.ctx, stockKey)
 					if exist.Err() != nil {
 						hasError = true
 						klog.CtxErrorf(s.ctx, "redis exist error, reason: %v", errors.WithStack(exist.Err()))
@@ -98,7 +98,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 						}
 						for _, pro := range list {
 							//然后推送到redis
-							err := model.PushToRedis(s.ctx, model.Product{
+							err := model.PushToRedisStock(s.ctx, model.Product{
 								ID:          pro.ProductId,
 								Name:        pro.ProductName,
 								Description: pro.ProductDescription,
@@ -110,7 +110,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 								LockStock:   pro.ProductLockStock,
 								CategoryId:  pro.CategoryID,
 								RealStock:   pro.RealStock,
-							}, redisClient.RedisClient, "product:"+strconv.FormatInt(id, 10))
+							}, redisClient.RedisClient, stockKey)
 							if err != nil {
 								hasError = true
 								klog.CtxErrorf(s.ctx, "redis push error, reason: %v, productId: %v", errors.WithStack(err), id)
@@ -153,6 +153,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 		}
 		err := lockQuantity(s.ctx, productQuantityMap)
 		if err != nil {
+			klog.CtxErrorf(s.ctx, "redis锁库存时执行失败 %v，keysMap:%v", errors.WithStack(err), productQuantityMap)
 			return nil, err
 		}
 		return &product.ProductLockQuantityResponse{
@@ -160,38 +161,6 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 			StatusMsg:  constant.GetMsg(0),
 		}, nil
 	}
-
-	//productList, err := model.SelectProductList(mysql.DB, context.Background(), ids)
-	////确定当前库存是否足够
-	//canLock := true
-	//var lowStockProductId int64
-	//
-	//for _, pro := range productList {
-	//	//如果真实库存小于下单的数量，则库存锁定失败
-	//	if pro.RealStock < productQuantityMap[pro.ProductId] {
-	//		canLock = false
-	//		lowStockProductId = pro.ProductId
-	//		break
-	//	}
-	//}
-	////如果库存锁定失败，则返回失败信息
-	//if !canLock {
-	//	klog.CtxInfof(s.ctx, "商品库存不足，无法锁定库存，productId：%v, quantity：%v", lowStockProductId, productQuantityMap[lowStockProductId])
-	//	return &product.ProductLockQuantityResponse{
-	//		StatusCode: 6014,
-	//		StatusMsg:  constant.GetMsg(6014),
-	//	}, nil
-	//}
-	////如果库存锁定成功，则更新库存信息
-	//err = model.UpdateLockStock(mysql.DB, context.Background(), productQuantityMap)
-	//if err != nil {
-	//	klog.CtxErrorf(s.ctx, "更新库存失败，原因：%v", err)
-	//	return nil, err
-	//}
-	//return &product.ProductLockQuantityResponse{
-	//	StatusCode: 0,
-	//	StatusMsg:  constant.GetMsg(0),
-	//}, nil
 }
 
 func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error {
@@ -216,7 +185,7 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error
 	keys := make([]string, 0)
 	args := make([]interface{}, 0)
 	for id, quantity := range productQuantityMap {
-		productKey := "product:" + strconv.FormatInt(id, 10)
+		productKey := model.StockKey(ctx, id)
 		keys = append(keys, productKey)
 		args = append(args, quantity)
 	}
