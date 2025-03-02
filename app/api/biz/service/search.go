@@ -21,7 +21,12 @@ func NewSearchService(Context context.Context, RequestContext *app.RequestContex
 
 func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductResponse, err error) {
 	client := rpc.ProductClient
-	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{Query: req.ProductName, CategoryName: req.CategoryName})
+	res, err := client.SearchProducts(h.Context, &rpcproduct.SearchProductsReq{
+		Query:        req.ProductName,
+		CategoryName: req.CategoryName,
+		Page:         req.Page,
+		PageSize:     req.PageSize,
+	})
 	if err != nil {
 		hlog.CtxErrorf(h.Context, "商品搜索失败: %v", errors.WithStack(err))
 		return nil, err
@@ -30,9 +35,13 @@ func (h *SearchService) Run(req *product.ProductRequest) (resp *product.ProductR
 	for i := range res.Results {
 		source := res.Results[i]
 		productList = append(productList, &product.Product{
-			Name:         source.Name,
-			Description:  source.Description,
-			CategoryName: source.CategoryName,
+			Name:          source.Name,
+			Description:   source.Description,
+			CategoryName:  source.CategoryName,
+			Stock:         source.Stock,
+			Price:         source.Price,
+			Sale:          source.Sale,
+			PublishStatus: source.PublishStatus,
 		})
 	}
 	resp = &product.ProductResponse{

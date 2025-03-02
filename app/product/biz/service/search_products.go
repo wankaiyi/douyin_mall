@@ -32,7 +32,17 @@ func NewSearchProductsService(ctx context.Context) *SearchProductsService {
 
 // Run create note info
 func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *product.SearchProductsResp, err error) {
+	from := new(int64)
+	size := new(int64)
+	var p int64 = 0
+	if req.Page >= 1 {
+		p = (req.Page - 1) * req.PageSize
+	}
+	from = &p
+	size = &req.PageSize
 	queryBody := vo.ProductSearchQueryBody{
+		From: from,
+		Size: size,
 		Query: &vo.ProductSearchQuery{
 			Bool: &vo.ProductSearchBoolQuery{
 				Should: &[]*vo.ProductSearchQuery{
@@ -181,16 +191,22 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 				}
 			} else {
 				//解析数据
-				productData := product.Product{}
-				marshal, err := sonic.Marshal(value)
-				if err != nil {
-					return nil, err
+				valueMap := value.(map[string]string)
+				id, _ := strconv.ParseInt(valueMap["id"], 10, 64)
+				Stock, _ := strconv.ParseInt(valueMap["stock"], 10, 64)
+				Sale, _ := strconv.ParseInt(valueMap["sale"], 10, 64)
+				PublishStatus, _ := strconv.ParseInt(valueMap["publish_status"], 10, 64)
+				price, _ := strconv.ParseFloat(valueMap["price"], 64)
+				productData := product.Product{
+					Id:            id,
+					Name:          valueMap["name"],
+					Description:   valueMap["description"],
+					Picture:       valueMap["picture"],
+					Price:         float32(price),
+					Stock:         Stock,
+					Sale:          Sale,
+					PublishStatus: PublishStatus,
 				}
-				err = sonic.Unmarshal(marshal, &productData)
-				//if err != nil {
-				//	klog.CtxErrorf(s.ctx, "product数据反序列化失败, err: %v", err)
-				//	return nil, errors.WithStack(err)
-				//}
 				products = append(products, &productData)
 			}
 		}
@@ -207,15 +223,16 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 		missingProducts := make([]*product.Product, len(list))
 		for i := range list {
 			p := product.Product{
-				Id:           list[i].ProductId,
-				Name:         list[i].ProductName,
-				Description:  list[i].ProductDescription,
-				Picture:      list[i].ProductPicture,
-				Price:        list[i].ProductPrice,
-				Stock:        list[i].ProductStock,
-				Sale:         list[i].ProductSale,
-				CategoryId:   list[i].CategoryID,
-				CategoryName: list[i].CategoryName,
+				Id:            list[i].ProductId,
+				Name:          list[i].ProductName,
+				Description:   list[i].ProductDescription,
+				Picture:       list[i].ProductPicture,
+				Price:         list[i].ProductPrice,
+				Stock:         list[i].ProductStock,
+				Sale:          list[i].ProductSale,
+				CategoryId:    list[i].CategoryID,
+				CategoryName:  list[i].CategoryName,
+				PublishStatus: list[i].ProductPublicState,
 			}
 			missingProducts[i] = &p
 			productKey := "product:" + strconv.FormatInt(list[i].ProductId, 10)
@@ -227,6 +244,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 				Price:       list[i].ProductPrice,
 				Stock:       list[i].ProductStock,
 				LockStock:   list[i].ProductLockStock,
+				PublicState: list[i].ProductPublicState,
 			}, redis.RedisClient, productKey)
 			if err != nil {
 				klog.CtxErrorf(s.ctx, "product数据缓存到redis失败, err: %v", err)

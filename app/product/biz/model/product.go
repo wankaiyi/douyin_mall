@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"time"
@@ -121,17 +122,48 @@ func UpdateLockStock(db *gorm.DB, ctx context.Context, productQuantityMap map[in
 }
 
 func PushToRedis(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
-	_, err = client.HSet(ctx, key, map[string]interface{}{
-		"id":          product.ID,
-		"name":        product.Name,
-		"description": product.Description,
-		"picture":     product.Picture,
-		"price":       product.Price,
-		"stock":       product.Stock,
-		"lock_stock":  product.LockStock,
-	}).Result()
+	//改用lua脚本实现
+	luaScript := `
+		local key = KEYS[1]
+		local id = ARGV[1]
+		local name = ARGV[2]
+		local description = ARGV[3]
+		local picture = ARGV[4]
+		local price = ARGV[5]
+		local stock = ARGV[6]
+		local lock_stock = ARGV[7]
+		local sale = ARGV[8]
+		local publish_status = ARGV[9]
+		
+		if redis.call("EXISTS", key) == 0 then
+			redis.call("HSET", key, "id", id, "name", name, "description", description, "picture", picture, "price", price, "stock", stock, "lock_stock", lock_stock,'sale',sale,'publish_status',publish_status)
+			return 1
+		else
+			return 0
+		end
+`
+	keys := []string{key}
+	args := []interface{}{product.ID, product.Name, product.Description, product.Picture, product.Price, product.Stock, product.LockStock, product.Sale, product.PublicState}
+	result, err := client.Eval(ctx, luaScript, keys, args).Result()
 	if err != nil {
 		return err
 	}
-	return nil
+	if result.(int64) == 1 {
+		return nil
+	} else {
+		return errors.New("product already exists")
+	}
+	//_, err = client.HSet(ctx, key, map[string]interface{}{
+	//	"id":          product.ID,
+	//	"name":        product.Name,
+	//	"description": product.Description,
+	//	"picture":     product.Picture,
+	//	"price":       product.Price,
+	//	"stock":       product.Stock,
+	//	"lock_stock":  product.LockStock,
+	//}).Result()
+	//if err != nil {
+	//	return err
+	//}
+	//return nil
 }
