@@ -62,6 +62,7 @@ func (s *ListOrderService) Run(req *order.ListOrderReq) (resp *order.ListOrderRe
 			Products:  products,
 			Cost:      o.TotalCost,
 			CreatedAt: utils.GetFormattedDateTime(o.CreatedAt),
+			Status:    o.Status,
 		}
 	}
 	return &order.ListOrderResp{
