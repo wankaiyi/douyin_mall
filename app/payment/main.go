@@ -55,7 +55,7 @@ func main() {
 	svr := paymentservice.NewServer(new(PaymentServiceImpl), opts...)
 	if os.Getenv("env") != "dev" {
 		//将任务注册到xxl-job中
-		xxljobInit()
+		go xxljobInit()
 	}
 
 	err := svr.Run()

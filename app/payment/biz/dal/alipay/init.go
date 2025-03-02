@@ -184,3 +184,20 @@ func QueryOrder(ctx context.Context, orderId int64) (tradeStatus string, err err
 	return aliRsp.Response.Msg, nil
 
 }
+
+// Refund 退款
+func Refund(ctx context.Context, orderId string, refundAmount float64) (result bool, err error) {
+	bodyMap := make(gopay.BodyMap)
+	bodyMap.Set("out_trade_no", orderId)
+	bodyMap.Set("refund_amount", refundAmount)
+	refundResp, err := Client.TradeRefund(ctx, bodyMap)
+	if err != nil {
+		klog.CtxErrorf(ctx, "支付宝退款失败, 订单号: %d, 错误信息: %s", orderId, err)
+		return false, errors.WithStack(err)
+	}
+	if refundResp.Response.Code == "10000" && refundResp.Response.FundChange == "Y" {
+		return true, nil
+	}
+	return false, nil
+
+}
