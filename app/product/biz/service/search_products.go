@@ -225,6 +225,7 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 				Sale:          Sale,
 				PublishStatus: PublishStatus,
 			}
+			klog.CtxInfof(ctx, "valueMap的值:%v", valueMap)
 			products = append(products, &productData)
 		}
 	}
@@ -266,6 +267,7 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 						PublishStatus: pro.ProductPublicState,
 					}
 					productMap.Store(uuidString, &p)
+					klog.CtxInfof(ctx, "从数据库内查找的数据:%v", &p)
 					productKey := model.BaseInfoKey(ctx, list[i].ProductId)
 					err = model.PushToRedisBaseInfo(ctx, model.Product{
 						ID:          pro.ProductId,
