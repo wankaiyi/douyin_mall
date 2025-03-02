@@ -90,7 +90,6 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 		klog.CtxErrorf(ctx, "创建订单失败：req: %v, err: %v", req, err)
 		return nil, errors.WithStack(err)
 	}
-	// todo 批量锁定库存
 
 	// 延时取消订单
 	producer.SendDelayOrder(ctx, orderId, constant.DelayTopic1mLevel)

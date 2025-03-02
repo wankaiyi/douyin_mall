@@ -50,8 +50,10 @@ func main() {
 	rpc.InitClient()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
-	//将任务注册到xxl-job中
-	xxl.Init()
+
+	if conf.GetConf().Env != "dev" {
+		go xxl.Init()
+	}
 	err := svr.Run()
 	if err != nil {
 		klog.Error(err.Error())

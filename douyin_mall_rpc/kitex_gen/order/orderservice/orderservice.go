@@ -50,6 +50,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"SmartPlaceOrder": kitex.NewMethodInfo(
+		smartPlaceOrderHandler,
+		newSmartPlaceOrderArgs,
+		newSmartPlaceOrderResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 }
 
 var (
@@ -881,6 +888,159 @@ func (p *SmartSearchOrderResult) GetResult() interface{} {
 	return p.Success
 }
 
+func smartPlaceOrderHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(order.SmartPlaceOrderReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(order.OrderService).SmartPlaceOrder(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *SmartPlaceOrderArgs:
+		success, err := handler.(order.OrderService).SmartPlaceOrder(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*SmartPlaceOrderResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newSmartPlaceOrderArgs() interface{} {
+	return &SmartPlaceOrderArgs{}
+}
+
+func newSmartPlaceOrderResult() interface{} {
+	return &SmartPlaceOrderResult{}
+}
+
+type SmartPlaceOrderArgs struct {
+	Req *order.SmartPlaceOrderReq
+}
+
+func (p *SmartPlaceOrderArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(order.SmartPlaceOrderReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *SmartPlaceOrderArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *SmartPlaceOrderArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *SmartPlaceOrderArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *SmartPlaceOrderArgs) Unmarshal(in []byte) error {
+	msg := new(order.SmartPlaceOrderReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var SmartPlaceOrderArgs_Req_DEFAULT *order.SmartPlaceOrderReq
+
+func (p *SmartPlaceOrderArgs) GetReq() *order.SmartPlaceOrderReq {
+	if !p.IsSetReq() {
+		return SmartPlaceOrderArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *SmartPlaceOrderArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *SmartPlaceOrderArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type SmartPlaceOrderResult struct {
+	Success *order.SmartPlaceOrderResp
+}
+
+var SmartPlaceOrderResult_Success_DEFAULT *order.SmartPlaceOrderResp
+
+func (p *SmartPlaceOrderResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(order.SmartPlaceOrderResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *SmartPlaceOrderResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *SmartPlaceOrderResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *SmartPlaceOrderResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *SmartPlaceOrderResult) Unmarshal(in []byte) error {
+	msg := new(order.SmartPlaceOrderResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *SmartPlaceOrderResult) GetSuccess() *order.SmartPlaceOrderResp {
+	if !p.IsSetSuccess() {
+		return SmartPlaceOrderResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *SmartPlaceOrderResult) SetSuccess(x interface{}) {
+	p.Success = x.(*order.SmartPlaceOrderResp)
+}
+
+func (p *SmartPlaceOrderResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *SmartPlaceOrderResult) GetResult() interface{} {
+	return p.Success
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -936,6 +1096,16 @@ func (p *kClient) SmartSearchOrder(ctx context.Context, Req *order.SmartSearchOr
 	_args.Req = Req
 	var _result SmartSearchOrderResult
 	if err = p.c.Call(ctx, "SmartSearchOrder", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) SmartPlaceOrder(ctx context.Context, Req *order.SmartPlaceOrderReq) (r *order.SmartPlaceOrderResp, err error) {
+	var _args SmartPlaceOrderArgs
+	_args.Req = Req
+	var _result SmartPlaceOrderResult
+	if err = p.c.Call(ctx, "SmartPlaceOrder", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

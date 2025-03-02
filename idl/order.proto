@@ -12,6 +12,7 @@ service OrderService {
   rpc MarkOrderPaid(MarkOrderPaidReq) returns (MarkOrderPaidResp) {}
   rpc GetOrder(GetOrderReq) returns (GetOrderResp) {}
   rpc SmartSearchOrder(SmartSearchOrderReq) returns (SmartSearchOrderResp) {}
+  rpc SmartPlaceOrder(SmartPlaceOrderReq) returns (SmartPlaceOrderResp) {}
 }
 
 message Address {
@@ -103,4 +104,16 @@ message SmartSearchOrderResp {
   repeated Order orders = 1;
   int32 status_code = 2;
   string status_msg = 3;
+}
+
+message SmartPlaceOrderReq {
+  int32 user_id = 1;
+  string uuid = 2;
+  string question = 3;
+}
+
+message SmartPlaceOrderResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  string response = 3;
 }

@@ -20,11 +20,15 @@ var (
 // CancelOrderTask 定时取消超时的订单，作为mq延时取消订单的兜底
 func CancelOrderTask(ctx context.Context, param *xxl.RunReq) (msg string) {
 	// 查询已超时的订单
-	now := time.Now()
+	now := time.Now().In(time.UTC)
 	orderIdList, err := model.GetOverdueOrder(ctx, mysql.DB, now.Add(-10*time.Minute))
 	if err != nil {
 		klog.Errorf("定时任务查询超时订单失败: %v", err)
 		return "查询超时订单失败" + err.Error()
+	}
+
+	if orderIdList == nil || len(orderIdList) == 0 {
+		return "success"
 	}
 
 	// 取消超时订单的支付

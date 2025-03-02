@@ -15,3 +15,17 @@ func (s *DoubaoAiServiceImpl) AnalyzeSearchOrderQuestion(ctx context.Context, re
 
 	return resp, err
 }
+
+// AnalyzePlaceOrderQuestion implements the DoubaoAiServiceImpl interface.
+func (s *DoubaoAiServiceImpl) AnalyzePlaceOrderQuestion(ctx context.Context, req *doubao_ai.PlaceOrderQuestionReq) (resp *doubao_ai.PlaceOrderQuestionResp, err error) {
+	resp, err = service.NewAnalyzePlaceOrderQuestionService(ctx).Run(req)
+
+	return resp, err
+}
+
+// AddChatMessage implements the DoubaoAiServiceImpl interface.
+func (s *DoubaoAiServiceImpl) AddChatMessage(ctx context.Context, req *doubao_ai.AddChatMessageReq) (resp *doubao_ai.AddChatMessageResp, err error) {
+	resp, err = service.NewAddChatMessageService(ctx).Run(req)
+
+	return resp, err
+}

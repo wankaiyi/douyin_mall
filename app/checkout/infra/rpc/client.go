@@ -1,12 +1,13 @@
 package rpc
 
 import (
-	"douyin_mall/user/conf"
+	"douyin_mall/checkout/conf"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 
 	"sync"
 
+	"douyin_mall/checkout/kitex_gen/user/userservice"
 	"douyin_mall/common/clientsuite"
 	"douyin_mall/rpc/kitex_gen/cart/cartservice"
 	"douyin_mall/rpc/kitex_gen/order/orderservice"
@@ -20,6 +21,7 @@ var (
 	ProductClient productcatalogservice.Client
 	OrderClient   orderservice.Client
 	PaymentClient paymentservice.Client
+	UserClient    userservice.Client
 
 	once         sync.Once
 	err          error
@@ -38,6 +40,7 @@ func InitClient() {
 		initOrderClient()
 		initCartClient()
 		initPaymentClient()
+		initUserClient()
 
 	})
 }
@@ -64,5 +67,11 @@ func initPaymentClient() {
 	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite)
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
+	}
+}
+func initUserClient() {
+	UserClient, err = userservice.NewClient("user-service", commonSuite)
+	if err != nil {
+		klog.Fatal("init user client failed: ", err)
 	}
 }

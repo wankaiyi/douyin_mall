@@ -15,3 +15,21 @@ func AnalyzeSearchOrderQuestion(ctx context.Context, req *doubao_ai.SearchOrderQ
 	}
 	return resp, nil
 }
+
+func AnalyzePlaceOrderQuestion(ctx context.Context, req *doubao_ai.PlaceOrderQuestionReq, callOptions ...callopt.Option) (resp *doubao_ai.PlaceOrderQuestionResp, err error) {
+	resp, err = defaultClient.AnalyzePlaceOrderQuestion(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "AnalyzePlaceOrderQuestion call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
+func AddChatMessage(ctx context.Context, req *doubao_ai.AddChatMessageReq, callOptions ...callopt.Option) (resp *doubao_ai.AddChatMessageResp, err error) {
+	resp, err = defaultClient.AddChatMessage(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "AddChatMessage call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
