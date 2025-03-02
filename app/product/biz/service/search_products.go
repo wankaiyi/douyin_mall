@@ -196,6 +196,7 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 		for _, id := range searchIds {
 			productKey := model.BaseInfoKey(ctx, id)
 			result, _ := redisClient.RedisClient.HGetAll(ctx, productKey).Result()
+			klog.CtxInfof(ctx, "redis hgetall %v 获取的结果:%v", productKey, result)
 			if len(result) != 0 {
 				values[id] = result
 			} else {
@@ -225,7 +226,7 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 				Sale:          Sale,
 				PublishStatus: PublishStatus,
 			}
-			klog.CtxInfof(ctx, "valueMap的值:%v", valueMap)
+			klog.CtxInfof(ctx, "valueMap的值:%v,productData:%v", valueMap, &productData)
 			products = append(products, &productData)
 		}
 	}
@@ -236,6 +237,7 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 	if len(missingIds) > 0 {
 		//从数据库中获取数据
 		list, err := model.SelectProductList(mysql.DB, context.Background(), missingIds)
+		klog.CtxInfof(ctx, "数据库的数据:%v", list)
 		if err != nil {
 			klog.CtxErrorf(ctx, "从数据库中获取数据失败, err: %v", err)
 			return nil, errors.WithStack(err)
