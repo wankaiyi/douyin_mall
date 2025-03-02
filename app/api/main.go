@@ -12,7 +12,6 @@ import (
 	"douyin_mall/common/utils/feishu"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/cloudwego/kitex/pkg/klog"
 	"os"
 	"time"
 
@@ -180,9 +179,10 @@ func registerMiddleware(h *server.Hertz, cfg *hertztracing.Config) {
 func FeishuAlertRecoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
 	currentEnv, getEnvErr := env.GetString("env")
 	if getEnvErr != nil {
-		klog.CtxErrorf(ctx, getEnvErr.Error())
+		hlog.CtxErrorf(ctx, getEnvErr.Error())
 	} else if currentEnv != "dev" {
 		errMsg := fmt.Sprintf("接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
+		hlog.CtxErrorf(ctx, "接口%s发生错误：\nerr=%v\nstack=%s", c.Request.Path(), err, stack)
 		feishu.SendFeishuAlert(ctx, conf.GetConf().Alert.FeishuWebhook, errMsg)
 	} else {
 		// dev环境打印日志
