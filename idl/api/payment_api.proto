@@ -14,9 +14,6 @@ service PaymentService {
     option (api.post) = "/payment/notify";
   }
 
-  rpc Cancel(CancelRequest) returns (CancelResponse) {
-    option (api.post) = "/payment/cancel";
-  }
 }
 
 message NotifyResponse {

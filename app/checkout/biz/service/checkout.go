@@ -9,6 +9,7 @@ import (
 	"douyin_mall/rpc/kitex_gen/cart"
 	"douyin_mall/rpc/kitex_gen/order"
 	"douyin_mall/rpc/kitex_gen/payment"
+	"douyin_mall/rpc/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 	"strconv"
@@ -43,6 +44,18 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		return nil, errors.WithStack(err)
 	}
 	productItems := cartResp.Products
+
+	//判断库存是否充足
+	//锁定库存
+	lockQuantityResponse, _ := rpc.ProductClient.LockProductQuantity(s.ctx, &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)})
+
+	if lockQuantityResponse.GetStatusCode() != 0 {
+		klog.CtxErrorf(s.ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
+		return &checkout.CheckoutResp{
+			StatusCode: lockQuantityResponse.GetStatusCode(),
+			StatusMsg:  lockQuantityResponse.GetStatusMsg(),
+		}, nil
+	}
 
 	//得到用户地址
 	address := &order.Address{
@@ -90,6 +103,19 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		PaymentUrl: chargeResp.GetPaymentUrl(),
 	}
 	return resp, nil
+}
+
+func convertProductItems(productItems []*cart.Product) (productsLockQuantity []*product.ProductLockQuantity) {
+	productsLockQuantity = make([]*product.ProductLockQuantity, len(productItems))
+	for _, item := range productItems {
+		productLockQuantity := &product.ProductLockQuantity{
+			Id:       int64(item.GetId()),
+			Quantity: int64(item.GetQuantity()),
+		}
+		productsLockQuantity = append(productsLockQuantity, productLockQuantity)
+	}
+	return
+
 }
 
 func convertCartProductItems2OrderItems(productItems []*cart.Product) []*order.OrderItem {

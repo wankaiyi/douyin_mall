@@ -119,6 +119,11 @@ func (x *CancelChargeReq) FastRead(buf []byte, _type int8, number int32) (offset
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 2:
+		offset, err = x.fastReadField2(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -134,6 +139,11 @@ ReadFieldError:
 
 func (x *CancelChargeReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
 	x.OrderId, offset, err = fastpb.ReadString(buf, _type)
+	return offset, err
+}
+
+func (x *CancelChargeReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
+	x.UserId, offset, err = fastpb.ReadUint32(buf, _type)
 	return offset, err
 }
 
@@ -331,6 +341,7 @@ func (x *CancelChargeReq) FastWrite(buf []byte) (offset int) {
 		return offset
 	}
 	offset += x.fastWriteField1(buf[offset:])
+	offset += x.fastWriteField2(buf[offset:])
 	return offset
 }
 
@@ -339,6 +350,14 @@ func (x *CancelChargeReq) fastWriteField1(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteString(buf[offset:], 1, x.GetOrderId())
+	return offset
+}
+
+func (x *CancelChargeReq) fastWriteField2(buf []byte) (offset int) {
+	if x.UserId == 0 {
+		return offset
+	}
+	offset += fastpb.WriteUint32(buf[offset:], 2, x.GetUserId())
 	return offset
 }
 
@@ -498,6 +517,7 @@ func (x *CancelChargeReq) Size() (n int) {
 		return n
 	}
 	n += x.sizeField1()
+	n += x.sizeField2()
 	return n
 }
 
@@ -506,6 +526,14 @@ func (x *CancelChargeReq) sizeField1() (n int) {
 		return n
 	}
 	n += fastpb.SizeString(1, x.GetOrderId())
+	return n
+}
+
+func (x *CancelChargeReq) sizeField2() (n int) {
+	if x.UserId == 0 {
+		return n
+	}
+	n += fastpb.SizeUint32(2, x.GetUserId())
 	return n
 }
 
@@ -598,6 +626,7 @@ var fieldIDToName_ChargeResp = map[int32]string{
 
 var fieldIDToName_CancelChargeReq = map[int32]string{
 	1: "OrderId",
+	2: "UserId",
 }
 
 var fieldIDToName_CancelChargeResp = map[int32]string{

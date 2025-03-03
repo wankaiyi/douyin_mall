@@ -9,5 +9,5 @@ func Init() {
 	consumer.InitDelayOrderConsumer()
 	producer.InitDelayCheckoutProducer()
 	producer.InitNormalPaymentProducer()
-	producer.InitCancelOrderProducer()
+
 }

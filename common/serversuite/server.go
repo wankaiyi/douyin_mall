@@ -29,7 +29,7 @@ func (s CommonServerSuite) Options() []server.Option {
 		server.WithTracer(prometheus.NewServerTracer("", "", prometheus.WithDisableServer(true), prometheus.WithRegistry(mtl.Registry))),
 		//sentinel 中间件
 		server.WithMiddleware(kitexSentinel.SentinelServerMiddleware(kitexSentinel.WithBlockFallback(func(ctx context.Context, req, resp interface{}, blockErr error) error {
-			klog.CtxErrorf(ctx, "sentinel block fallback: %v", blockErr)
+			klog.CtxErrorf(ctx, "sentinel 限流或熔断规则触发: %v", blockErr)
 			return blockErr
 		}))),
 	}
