@@ -23,7 +23,7 @@ func NewNotifyPaymentService(ctx context.Context) *NotifyPaymentService {
 
 // Run create note info
 func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment.NotifyPaymentResp, err error) {
-	// Finish your business logic.
+	klog.CtxInfof(s.ctx, "收到支付宝异步支付通知,req:%+v", req)
 	notifyData := req.NotifyData
 	//alipayTradeNo := notifyData["alipayTradeNo"]
 	tradeStatus := notifyData["tradeStatus"]
@@ -66,12 +66,14 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 		if err != nil {
 			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, err.Error())
 			//退款
+			klog.CtxInfof(s.ctx, "订单退款orderId:%s,退款", orderId)
 			refund(s.ctx, orderId, getOrderResp)
 			return nil, errors.WithStack(err)
 		}
 		if markOrderPaidResp.StatusCode != 0 {
 			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, markOrderPaidResp.StatusMsg)
 			//退款
+			klog.CtxInfof(s.ctx, "订单退款orderId:%s,退款", orderId)
 			refund(s.ctx, orderId, getOrderResp)
 			return &payment.NotifyPaymentResp{
 				StatusCode: markOrderPaidResp.StatusCode,
@@ -79,6 +81,7 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 			}, nil
 		}
 		//发送支付成功消息
+		klog.CtxInfof(s.ctx, "订单支付成功orderId:%s,发送支付成功消息", orderId)
 		producer.SendPaymentSuccessOrderIdMsg(s.ctx, orderId)
 	}
 
