@@ -93,6 +93,7 @@ func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, err
 func GetOrder(ctx context.Context, db *gorm.DB, orderId string) (order *Order, err error) {
 	err = db.WithContext(ctx).Model(&Order{}).
 		Where(&Order{OrderID: orderId}).
+		Order("created_at DESC").
 		Preload("OrderItems").
 		First(&order).Error
 	return
