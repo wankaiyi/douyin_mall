@@ -52,7 +52,6 @@ message ProductInsertResponse {
 }
 
 message ProductSelectRequest {
-  int64 id = 1;
 }
 message ProductSelectResponse {
   int32 status_code = 1[(api.go_tag)='json:"status_code"'];
@@ -118,7 +117,7 @@ service ProductService {
   }
 
   rpc ProductSelect(ProductSelectRequest) returns (ProductSelectResponse) {
-    option (api.get) = "/product";
+    option (api.get) = "/product/:id";
   }
 
   rpc ProductDelete(ProductDeleteRequest) returns (ProductDeleteResponse) {

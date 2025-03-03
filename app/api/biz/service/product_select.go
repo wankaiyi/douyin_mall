@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"douyin_mall/api/infra/rpc"
+	"strconv"
 
 	product "douyin_mall/api/hertz_gen/api/product"
 	rpcproduct "douyin_mall/rpc/kitex_gen/product"
@@ -20,7 +21,13 @@ func NewProductSelectService(Context context.Context, RequestContext *app.Reques
 
 func (h *ProductSelectService) Run(req *product.ProductSelectRequest) (resp *product.ProductSelectResponse, err error) {
 	//根据id查询商品信息
-	selectProduct, err := rpc.ProductClient.SelectProduct(h.Context, &rpcproduct.SelectProductReq{Id: req.Id})
+	id, err := strconv.ParseInt(h.RequestContext.Param("id"), 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	selectProduct, err := rpc.ProductClient.SelectProduct(h.Context, &rpcproduct.SelectProductReq{
+		Id: id,
+	})
 	if err != nil {
 		return nil, err
 	}
