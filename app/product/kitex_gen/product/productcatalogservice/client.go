@@ -25,10 +25,6 @@ type Client interface {
 	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
 	UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error)
 	GetAllCategories(ctx context.Context, Req *product.CategoryListReq, callOptions ...callopt.Option) (r *product.CategoryListResp, err error)
-	SelectBrand(ctx context.Context, Req *product.BrandSelectReq, callOptions ...callopt.Option) (r *product.BrandSelectResp, err error)
-	InsertBrand(ctx context.Context, Req *product.BrandInsertReq, callOptions ...callopt.Option) (r *product.BrandInsertResp, err error)
-	DeleteBrand(ctx context.Context, Req *product.BrandDeleteReq, callOptions ...callopt.Option) (r *product.BrandDeleteResp, err error)
-	UpdateBrand(ctx context.Context, Req *product.BrandUpdateReq, callOptions ...callopt.Option) (r *product.BrandUpdateResp, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -128,24 +124,4 @@ func (p *kProductCatalogServiceClient) UpdateCategory(ctx context.Context, Req *
 func (p *kProductCatalogServiceClient) GetAllCategories(ctx context.Context, Req *product.CategoryListReq, callOptions ...callopt.Option) (r *product.CategoryListResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetAllCategories(ctx, Req)
-}
-
-func (p *kProductCatalogServiceClient) SelectBrand(ctx context.Context, Req *product.BrandSelectReq, callOptions ...callopt.Option) (r *product.BrandSelectResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.SelectBrand(ctx, Req)
-}
-
-func (p *kProductCatalogServiceClient) InsertBrand(ctx context.Context, Req *product.BrandInsertReq, callOptions ...callopt.Option) (r *product.BrandInsertResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.InsertBrand(ctx, Req)
-}
-
-func (p *kProductCatalogServiceClient) DeleteBrand(ctx context.Context, Req *product.BrandDeleteReq, callOptions ...callopt.Option) (r *product.BrandDeleteResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.DeleteBrand(ctx, Req)
-}
-
-func (p *kProductCatalogServiceClient) UpdateBrand(ctx context.Context, Req *product.BrandUpdateReq, callOptions ...callopt.Option) (r *product.BrandUpdateResp, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.UpdateBrand(ctx, Req)
 }

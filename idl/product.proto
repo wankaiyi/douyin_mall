@@ -5,7 +5,6 @@ package product;
 option go_package = "/product";
 
 import "category.proto";
-import "brand.proto";
 service ProductCatalogService {
   rpc ListProducts(ListProductsReq) returns (ListProductsResp) {}
   rpc GetProduct(GetProductReq) returns (GetProductResp) {}
@@ -22,11 +21,6 @@ service ProductCatalogService {
   rpc DeleteCategory(CategoryDeleteReq) returns (CategoryDeleteResp) {}
   rpc UpdateCategory(CategoryUpdateReq) returns (CategoryUpdateResp) {}
   rpc GetAllCategories(CategoryListReq) returns (CategoryListResp) {}
-
-  rpc SelectBrand(BrandSelectReq) returns (BrandSelectResp) {}
-  rpc InsertBrand(BrandInsertReq) returns (BrandInsertResp) {}
-  rpc DeleteBrand(BrandDeleteReq) returns (BrandDeleteResp) {}
-  rpc UpdateBrand(BrandUpdateReq) returns (BrandUpdateResp) {}
 }
 
 message ListProductsReq{
