@@ -21,7 +21,9 @@ func NewUpdateProductService(ctx context.Context) *UpdateProductService {
 // Run create note info
 func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product.UpdateProductResp, err error) {
 	pro := model.Product{
-		ID:          req.Id,
+		Base: model.Base{
+			ID: req.Id,
+		},
 		Name:        req.Name,
 		Description: req.Description,
 		Picture:     req.Picture,
@@ -31,7 +33,6 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 		PublicState: req.PublishStatus,
 		LockStock:   req.Stock,
 		CategoryId:  req.CategoryId,
-		BrandId:     req.BrandId,
 	}
 	err = model.UpdateProduct(mysql.DB, s.ctx, &pro)
 	if err != nil {

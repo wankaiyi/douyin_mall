@@ -34,8 +34,8 @@ func NewSearchProductsService(ctx context.Context) *SearchProductsService {
 
 // Run create note info
 func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *product.SearchProductsResp, err error) {
-	from := new(int64)
-	size := new(int64)
+	from := new(int32)
+	size := new(int32)
 	if req.Page >= 1 {
 		*from = (req.Page - 1) * req.PageSize
 	}
@@ -94,7 +94,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	var products = make([]*product.Product, 0)
 	//根据id从缓存或者数据库钟获取数据
 	//根据返回的数据确认是否有缺失数据，有的话把当前的id存进去
-	var missingIds []int64
+	var missingIds []int32
 	//先判断redis是否存在数据，如果存在，则直接返回数据
 	products, missingIds, err = getCache(s.ctx, searchIds, md5Bytes)
 	klog.CtxInfof(s.ctx, "products: %v,missingsIds:%v", products, missingIds)
@@ -135,8 +135,8 @@ func searchHotkey(md string) string {
 	return "product:hotkey:" + md
 }
 
-func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int64, error) {
-	var ids = make([]int64, 0)
+func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int32, error) {
+	var ids = make([]int32, 0)
 	dslKey := "product:dslBytes:" + string(md5bytes)
 	keyConf := keyModel.NewKeyConf1(constant.ProductService)
 	hotkeyModel := keyModel.NewHotKeyModelWithConfig(dslKey, &keyConf)
@@ -194,20 +194,20 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 	return ids, nil
 }
 
-func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
+func getCache(ctx context.Context, searchIds []int32, md5Bytes []byte) (products []*product.Product, missingIds []int32, err error) {
 	//加入hotkey
 	products = make([]*product.Product, 0)
-	missingIds = make([]int64, 0)
+	missingIds = make([]int32, 0)
 	if len(searchIds) == 0 {
 		return products, missingIds, nil
 	}
 	var keysKey = searchHotkey(string(md5Bytes))
 	keysConf := keyModel.NewKeyConf1(constant.ProductService)
 	keysHotkeyModel := keyModel.NewHotKeyModelWithConfig(keysKey, &keysConf)
-	var values map[int64]map[string]string = make(map[int64]map[string]string)
+	var values map[int32]map[string]string = make(map[int32]map[string]string)
 	localKeysCache := processor.GetValue(*keysHotkeyModel)
 	if localKeysCache != nil {
-		values = localKeysCache.(map[int64]map[string]string)
+		values = localKeysCache.(map[int32]map[string]string)
 	} else {
 		for _, id := range searchIds {
 			productKey := model.BaseInfoKey(ctx, id)
@@ -234,14 +234,14 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 			price, _ := strconv.ParseFloat(valueMap["price"], 64)
 			picture := valueMap["picture"]
 			productData := product.Product{
-				Id:            id,
+				Id:            int32(id),
 				Name:          valueMap["name"],
 				Description:   valueMap["description"],
 				Picture:       picture,
 				Price:         float32(price),
-				Stock:         Stock,
-				Sale:          Sale,
-				PublishStatus: PublishStatus,
+				Stock:         int32(Stock),
+				Sale:          int32(Sale),
+				PublishStatus: int32(PublishStatus),
 			}
 			klog.CtxInfof(ctx, "valueMap的值:%v,productData:%v", valueMap, &productData)
 			klog.CtxInfof(ctx, "id:%v,picture:%v", id, picture)
@@ -251,7 +251,7 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 	return products, missingIds, nil
 }
 
-func getMissingProduct(ctx context.Context, missingIds []int64) (products []*product.Product, err error) {
+func getMissingProduct(ctx context.Context, missingIds []int32) (products []*product.Product, err error) {
 	if len(missingIds) > 0 {
 		//从数据库中获取数据
 		list, err := model.SelectProductList(mysql.DB, context.Background(), missingIds)
@@ -290,7 +290,9 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 					klog.CtxInfof(ctx, "从数据库内查找的数据:%v", &p)
 					productKey := model.BaseInfoKey(ctx, list[i].ProductId)
 					err = model.PushToRedisBaseInfo(ctx, model.Product{
-						ID:          pro.ProductId,
+						Base: model.Base{
+							ID: pro.ProductId,
+						},
 						Name:        pro.ProductName,
 						Description: pro.ProductDescription,
 						Picture:     pro.ProductPicture,
@@ -321,9 +323,9 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 	return products, nil
 }
 
-func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
+func getStock(ctx context.Context, searchIds []int32) (productStock map[int32]int32, err error) {
 	var wg sync.WaitGroup
-	productStock = make(map[int64]int64)
+	productStock = make(map[int32]int32)
 	synMap := sync.Map{}
 	for _, id := range searchIds {
 		wg.Add(1)
@@ -383,7 +385,7 @@ func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					}
 				} else {
 					//如果加锁成功，则从数据库中获取数据
-					list, err := model.SelectProductList(mysql.DB, ctx, []int64{id})
+					list, err := model.SelectProductList(mysql.DB, ctx, []int32{id})
 					if err != nil {
 						klog.CtxErrorf(ctx, "获取库存信息时 从数据库中获取数据失败, err: %v", err)
 						return
@@ -391,7 +393,9 @@ func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					if len(list) == 1 {
 						productStock.Store(id, list[0].ProductId)
 						err := model.PushToRedisStock(ctx, model.Product{
-							ID:          id,
+							Base: model.Base{
+								ID: id,
+							},
 							Name:        list[0].ProductName,
 							Description: list[0].ProductDescription,
 							Picture:     list[0].ProductPicture,
@@ -420,7 +424,7 @@ func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 	}
 	wg.Wait()
 	synMap.Range(func(key, value interface{}) bool {
-		productStock[key.(int64)] = value.(int64)
+		productStock[key.(int32)] = value.(int32)
 		return true
 	})
 	return productStock, nil

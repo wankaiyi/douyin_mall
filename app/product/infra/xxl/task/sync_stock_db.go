@@ -48,14 +48,14 @@ func syncToMysql(ctx context.Context, key string) (err error) {
 		return err
 	}
 	uuidString := uuid.New().String()
-	lockKey := model.StockLockKey(ctx, int64(id))
+	lockKey := model.StockLockKey(ctx, int32(id))
 	lock, err := model.SetLock(ctx, redisClient.RedisClient, lockKey, uuidString)
 	if err != nil {
 		return err
 	}
 	if lock {
 		klog.CtxInfof(ctx, "id:%v上锁成功", id)
-		result, err := redisClient.RedisClient.HGetAll(ctx, model.StockKey(ctx, int64(id))).Result()
+		result, err := redisClient.RedisClient.HGetAll(ctx, model.StockKey(ctx, int32(id))).Result()
 		if err != nil {
 			klog.CtxInfof(ctx, "redisClient.HGetAll() error: %v", err)
 			return err
@@ -71,9 +71,9 @@ func syncToMysql(ctx context.Context, key string) (err error) {
 			return err
 		}
 		err = model.UpdateProduct(mysql.DB, ctx, &model.Product{
-			ID:        int64(id),
-			Stock:     int64(stock),
-			LockStock: int64(lockStock),
+			Base:      model.Base{ID: int32(id)},
+			Stock:     int32(stock),
+			LockStock: int32(lockStock),
 		})
 		if err != nil {
 			klog.CtxInfof(ctx, "将数据更新到数据库失败,err:%v", err)

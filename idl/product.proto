@@ -25,24 +25,24 @@ service ProductCatalogService {
 
 message ListProductsReq{
   int32 page = 1;
-  int64 pageSize = 2;
+  int32 pageSize = 2;
 
   string categoryName = 3;
 }
 
 message Product {
-  int64 id = 1;
+  int32 id = 1;
   string name = 2;
   string description = 3;
   string picture = 4;
   float price = 5;
 
   string category_name = 6;
-  int64 stock=7;
-  int64 sale=8;
-  int64 publish_status=9;
-  int64 brandId=10;
-  int64 category_id=11;
+  int32 stock=7;
+  int32 sale=8;
+  int32 publish_status=9;
+  int32 brandId=10;
+  int32 category_id=11;
 }
 
 message ListProductsResp {
@@ -63,9 +63,9 @@ message GetProductResp {
 
 message SearchProductsReq {
   string query = 1;
-  int64 categoryId = 2;
-  int64 page=3;
-  int64 page_size=4;
+  int32 categoryId = 2;
+  int32 page=3;
+  int32 page_size=4;
 }
 
 message SearchProductsResp {
@@ -79,9 +79,9 @@ message InsertProductReq {
   string description = 2 ;
   string picture = 3 ;
   float price = 4 ;
-  int64 stock = 5 ;
-  int64 brandId=10;
-  int64 categoryId=11;
+  int32 stock = 5 ;
+  int32 brandId=10;
+  int32 categoryId=11;
 }
 
 message InsertProductResp {
@@ -90,10 +90,10 @@ message InsertProductResp {
 }
 
 message SelectProductReq {
-  int64 id = 1;
+  int32 id = 1;
 }
 message SelectProductListReq {
-  repeated int64 ids = 1;
+  repeated int32 ids = 1;
 }
 
 message SelectProductListResp {
@@ -109,7 +109,7 @@ message SelectProductResp {
 }
 
 message DeleteProductReq {
-  int64 id = 1;
+  int32 id = 1;
 }
 
 message DeleteProductResp {
@@ -118,18 +118,18 @@ message DeleteProductResp {
 }
 
 message UpdateProductReq {
-  int64 id = 1;
+  int32 id = 1;
   string name = 2;
   string description = 3;
   string picture = 4;
   float price = 5;
 
   repeated string categories = 6;
-  int64 stock=7;
-  int64 sale=8;
-  int64 publish_status=9;
-  int64 brandId=10;
-  int64 categoryId=11;
+  int32 stock=7;
+  int32 sale=8;
+  int32 publish_status=9;
+  int32 brandId=10;
+  int32 categoryId=11;
 }
 
 message UpdateProductResp {
@@ -139,8 +139,8 @@ message UpdateProductResp {
 
 //锁库存
 message ProductLockQuantity{
-  int64 id = 1;
-  int64 quantity = 2;
+  int32 id = 1;
+  int32 quantity = 2;
 }
 message ProductLockQuantityRequest {
   repeated ProductLockQuantity products = 1;

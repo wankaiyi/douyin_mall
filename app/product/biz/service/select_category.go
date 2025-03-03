@@ -27,9 +27,8 @@ func (s *SelectCategoryService) Run(req *product.CategorySelectReq) (resp *produ
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		Category: &product.Category{
-			Id:          category.ID,
-			Name:        category.Name,
-			Description: category.Description,
+			Id:   category.ID,
+			Name: category.Name,
 		},
 	}, nil
 }

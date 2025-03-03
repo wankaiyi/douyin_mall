@@ -35,7 +35,7 @@ func refresh(ctx context.Context, index int64, total int64) (err error) {
 		klog.Errorf("从数据库获取数据失败 CheckAccountTask failed, err: %v", err)
 		return err
 	}
-	productMap := map[int64]model.Product{}
+	productMap := map[int32]model.Product{}
 	for i := range allProduct {
 		productMap[allProduct[i].ID] = allProduct[i]
 	}

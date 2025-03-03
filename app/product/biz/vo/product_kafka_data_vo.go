@@ -11,7 +11,7 @@ type Type struct {
 }
 
 type ProductSendToKafka struct {
-	ID          int64   `json:"id,omitempty"`
+	ID          int32   `json:"id,omitempty"`
 	Name        string  `json:"name,omitempty"`
 	Description string  `json:"description,omitempty"`
 	Price       float32 `json:"price,omitempty"`

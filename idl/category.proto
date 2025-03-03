@@ -6,7 +6,7 @@ option go_package = "/product";
 
 
 message CategorySelectReq {
-  int64 categoryId = 1;
+  int32 categoryId = 1;
 }
 
 message CategorySelectResp {
@@ -15,7 +15,7 @@ message CategorySelectResp {
   Category category = 3;
 }
 message Category {
-  int64 id = 1;
+  int32 id = 1;
   string name = 2;
   string description = 3;
 }
@@ -31,7 +31,7 @@ message CategoryInsertResp {
 }
 
 message CategoryDeleteReq{
-  int64 category_id = 1;
+  int32 category_id = 1;
 }
 
 message CategoryDeleteResp {
@@ -40,7 +40,7 @@ message CategoryDeleteResp {
 }
 
 message CategoryUpdateReq{
-  int64 category_id = 1;
+  int32 category_id = 1;
   string name = 2;
   string description = 3;
 }

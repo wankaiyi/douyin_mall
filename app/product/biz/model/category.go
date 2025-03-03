@@ -3,22 +3,18 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Category struct {
-	ID          int64     `gorm:"primary_key" json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Name string `gorm:"not null;type:varchar(100)" json:"name"`
+	Base
 }
 
 func (p *Category) TableName() string {
 	return "tb_category"
 }
 
-func SelectCategory(db *gorm.DB, ctx context.Context, id int64) (category Category, err error) {
+func SelectCategory(db *gorm.DB, ctx context.Context, id int32) (category Category, err error) {
 	result := db.WithContext(ctx).Where("id=?", id).First(&category)
 	err = result.Error
 	return category, err
@@ -30,7 +26,7 @@ func CreateCategory(db *gorm.DB, ctx context.Context, category *Category) (err e
 	return err
 }
 
-func DeleteCategory(db *gorm.DB, ctx context.Context, id int64) (err error) {
+func DeleteCategory(db *gorm.DB, ctx context.Context, id int32) (err error) {
 	result := db.WithContext(ctx).Where("id=?", id).Delete(&Category{})
 	err = result.Error
 	return err

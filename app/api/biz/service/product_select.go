@@ -39,6 +39,7 @@ func (h *ProductSelectService) Run(req *product.ProductSelectRequest) (resp *pro
 			Picture:       selectProduct.Product.Picture,
 			BrandId:       selectProduct.Product.BrandId,
 			CategoryId:    selectProduct.Product.CategoryId,
+			CategoryName:  selectProduct.Product.CategoryName,
 		},
 	}, nil
 }

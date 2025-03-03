@@ -22,8 +22,7 @@ func (s *InsertCategoryService) Run(req *product.CategoryInsertReq) (resp *produ
 	// Finish your business logic.
 	//将数据封装到结构体中
 	category := model.Category{
-		Name:        req.Name,
-		Description: req.Description,
+		Name: req.Name,
 	}
 	//调用插入数据库的方法
 	err = model.CreateCategory(mysql.DB, s.ctx, &category)
