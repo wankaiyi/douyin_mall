@@ -12,8 +12,8 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/cloudwego/hertz/pkg/app/client"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"github.com/cloudwego/kitex/pkg/klog"
 
 	"strconv"
 
@@ -27,13 +27,13 @@ import (
 )
 
 func CheckAccountTask(ctx context.Context, param *xxl.RunReq) (msg string) {
-	hlog.CtxInfof(ctx, "对账任务开始 CheckAccountTask start")
+	klog.CtxInfof(ctx, "对账任务开始 CheckAccountTask start")
 	// 下载对账文件
 	downloadQueryZip(ctx)
 	// 解析对账文件
 	resolutionCsv(ctx)
 
-	hlog.Infof("对账任务结束 CheckAccountTask end")
+	klog.CtxInfof(ctx, "对账任务结束 CheckAccountTask end")
 	return "task done"
 
 }
@@ -42,7 +42,7 @@ func downloadQueryZip(ctx context.Context) {
 	// 目标URL
 	billDownloadUrl, err := alipay.QueryBill(ctx)
 	if err != nil {
-		hlog.CtxErrorf(ctx, "Get billDownloadUrl error: %v", err)
+		klog.CtxErrorf(ctx, "Get billDownloadUrl error: %v", err)
 		return
 	}
 
@@ -56,29 +56,29 @@ func downloadQueryZip(ctx context.Context) {
 	// 发送GET请求
 	statusCode, body, err := cli.Get(ctx, nil, billDownloadUrl)
 	if err != nil {
-		hlog.CtxErrorf(ctx, "client.Get error: %v", err)
+		klog.CtxErrorf(ctx, "client.Get error: %v", err)
 	}
 	if len(body) < 100 {
-		hlog.CtxErrorf(ctx, "Request time out!!!")
+		klog.CtxErrorf(ctx, "Request time out!!!")
 		return
 	}
-	hlog.CtxInfof(ctx, "statusCode: %v, body: %v", statusCode, body)
-	hlog.CtxInfof(ctx, "body len: %v", len(body))
+	klog.CtxInfof(ctx, "statusCode: %v, body: %v", statusCode, body)
+	klog.CtxInfof(ctx, "body len: %v", len(body))
 	// 确保关闭响应体
 
 	// 检查HTTP状态码
 	if statusCode != consts.StatusOK {
-		hlog.CtxErrorf(ctx, "Get status code: %v", statusCode)
+		klog.CtxErrorf(ctx, "Get status code: %v", statusCode)
 	}
 
 	now := time.Now().Local()
 	yesterday := now.Add(-time.Hour * 24).Format("2006-01-02")
-	zipPath := "./resource/accountFile/" + yesterday + ".zip"
+	zipPath := "./resource/" + yesterday + ".zip"
 
 	// 写入文件
 	err = os.WriteFile(zipPath, body, 0666)
 	if err != nil {
-		hlog.CtxErrorf(ctx, "os.WriteFile error: %v", err)
+		klog.CtxErrorf(ctx, "os.WriteFile error: %v", err)
 	}
 	fmt.Println("download success")
 }
@@ -87,22 +87,22 @@ func downloadQueryZip(ctx context.Context) {
 func resolutionZip(ctx context.Context) (*os.File, io.ReadCloser, error) {
 	now := time.Now().Local()
 	yesterday := now.Add(-time.Hour * 24).Format("2006-01-02")
-	zipPath := "./resource/accountFile/" + yesterday + ".zip"
+	zipPath := "./resource/" + yesterday + ".zip"
 
 	zipFile, err := os.Open(zipPath)
 	if err != nil {
-		hlog.CtxErrorf(ctx, "os.Open error: %v", err)
+		klog.CtxErrorf(ctx, "os.Open error: %v", err)
 	}
 
 	zipFileInfo, err := zipFile.Stat()
 	if err != nil {
-		hlog.CtxErrorf(ctx, "zipFile.Stat error: %v", err)
+		klog.CtxErrorf(ctx, "zipFile.Stat error: %v", err)
 	}
 
 	zipReader, err := zip.NewReader(zipFile, zipFileInfo.Size())
 
 	if err != nil {
-		hlog.CtxErrorf(ctx, "zip.NewReader error: %v", err)
+		klog.CtxErrorf(ctx, "zip.NewReader error: %v", err)
 	}
 
 	var csvFile io.ReadCloser
@@ -112,14 +112,14 @@ func resolutionZip(ctx context.Context) (*os.File, io.ReadCloser, error) {
 	for _, file := range zipReader.File {
 		fileName, err := decodeGbk(file.Name)
 		if err != nil {
-			hlog.CtxErrorf(ctx, "decodeGbk error: %v", err)
+			klog.CtxErrorf(ctx, "decodeGbk error: %v", err)
 		}
 		if fileName == userId+"_"+yesterdayDate+"_业务明细.csv" {
 
 			csvFile, err = file.Open()
 
 			if err != nil {
-				hlog.CtxErrorf(ctx, "csvFile.Open error: %v", err)
+				klog.CtxErrorf(ctx, "csvFile.Open error: %v", err)
 			}
 			break
 		}
@@ -133,7 +133,7 @@ func resolutionCsv(ctx context.Context) {
 	defer zipFile.Close()
 	defer csvFile.Close()
 	if err != nil {
-		hlog.CtxErrorf(ctx, "resolutionZip error: %v", err)
+		klog.CtxErrorf(ctx, "resolutionZip error: %v", err)
 	}
 	csvReader := csv.NewReader(csvFile)
 	startIndexCh := make(chan int)
@@ -145,7 +145,7 @@ func resolutionCsv(ctx context.Context) {
 			break
 		}
 		if err != nil {
-			hlog.CtxErrorf(ctx, "csvReader.Read error: %v", err)
+			klog.CtxErrorf(ctx, "csvReader.Read error: %v", err)
 			continue
 		}
 
@@ -158,15 +158,14 @@ func resolutionCsv(ctx context.Context) {
 	endIndex := <-endIndexCh
 	if startIndex+2 == endIndex {
 		date := time.Now().Local().Format("2006-01-02")
-		hlog.CtxInfof(ctx, "日期:%s 没有数据", date)
-		//检查数据库值当日是否有数据
+		klog.CtxInfof(ctx, "日期:%s 没有数据", date)
 
-		fmt.Println("All data processed.")
+		klog.CtxInfof(ctx, "All data processed.")
 
 		return
 	}
 
-	hlog.CtxInfof(ctx, "开始读取并处理数据")
+	klog.CtxInfof(ctx, "开始读取并处理数据")
 
 	//重置读取指针
 	resetZipFile, resetCsv, err := resolutionZip(ctx)
@@ -174,7 +173,7 @@ func resolutionCsv(ctx context.Context) {
 	defer resetZipFile.Close()
 	defer resetCsv.Close()
 	if err != nil {
-		hlog.CtxErrorf(ctx, "resolutionZip error: %v", err)
+		klog.CtxErrorf(ctx, "resolutionZip error: %v", err)
 	}
 	resetReader := csv.NewReader(resetCsv)
 	var wg sync.WaitGroup
@@ -189,7 +188,7 @@ func resolutionCsv(ctx context.Context) {
 			break
 		}
 		if err != nil {
-			hlog.CtxErrorf(ctx, "csvReader.Read error: %v", err)
+			klog.CtxErrorf(ctx, "csvReader.Read error: %v", err)
 			continue
 		}
 		wg.Add(1)
@@ -210,7 +209,7 @@ func findStartIndex(ctx context.Context, index int, content []string, startIndex
 
 	data, err := decodeGbk(content[0])
 	if err != nil {
-		hlog.CtxErrorf(ctx, "decodeGbk error: %v", err)
+		klog.CtxErrorf(ctx, "decodeGbk error: %v", err)
 		return
 	}
 	if data == "#-----------------------------------------业务明细列表----------------------------------------" {
@@ -224,7 +223,7 @@ func findEndIndex(ctx context.Context, index int, content []string, endIndexCh c
 
 	data, err := decodeGbk(content[0])
 	if err != nil {
-		hlog.CtxErrorf(ctx, "decodeGbk error: %v", err)
+		klog.CtxErrorf(ctx, "decodeGbk error: %v", err)
 		return
 	}
 	if data == "#-----------------------------------------业务明细列表结束------------------------------------" {
@@ -244,23 +243,23 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 		AlipayAmount := content[13]
 		AlipayAmountFloat, err := strconv.ParseFloat(AlipayAmount, 64)
 		if err != nil {
-			hlog.CtxErrorf(ctx, "strconv.ParseFloat error: %v", err)
+			klog.CtxErrorf(ctx, "strconv.ParseFloat error: %v", err)
 		}
 		//检查数据库中是否存在数据
 		orderResp, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{
 			OrderId: orderId,
 		})
 		if err != nil {
-			hlog.CtxErrorf(ctx, "获取订单数据失败,err： %v，orderId：%s", err, orderId)
+			klog.CtxErrorf(ctx, "获取订单数据失败,err： %v，orderId：%s", err, orderId)
 			return
 		}
 
 		if orderResp == nil {
-			hlog.CtxErrorf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库中不存在!!!", orderId, alipayTradeNo, AlipayAmountFloat)
+			klog.CtxErrorf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库中不存在!!!", orderId, alipayTradeNo, AlipayAmountFloat)
 			return
 			//订单金额与支付金额不一致
 		} else if orderResp.Order.Cost != AlipayAmountFloat {
-			hlog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
+			klog.CtxWarnf(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f 不一致!!!", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
 
 			err := model.CreateCheckRecord(mysql.DB, ctx, &model.CheckRecord{
 				ReconDate:     time.Now().Local(),
@@ -271,7 +270,7 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 				Status:        commonConstant.InconsistentCheckRecordStatus,
 			})
 			if err != nil {
-				hlog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
+				klog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
 			}
 			return
 			//订单金额与支付金额一致
@@ -285,11 +284,11 @@ func handlerData(ctx context.Context, index int, content []string, startIndex in
 			Status:        commonConstant.ConsistentCheckRecordStatus,
 		})
 		if err != nil {
-			hlog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
+			klog.CtxErrorf(ctx, "创建对账记录失败,err: %v ,orderId: %s", err, orderId)
 			return
 		}
 
-		hlog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
+		klog.CtxInfof(ctx, "订单号:%s 支付宝交易号:%s 支付金额:%f 数据库金额:%f  对账状态正常", orderId, alipayTradeNo, AlipayAmountFloat, orderResp.Order.Cost)
 	}
 	defer wg.Done()
 

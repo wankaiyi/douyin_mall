@@ -23,6 +23,7 @@ func NewChargeService(ctx context.Context) *ChargeService {
 // Run create note info
 func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, err error) {
 	// Finish your business logic.
+	klog.CtxInfof(s.ctx, "支付接口被调用, req: %+v", req)
 	orderId, err := strconv.ParseInt(req.OrderId, 0, 64)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "parse order id error: %s", err.Error())
@@ -48,6 +49,6 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 		StatusMsg:  constant.GetMsg(0),
 		PaymentUrl: paymentUrl,
 	}
-
+	klog.CtxInfof(s.ctx, "支付接口返回, resp: %+v ,支付接口调用结束。", resp)
 	return
 }

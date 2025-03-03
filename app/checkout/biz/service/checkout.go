@@ -24,6 +24,7 @@ func NewCheckoutService(ctx context.Context) *CheckoutService {
 
 // Run create note info
 func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.CheckoutResp, err error) {
+	klog.CtxInfof(s.ctx, "用户userId:%d,开始结算订单", req.UserId)
 	//获得userId
 	ctx := s.ctx
 	userId := req.UserId
@@ -117,6 +118,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		StatusMsg:  constant.GetMsg(0),
 		PaymentUrl: chargeResp.GetPaymentUrl(),
 	}
+	klog.CtxInfof(s.ctx, "用户userId:%d,结算订单成功", userId)
 	return resp, nil
 }
 

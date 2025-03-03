@@ -5,6 +5,7 @@ import (
 	"douyin_mall/payment/conf"
 	"douyin_mall/payment/infra/kafka/constant"
 	"github.com/bytedance/sonic"
+	"github.com/google/uuid"
 
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -22,6 +23,10 @@ func InitNormalPaymentProducer() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 	config.Producer.Partitioner = sarama.NewHashPartitioner
+	config.Producer.Idempotent = true
+	config.Producer.Retry.Max = 3
+	config.Producer.Transaction.ID = uuid.New().String()
+	config.Net.MaxOpenRequests = 1
 
 	paymentSuccessProducer, err1 = sarama.NewAsyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)
 	if err1 != nil {

@@ -22,7 +22,7 @@ func NewNotifyPaymentService(ctx context.Context) *NotifyPaymentService {
 
 // Run create note info
 func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment.NotifyPaymentResp, err error) {
-	klog.Infof("收到支付宝支付成功回调，req：%v", req)
+	klog.Infof("收到支付宝支付成功回调，req：%+v", req)
 	ctx := s.ctx
 	notifyData := req.NotifyData
 	//alipayTradeNo := notifyData["alipayTradeNo"]
