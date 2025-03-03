@@ -6,13 +6,12 @@ import (
 	"douyin_mall/product/biz/dal/redis"
 	productModel "douyin_mall/product/biz/model"
 	"douyin_mall/product/infra/kafka/constant"
-	"douyin_mall/product/infra/kafka/model"
 	rpc "douyin_mall/product/infra/rpc"
 	"douyin_mall/rpc/kitex_gen/order"
-	"errors"
 	"github.com/IBM/sarama"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
 )
 
@@ -29,7 +28,7 @@ func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSes
 
 		session.MarkMessage(msg, "start")
 		value := msg.Value //消息内容
-		dataVo := model.ReleaseRealQuantitySendToKafka{}
+		var dataVo string = ""
 		//将消息反序列化成Product结构体
 		_ = sonic.Unmarshal(value, &dataVo)
 		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
@@ -48,11 +47,31 @@ func (h ReleaseRealQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSes
 	return nil
 }
 
-func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySendToKafka) (err error) {
+func ReleaseRealQuantity(ctx context.Context, dataVo string) (err error) {
 	//根据orderId查询订单信息
-	orderData, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: dataVo.OrderID})
+	orderData, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: dataVo})
 	if err != nil {
 		return err
+	}
+	//先判断订单是否被消费
+	orderKey := "product:order:" + dataVo
+	//十分钟过期
+	ensureScript := `
+		local k=KEYS[1]
+		local a=redis.call('incr', KEYS[1])
+		redis.call('EXPIRE ', k, 600)
+		return a
+	`
+	result, err := redis.RedisClient.Eval(ctx, ensureScript, []string{orderKey}).Result()
+	if err != nil || result == nil {
+		klog.CtxErrorf(ctx, "判断订单有无消费时异常，err=%v", errors.WithStack(err))
+		return err
+	}
+	klog.CtxInfof(ctx, "释放真实库存，订单id=%v, result=%v", dataVo, result)
+	//只有为1的时候才能消费
+	if result.(int64) != 1 {
+		klog.CtxInfof(ctx, "订单已被消费，不再处理")
+		return nil
 	}
 	//从订单信息获取商品信息列表，其中包括各个商品的id和购买的数量
 	products := orderData.Order.Products
@@ -67,7 +86,9 @@ func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySe
 				end
 			end
 			for i, key in ipairs(keys) do
+				local quantity = tonumber(quantities[i])
 				redis.call('hincrby', key, 'stock', -quantity)
+				redis.call('hincrby', key, 'lock_stock', -quantity)
 			end
 			return 1
 		end
@@ -80,7 +101,7 @@ func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySe
 		args = append(args, pro.Quantity)
 	}
 	//开启事务，批量扣减商品的真实库存和锁定库存
-	result, err := redis.RedisClient.Eval(ctx, luaScript, keys, args).Result()
+	result, err = redis.RedisClient.Eval(ctx, luaScript, keys, args).Result()
 	if err != nil {
 		return err
 	}
