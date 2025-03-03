@@ -25,6 +25,7 @@ type RPCClient interface {
 	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
 	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
 	UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error)
+	GetAllCategories(ctx context.Context, Req *product.CategoryListReq, callOptions ...callopt.Option) (r *product.CategoryListResp, err error)
 	SelectBrand(ctx context.Context, Req *product.BrandSelectReq, callOptions ...callopt.Option) (r *product.BrandSelectResp, err error)
 	InsertBrand(ctx context.Context, Req *product.BrandInsertReq, callOptions ...callopt.Option) (r *product.BrandInsertResp, err error)
 	DeleteBrand(ctx context.Context, Req *product.BrandDeleteReq, callOptions ...callopt.Option) (r *product.BrandDeleteResp, err error)
@@ -107,6 +108,10 @@ func (c *clientImpl) DeleteCategory(ctx context.Context, Req *product.CategoryDe
 
 func (c *clientImpl) UpdateCategory(ctx context.Context, Req *product.CategoryUpdateReq, callOptions ...callopt.Option) (r *product.CategoryUpdateResp, err error) {
 	return c.kitexClient.UpdateCategory(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) GetAllCategories(ctx context.Context, Req *product.CategoryListReq, callOptions ...callopt.Option) (r *product.CategoryListResp, err error) {
+	return c.kitexClient.GetAllCategories(ctx, Req, callOptions...)
 }
 
 func (c *clientImpl) SelectBrand(ctx context.Context, Req *product.BrandSelectReq, callOptions ...callopt.Option) (r *product.BrandSelectResp, err error) {

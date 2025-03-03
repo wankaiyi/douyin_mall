@@ -21,6 +21,7 @@ service ProductCatalogService {
   rpc InsertCategory(CategoryInsertReq) returns (CategoryInsertResp) {}
   rpc DeleteCategory(CategoryDeleteReq) returns (CategoryDeleteResp) {}
   rpc UpdateCategory(CategoryUpdateReq) returns (CategoryUpdateResp) {}
+  rpc GetAllCategories(CategoryListReq) returns (CategoryListResp) {}
 
   rpc SelectBrand(BrandSelectReq) returns (BrandSelectResp) {}
   rpc InsertBrand(BrandInsertReq) returns (BrandInsertResp) {}

@@ -49,3 +49,13 @@ message CategoryUpdateResponse {
     int32 status_code = 1[(api.go_tag)='json:"status_code"'];
     string status_msg = 2;
 }
+
+message CategoryRequest {
+
+}
+
+message CategoryResponse {
+    int32 status_code = 1[(api.go_tag)='json:"status_code"'];
+    string status_msg = 2;
+    repeated Category categories = 3;
+}

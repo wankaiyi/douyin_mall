@@ -124,6 +124,15 @@ func UpdateCategory(ctx context.Context, req *product.CategoryUpdateReq, callOpt
 	return resp, nil
 }
 
+func GetAllCategories(ctx context.Context, req *product.CategoryListReq, callOptions ...callopt.Option) (resp *product.CategoryListResp, err error) {
+	resp, err = defaultClient.GetAllCategories(ctx, req, callOptions...)
+	if err != nil {
+		klog.CtxErrorf(ctx, "GetAllCategories call failed,err =%+v", err)
+		return nil, err
+	}
+	return resp, nil
+}
+
 func SelectBrand(ctx context.Context, req *product.BrandSelectReq, callOptions ...callopt.Option) (resp *product.BrandSelectResp, err error) {
 	resp, err = defaultClient.SelectBrand(ctx, req, callOptions...)
 	if err != nil {

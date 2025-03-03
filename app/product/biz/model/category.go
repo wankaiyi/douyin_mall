@@ -41,3 +41,14 @@ func UpdateCategory(db *gorm.DB, ctx context.Context, category *Category) (err e
 	err = result.Error
 	return err
 }
+
+func CategoryKey() string {
+	return "categories"
+}
+
+func CategoryLockKey() string {
+	return "categories:lock"
+}
+func GetAllCategoryByDb(db *gorm.DB, ctx context.Context, categories *[]*Category) (err error) {
+	return db.WithContext(ctx).Model(&Category{}).Find(&categories).Error
+}

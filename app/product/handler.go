@@ -127,3 +127,10 @@ func (s *ProductCatalogServiceImpl) UpdateBrand(ctx context.Context, req *produc
 
 	return resp, err
 }
+
+// GetAllCategories implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) GetAllCategories(ctx context.Context, req *product.CategoryListReq) (resp *product.CategoryListResp, err error) {
+	resp, err = service.NewGetAllCategoriesService(ctx).Run(req)
+
+	return resp, err
+}

@@ -49,3 +49,11 @@ message CategoryUpdateResp {
   int32 status_code = 1;
   string status_msg = 2;
 }
+message CategoryListReq {
+
+}
+message CategoryListResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+  repeated Category categories = 3;
+}

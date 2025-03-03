@@ -106,6 +106,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingUnary),
 	),
+	"GetAllCategories": kitex.NewMethodInfo(
+		getAllCategoriesHandler,
+		newGetAllCategoriesArgs,
+		newGetAllCategoriesResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingUnary),
+	),
 	"SelectBrand": kitex.NewMethodInfo(
 		selectBrandHandler,
 		newSelectBrandArgs,
@@ -2189,6 +2196,159 @@ func (p *UpdateCategoryResult) GetResult() interface{} {
 	return p.Success
 }
 
+func getAllCategoriesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	switch s := arg.(type) {
+	case *streaming.Args:
+		st := s.Stream
+		req := new(product.CategoryListReq)
+		if err := st.RecvMsg(req); err != nil {
+			return err
+		}
+		resp, err := handler.(product.ProductCatalogService).GetAllCategories(ctx, req)
+		if err != nil {
+			return err
+		}
+		return st.SendMsg(resp)
+	case *GetAllCategoriesArgs:
+		success, err := handler.(product.ProductCatalogService).GetAllCategories(ctx, s.Req)
+		if err != nil {
+			return err
+		}
+		realResult := result.(*GetAllCategoriesResult)
+		realResult.Success = success
+		return nil
+	default:
+		return errInvalidMessageType
+	}
+}
+func newGetAllCategoriesArgs() interface{} {
+	return &GetAllCategoriesArgs{}
+}
+
+func newGetAllCategoriesResult() interface{} {
+	return &GetAllCategoriesResult{}
+}
+
+type GetAllCategoriesArgs struct {
+	Req *product.CategoryListReq
+}
+
+func (p *GetAllCategoriesArgs) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetReq() {
+		p.Req = new(product.CategoryListReq)
+	}
+	return p.Req.FastRead(buf, _type, number)
+}
+
+func (p *GetAllCategoriesArgs) FastWrite(buf []byte) (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.FastWrite(buf)
+}
+
+func (p *GetAllCategoriesArgs) Size() (n int) {
+	if !p.IsSetReq() {
+		return 0
+	}
+	return p.Req.Size()
+}
+
+func (p *GetAllCategoriesArgs) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetReq() {
+		return out, nil
+	}
+	return proto.Marshal(p.Req)
+}
+
+func (p *GetAllCategoriesArgs) Unmarshal(in []byte) error {
+	msg := new(product.CategoryListReq)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Req = msg
+	return nil
+}
+
+var GetAllCategoriesArgs_Req_DEFAULT *product.CategoryListReq
+
+func (p *GetAllCategoriesArgs) GetReq() *product.CategoryListReq {
+	if !p.IsSetReq() {
+		return GetAllCategoriesArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+func (p *GetAllCategoriesArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *GetAllCategoriesArgs) GetFirstArgument() interface{} {
+	return p.Req
+}
+
+type GetAllCategoriesResult struct {
+	Success *product.CategoryListResp
+}
+
+var GetAllCategoriesResult_Success_DEFAULT *product.CategoryListResp
+
+func (p *GetAllCategoriesResult) FastRead(buf []byte, _type int8, number int32) (n int, err error) {
+	if !p.IsSetSuccess() {
+		p.Success = new(product.CategoryListResp)
+	}
+	return p.Success.FastRead(buf, _type, number)
+}
+
+func (p *GetAllCategoriesResult) FastWrite(buf []byte) (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.FastWrite(buf)
+}
+
+func (p *GetAllCategoriesResult) Size() (n int) {
+	if !p.IsSetSuccess() {
+		return 0
+	}
+	return p.Success.Size()
+}
+
+func (p *GetAllCategoriesResult) Marshal(out []byte) ([]byte, error) {
+	if !p.IsSetSuccess() {
+		return out, nil
+	}
+	return proto.Marshal(p.Success)
+}
+
+func (p *GetAllCategoriesResult) Unmarshal(in []byte) error {
+	msg := new(product.CategoryListResp)
+	if err := proto.Unmarshal(in, msg); err != nil {
+		return err
+	}
+	p.Success = msg
+	return nil
+}
+
+func (p *GetAllCategoriesResult) GetSuccess() *product.CategoryListResp {
+	if !p.IsSetSuccess() {
+		return GetAllCategoriesResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+func (p *GetAllCategoriesResult) SetSuccess(x interface{}) {
+	p.Success = x.(*product.CategoryListResp)
+}
+
+func (p *GetAllCategoriesResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *GetAllCategoriesResult) GetResult() interface{} {
+	return p.Success
+}
+
 func selectBrandHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	switch s := arg.(type) {
 	case *streaming.Args:
@@ -2936,6 +3096,16 @@ func (p *kClient) UpdateCategory(ctx context.Context, Req *product.CategoryUpdat
 	_args.Req = Req
 	var _result UpdateCategoryResult
 	if err = p.c.Call(ctx, "UpdateCategory", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetAllCategories(ctx context.Context, Req *product.CategoryListReq) (r *product.CategoryListResp, err error) {
+	var _args GetAllCategoriesArgs
+	_args.Req = Req
+	var _result GetAllCategoriesResult
+	if err = p.c.Call(ctx, "GetAllCategories", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

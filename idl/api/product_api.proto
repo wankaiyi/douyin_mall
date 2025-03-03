@@ -155,6 +155,10 @@ service ProductService {
     option (api.post) = "/category/update";
   }
 
+  rpc Categories (CategoryRequest) returns (CategoryResponse) {
+    option (api.post) = "/categories";
+  }
+
 
   /***************************************************************************/
   rpc BrandSelect (BrandSelectRequest) returns (BrandSelectResponse) {

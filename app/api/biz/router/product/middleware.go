@@ -105,3 +105,8 @@ func _productlockquantityMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _categoriesMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

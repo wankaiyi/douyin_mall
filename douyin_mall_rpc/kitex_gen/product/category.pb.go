@@ -524,6 +524,107 @@ func (x *CategoryUpdateResp) GetStatusMsg() string {
 	return ""
 }
 
+type CategoryListReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *CategoryListReq) Reset() {
+	*x = CategoryListReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_category_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CategoryListReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CategoryListReq) ProtoMessage() {}
+
+func (x *CategoryListReq) ProtoReflect() protoreflect.Message {
+	mi := &file_category_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CategoryListReq.ProtoReflect.Descriptor instead.
+func (*CategoryListReq) Descriptor() ([]byte, []int) {
+	return file_category_proto_rawDescGZIP(), []int{9}
+}
+
+type CategoryListResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	StatusCode int32       `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	StatusMsg  string      `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	Categories []*Category `protobuf:"bytes,3,rep,name=categories,proto3" json:"categories,omitempty"`
+}
+
+func (x *CategoryListResp) Reset() {
+	*x = CategoryListResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_category_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CategoryListResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CategoryListResp) ProtoMessage() {}
+
+func (x *CategoryListResp) ProtoReflect() protoreflect.Message {
+	mi := &file_category_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CategoryListResp.ProtoReflect.Descriptor instead.
+func (*CategoryListResp) Descriptor() ([]byte, []int) {
+	return file_category_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CategoryListResp) GetStatusCode() int32 {
+	if x != nil {
+		return x.StatusCode
+	}
+	return 0
+}
+
+func (x *CategoryListResp) GetStatusMsg() string {
+	if x != nil {
+		return x.StatusMsg
+	}
+	return ""
+}
+
+func (x *CategoryListResp) GetCategories() []*Category {
+	if x != nil {
+		return x.Categories
+	}
+	return nil
+}
+
 var File_category_proto protoreflect.FileDescriptor
 
 var file_category_proto_rawDesc = []byte{
@@ -576,10 +677,19 @@ var file_category_proto_rawDesc = []byte{
 	0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x73, 0x74, 0x61, 0x74,
 	0x75, 0x73, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
 	0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x74, 0x61, 0x74,
-	0x75, 0x73, 0x4d, 0x73, 0x67, 0x42, 0x23, 0x5a, 0x21, 0x64, 0x6f, 0x75, 0x79, 0x69, 0x6e, 0x5f,
-	0x6d, 0x61, 0x6c, 0x6c, 0x2f, 0x72, 0x70, 0x63, 0x2f, 0x6b, 0x69, 0x74, 0x65, 0x78, 0x5f, 0x67,
-	0x65, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x75, 0x73, 0x4d, 0x73, 0x67, 0x22, 0x11, 0x0a, 0x0f, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
+	0x79, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x22, 0x85, 0x01, 0x0a, 0x10, 0x43, 0x61, 0x74,
+	0x65, 0x67, 0x6f, 0x72, 0x79, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x1f, 0x0a,
+	0x0b, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x05, 0x52, 0x0a, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x1d,
+	0x0a, 0x0a, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x09, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x4d, 0x73, 0x67, 0x12, 0x31, 0x0a,
+	0x0a, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65,
+	0x67, 0x6f, 0x72, 0x79, 0x52, 0x0a, 0x63, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73,
+	0x42, 0x23, 0x5a, 0x21, 0x64, 0x6f, 0x75, 0x79, 0x69, 0x6e, 0x5f, 0x6d, 0x61, 0x6c, 0x6c, 0x2f,
+	0x72, 0x70, 0x63, 0x2f, 0x6b, 0x69, 0x74, 0x65, 0x78, 0x5f, 0x67, 0x65, 0x6e, 0x2f, 0x70, 0x72,
+	0x6f, 0x64, 0x75, 0x63, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -594,7 +704,7 @@ func file_category_proto_rawDescGZIP() []byte {
 	return file_category_proto_rawDescData
 }
 
-var file_category_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_category_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_category_proto_goTypes = []interface{}{
 	(*CategorySelectReq)(nil),  // 0: product.CategorySelectReq
 	(*CategorySelectResp)(nil), // 1: product.CategorySelectResp
@@ -605,14 +715,17 @@ var file_category_proto_goTypes = []interface{}{
 	(*CategoryDeleteResp)(nil), // 6: product.CategoryDeleteResp
 	(*CategoryUpdateReq)(nil),  // 7: product.CategoryUpdateReq
 	(*CategoryUpdateResp)(nil), // 8: product.CategoryUpdateResp
+	(*CategoryListReq)(nil),    // 9: product.CategoryListReq
+	(*CategoryListResp)(nil),   // 10: product.CategoryListResp
 }
 var file_category_proto_depIdxs = []int32{
 	2, // 0: product.CategorySelectResp.category:type_name -> product.Category
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: product.CategoryListResp.categories:type_name -> product.Category
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_category_proto_init() }
@@ -729,6 +842,30 @@ func file_category_proto_init() {
 				return nil
 			}
 		}
+		file_category_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CategoryListReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_category_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CategoryListResp); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -736,7 +873,7 @@ func file_category_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_category_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
