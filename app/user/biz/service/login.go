@@ -22,21 +22,23 @@ func NewLoginService(ctx context.Context) *LoginService {
 
 // Run create note info
 func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error) {
-	loginUser, err := model.GetUserByUsername(mysql.DB, s.ctx, req.Username)
+	ctx := s.ctx
+	loginUser, err := model.GetUserByUsername(mysql.DB, ctx, req.Username)
 	if err != nil {
 		// 数据库的错误
-		klog.CtxErrorf(s.ctx, "用户登录失败，req: %v, err: %v", req, err)
+		klog.CtxErrorf(ctx, "用户登录失败，req: %v, err: %v", req, err)
 		return nil, errors.WithStack(err)
 	}
 
-	bannedResp, err := rpc.AuthClient.CheckIfUserBanned(s.ctx, &auth.CheckIfUserBannedReq{
+	bannedResp, err := rpc.AuthClient.CheckIfUserBanned(ctx, &auth.CheckIfUserBannedReq{
 		UserId: loginUser.ID,
 	})
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "rpc鉴权服务查询用户是否封禁失败，userId: %d, err: %v", loginUser.ID, err)
+		klog.CtxErrorf(ctx, "rpc鉴权服务查询用户是否封禁失败，userId: %d, err: %v", loginUser.ID, err)
 		return nil, errors.WithStack(err)
 	}
 	if bannedResp.IsBanned {
+		klog.CtxInfof(ctx, "被封禁用户登录失败，userId: %d", loginUser.ID)
 		resp = &user.LoginResp{
 			StatusCode: 1010,
 			StatusMsg:  constant.GetMsg(1010),
@@ -54,12 +56,12 @@ func (s *LoginService) Run(req *user.LoginReq) (resp *user.LoginResp, err error)
 		return
 	}
 	client := rpc.AuthClient
-	deliveryTokenResp, err := client.DeliverTokenByRPC(s.ctx, &auth.DeliverTokenReq{
+	deliveryTokenResp, err := client.DeliverTokenByRPC(ctx, &auth.DeliverTokenReq{
 		UserId: loginUser.ID,
 		Role:   string(loginUser.Role),
 	})
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "调用用户授权服务发放令牌失败，UserId: %v, err: %v", loginUser.ID, err)
+		klog.CtxErrorf(ctx, "调用用户授权服务发放令牌失败，UserId: %v, err: %v", loginUser.ID, err)
 		return nil, errors.WithStack(err)
 	}
 	resp = &user.LoginResp{

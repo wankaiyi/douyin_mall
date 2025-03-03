@@ -33,6 +33,7 @@ func (s *SmartSearchOrderService) Run(req *order.SmartSearchOrderReq) (resp *ord
 		klog.CtxErrorf(ctx, "rpc调用AI分析用户查询订单问题失败，req：%v, err：%v", searchOrderQuestionReq, err)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "AI分析用户问题，question: %v, resp: %v", req.Question, analyzeResp)
 
 	if analyzeResp.StatusCode != 0 {
 		return &order.SmartSearchOrderResp{
@@ -46,6 +47,7 @@ func (s *SmartSearchOrderService) Run(req *order.SmartSearchOrderReq) (resp *ord
 		klog.CtxErrorf(ctx, "数据库查询订单失败，err：%v", err)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "AI查询订单成功, question: %v, resp: %v", req.Question, analyzeResp)
 
 	var orderList []*order.Order
 	for _, o := range orders {

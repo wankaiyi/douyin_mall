@@ -40,6 +40,7 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 		klog.CtxErrorf(ctx, "rpc获取商品信息失败：req: %v, err: %v", productListReq, err)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "rpc获取商品信息成功：req: %v, resp: %v", productListReq, productListResp)
 	productIdToObj := make(map[int64]*product.Product)
 	for _, productInfo := range productListResp.Products {
 		productIdToObj[productInfo.Id] = productInfo
@@ -90,6 +91,7 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 		klog.CtxErrorf(ctx, "创建订单失败：req: %v, err: %v", req, err)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "创建订单成功：req: %v, resp: %v", req, orderId)
 
 	// 延时取消订单
 	producer.SendDelayOrder(ctx, orderId, constant.DelayTopic1mLevel)

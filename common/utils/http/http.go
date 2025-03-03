@@ -5,10 +5,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"github.com/cloudwego/hertz/pkg/app/client"
+	"github.com/cloudwego/hertz/pkg/app/client/retry"
 	"github.com/cloudwego/hertz/pkg/common/config"
 	"github.com/cloudwego/hertz/pkg/network/standard"
 	"github.com/cloudwego/hertz/pkg/protocol"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"time"
 )
 
 type HTTPClient struct {
@@ -28,6 +30,13 @@ func newHTTPClient(useTLS bool) (*HTTPClient, error) {
 	if err != nil {
 		return nil, err
 	}
+	client.WithRetryConfig(
+		retry.WithMaxAttemptTimes(3),
+		retry.WithInitDelay(2*time.Millisecond),
+		retry.WithMaxDelay(200*time.Millisecond),
+		retry.WithMaxJitter(30*time.Millisecond),
+		retry.WithDelayPolicy(retry.FixedDelayPolicy),
+	)
 	return &HTTPClient{client: c}, nil
 }
 
