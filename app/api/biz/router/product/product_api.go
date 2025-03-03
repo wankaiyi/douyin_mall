@@ -18,6 +18,8 @@ func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
 	root.POST("/categories", append(_categoriesMw(), product.Categories)...)
+	root.GET("/product", append(_productselectMw(), product.ProductSelect)...)
+	root.DELETE("/product", append(_productdeleteMw(), product.ProductDelete)...)
 	{
 		_brand := root.Group("/brand", _brandMw()...)
 		_brand.POST("/delete", append(_branddeleteMw(), product.BrandDelete)...)
@@ -32,14 +34,13 @@ func Register(r *server.Hertz) {
 		_category.POST("/select", append(_categoryselectMw(), product.CategorySelect)...)
 		_category.POST("/update", append(_categoryupdateMw(), product.CategoryUpdate)...)
 	}
+	root.PUT("/product", append(_productinsertMw(), product.ProductInsert)...)
+	_product := root.Group("/product", _productMw()...)
+	_product.POST("/list", append(_productselectlistMw(), product.ProductSelectList)...)
+	_product.POST("/lockQuantity", append(_productlockquantityMw(), product.ProductLockQuantity)...)
+	_product.POST("/update", append(_productupdateMw(), product.ProductUpdate)...)
 	{
-		_product := root.Group("/product", _productMw()...)
-		_product.POST("/delete", append(_productdeleteMw(), product.ProductDelete)...)
-		_product.POST("/insert", append(_productinsertMw(), product.ProductInsert)...)
-		_product.POST("/lockQuantity", append(_productlockquantityMw(), product.ProductLockQuantity)...)
-		_product.POST("/search", append(_searchMw(), product.Search)...)
-		_product.POST("/select", append(_productselectMw(), product.ProductSelect)...)
-		_product.POST("/selectList", append(_productselectlistMw(), product.ProductSelectList)...)
-		_product.POST("/update", append(_productupdateMw(), product.ProductUpdate)...)
+		_product0 := root.Group("/product", _product0Mw()...)
+		_product0.POST("/search", append(_searchMw(), product.Search)...)
 	}
 }

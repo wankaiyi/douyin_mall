@@ -110,3 +110,8 @@ func _categoriesMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _product0Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

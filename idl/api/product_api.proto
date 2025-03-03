@@ -115,15 +115,15 @@ service ProductService {
   }
 
   rpc ProductInsert(ProductInsertRequest) returns (ProductInsertResponse) {
-    option (api.post) = "/product/insert";
+    option (api.put) = "/product";
   }
 
   rpc ProductSelect(ProductSelectRequest) returns (ProductSelectResponse) {
-    option (api.post) = "/product/select";
+    option (api.get) = "/product";
   }
 
   rpc ProductDelete(ProductDeleteRequest) returns (ProductDeleteResponse) {
-    option (api.post) = "/product/delete";
+    option (api.delete) = "/product";
   }
 
   rpc ProductUpdate(ProductUpdateRequest) returns (ProductUpdateResponse) {
@@ -135,7 +135,7 @@ service ProductService {
   }
 
   rpc ProductSelectList(ProductSelectListRequest) returns (ProductSelectListResponse) {
-    option (api.post) = "/product/selectList";
+    option (api.post) = "/product/list";
   }
 
   /***************************************************************************/
