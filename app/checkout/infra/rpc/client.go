@@ -4,6 +4,7 @@ import (
 	"douyin_mall/checkout/conf"
 	"douyin_mall/common/middleware"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/retry"
 	"os"
 
 	"sync"
@@ -65,7 +66,9 @@ func initOrderClient() {
 	}
 }
 func initPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
 	}
