@@ -197,6 +197,37 @@ func initConf() {
 	for _, cfg := range configs {
 		listenAndLoadConfig(configClient, cfg)
 	}
+	sentinelRuleInit(configClient)
+}
+
+func sentinelRuleInit(configClient config_client.IConfigClient) {
+	//sentine流控规则nacos动态配置
+	flowRulesHandler := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
+	//熔断规则nacos动态配置
+	circuitBreakerRulesHandler := datasource.NewCircuitBreakerRulesHandler(datasource.CircuitBreakerRuleJsonArrayParser)
+
+	flowSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_auth_flow_rules.json", flowRulesHandler)
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "获取sentinel流控规则失败: %v", err)
+		return
+	}
+	err = flowSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+		return
+	}
+	circuitBreakerSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_auth_circuit_breaker_rules.json", circuitBreakerRulesHandler)
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "获取sentinel熔断规则失败: %v", err)
+		return
+	}
+	err = circuitBreakerSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel熔断规则失败: %v", err)
+		return
+	}
+
+	klog.Info("初始化sentinel规则成功")
 }
 
 func listenAndLoadConfig(client config_client.IConfigClient, cfg struct {

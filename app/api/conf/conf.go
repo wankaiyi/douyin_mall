@@ -8,6 +8,7 @@ import (
 	sentinelNacosDataSource "github.com/alibaba/sentinel-golang/pkg/datasource/nacos"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/kr/pretty"
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
@@ -118,16 +119,7 @@ func initConf() {
 		},
 	}
 	//sentinel规则nacos动态配置
-	h := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
-	nacosDataSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_api_rule_config.json", h)
-	if err != nil {
-		panic(err)
-	}
-	err = nacosDataSource.Initialize()
-	if err != nil {
-		hlog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
-	}
-	hlog.CtxInfof(context.Background(), "初始化sentinel规则成功, rule: %+v", nacosDataSource)
+	sentinelRuleInit(configClient)
 
 	// 监听与初始化配置
 	for _, cfg := range configs {
@@ -135,6 +127,22 @@ func initConf() {
 	}
 }
 
+func sentinelRuleInit(configClient config_client.IConfigClient) {
+	//sentine流控规则nacos动态配置
+	flowRulesHandler := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
+
+	flowSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_api_flow_rules.json", flowRulesHandler)
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "获取配置失败规则失败: %v", err)
+		return
+	}
+	err = flowSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+		return
+	}
+	klog.Info("初始化sentinel规则成功")
+}
 func listenAndLoadConfig(client config_client.IConfigClient, cfg struct {
 	DataId        string
 	Group         string

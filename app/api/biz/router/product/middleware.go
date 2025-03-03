@@ -115,3 +115,8 @@ func _product0Mw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _product1Mw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
