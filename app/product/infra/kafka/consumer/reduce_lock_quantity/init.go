@@ -23,7 +23,7 @@ func ReleaseLockQuantityConsumer() {
 		groupId += "_dev"
 	}
 	consumer, err := sarama.NewConsumerGroup(brokers, groupId, config)
-	handler := ReleaseLockQuantityHandler{}
+	handler := ReduceLockQuantityHandler{}
 	for {
 		err = consumer.Consume(
 			context.Background(),
