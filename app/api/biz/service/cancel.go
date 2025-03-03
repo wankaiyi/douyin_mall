@@ -25,12 +25,10 @@ func (h *CancelService) Run(req *payment.CancelRequest) (resp *payment.CancelRes
 	// hlog.CtxInfof(h.Context, "req = %+v", req)
 	// hlog.CtxInfof(h.Context, "resp = %+v", resp)
 	//}()
-	//todo rpc 查询订单id是否存在,判断下单id是否为当前登录的id
 
 	if req.OrderId == "" {
 		return nil, errors.New("订单号不能为空")
 	}
-	//todo rpc 调用支付系统取消订单
 	client := rpc.PaymentClient
 	res, err := client.CancelCharge(h.Context, &rpcpayment.CancelChargeReq{
 		OrderId: req.OrderId,

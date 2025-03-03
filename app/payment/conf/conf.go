@@ -141,6 +141,7 @@ func initConf() {
 
 			// 输出解析结果
 			fmt.Printf("Parsed YAML: %v\n", config)
+
 		},
 	}
 
@@ -171,50 +172,34 @@ func initConf() {
 		klog.Fatalf("初始化nacos配置客户端失败: %v", err)
 	}
 
-	sentinelRuleInit(err, configClient)
+	sentinelRuleInit(configClient)
 }
 
-func sentinelRuleInit(err error, configClient config_client.IConfigClient) {
+func sentinelRuleInit(configClient config_client.IConfigClient) {
 	//sentine流控规则nacos动态配置
 	flowRulesHandler := datasource.NewFlowRulesHandler(datasource.FlowRuleJsonArrayParser)
 	//熔断规则nacos动态配置
 	circuitBreakerRulesHandler := datasource.NewCircuitBreakerRulesHandler(datasource.CircuitBreakerRuleJsonArrayParser)
-	//系统自适应规则nacos动态配置
-	systemRulesHandler := datasource.NewSystemRulesHandler(datasource.SystemRuleJsonArrayParser)
-	//并发隔离控制
-	isolationRulesHandler := datasource.NewIsolationRulesHandler(datasource.IsolationRuleJsonArrayParser)
 
 	flowSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_payment_flow_rules.json", flowRulesHandler)
 	if err != nil {
-		panic(err)
+		klog.CtxErrorf(context.Background(), "获取sentinel流控规则失败: %v", err)
+		return
 	}
 	err = flowSource.Initialize()
 	if err != nil {
 		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+		return
 	}
 	circuitBreakerSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_payment_circuit_breaker_rules.json", circuitBreakerRulesHandler)
 	if err != nil {
-		panic(err)
+		klog.CtxErrorf(context.Background(), "获取sentinel熔断规则失败: %v", err)
+		return
 	}
 	err = circuitBreakerSource.Initialize()
 	if err != nil {
 		klog.CtxErrorf(context.Background(), "初始化sentinel熔断规则失败: %v", err)
-	}
-	systemSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_payment_system_rules.json", systemRulesHandler)
-	if err != nil {
-		panic(err)
-	}
-	err = systemSource.Initialize()
-	if err != nil {
-		klog.CtxErrorf(context.Background(), "初始化sentinel系统自适应保护规则失败: %v", err)
-	}
-	isolationSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_payment_isolation_rules.json", isolationRulesHandler)
-	if err != nil {
-		panic(err)
-	}
-	err = isolationSource.Initialize()
-	if err != nil {
-		klog.CtxErrorf(context.Background(), "初始化sentinel并发隔离规则失败: %v", err)
+		return
 	}
 
 	klog.Info("初始化sentinel规则成功")
