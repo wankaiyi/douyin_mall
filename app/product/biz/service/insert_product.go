@@ -32,7 +32,6 @@ func (s *InsertProductService) Run(req *product.InsertProductReq) (resp *product
 		PublicState: 1,
 		LockStock:   req.Stock,
 		CategoryId:  req.CategoryId,
-		BrandId:     req.BrandId,
 	}
 	//调用插入数据库的方法
 	err = model.CreateProduct(mysql.DB, s.ctx, &pro)

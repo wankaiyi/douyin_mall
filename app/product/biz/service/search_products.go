@@ -290,7 +290,9 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 					klog.CtxInfof(ctx, "从数据库内查找的数据:%v", &p)
 					productKey := model.BaseInfoKey(ctx, list[i].ProductId)
 					err = model.PushToRedisBaseInfo(ctx, model.Product{
-						ID:          pro.ProductId,
+						Base: model.Base{
+							ID: pro.ProductId,
+						},
 						Name:        pro.ProductName,
 						Description: pro.ProductDescription,
 						Picture:     pro.ProductPicture,
@@ -391,7 +393,9 @@ func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					if len(list) == 1 {
 						productStock.Store(id, list[0].ProductId)
 						err := model.PushToRedisStock(ctx, model.Product{
-							ID:          id,
+							Base: model.Base{
+								ID: list[0].ProductId,
+							},
 							Name:        list[0].ProductName,
 							Description: list[0].ProductDescription,
 							Picture:     list[0].ProductPicture,

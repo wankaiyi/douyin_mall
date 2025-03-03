@@ -36,7 +36,6 @@ func (s *SelectProductService) Run(req *product.SelectProductReq) (resp *product
 			Sale:          pro.Sale,
 			PublishStatus: pro.PublicState,
 			CategoryId:    pro.CategoryId,
-			BrandId:       pro.BrandId,
 		},
 	}, nil
 }

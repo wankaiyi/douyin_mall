@@ -158,7 +158,9 @@ func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError boo
 			for _, pro := range list {
 				//然后推送到redis
 				err := model.PushToRedisStock(ctx, model.Product{
-					ID:          pro.ProductId,
+					Base: model.Base{
+						ID: pro.ProductId,
+					},
 					Name:        pro.ProductName,
 					Description: pro.ProductDescription,
 					Picture:     pro.ProductPicture,
@@ -168,7 +170,6 @@ func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError boo
 					PublicState: pro.ProductPublicState,
 					LockStock:   pro.ProductLockStock,
 					CategoryId:  pro.CategoryID,
-					RealStock:   pro.RealStock,
 				}, redisClient.RedisClient, stockKey)
 				if err != nil {
 					hasError = true

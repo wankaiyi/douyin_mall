@@ -71,7 +71,9 @@ func syncToMysql(ctx context.Context, key string) (err error) {
 			return err
 		}
 		err = model.UpdateProduct(mysql.DB, ctx, &model.Product{
-			ID:        int64(id),
+			Base: model.Base{
+				ID: int64(id),
+			},
 			Stock:     int64(stock),
 			LockStock: int64(lockStock),
 		})

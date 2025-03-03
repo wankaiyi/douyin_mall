@@ -3,15 +3,11 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Category struct {
-	ID          int64     `gorm:"primary_key" json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	Name string `gorm:"not null;type:varchar(100)" json:"name"`
+	Base
 }
 
 func (p *Category) TableName() string {

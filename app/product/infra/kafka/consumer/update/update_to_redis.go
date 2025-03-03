@@ -12,7 +12,9 @@ func UpdateProductToRedis(ctx context.Context, product *model.UpdateProductSendT
 	key := productModel.BaseInfoKey(ctx, product.ID)
 	//4 调用redis的set方法将数据导入到redis缓存中
 	err = productModel.PushToRedisBaseInfo(ctx, productModel.Product{
-		ID:          product.ID,
+		Base: productModel.Base{
+			ID: product.ID,
+		},
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,
