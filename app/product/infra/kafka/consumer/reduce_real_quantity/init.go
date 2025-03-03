@@ -1,4 +1,4 @@
-package release_real_quantity
+package reduce_real_quantity
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func ReleaseRealQuantityConsumer() {
 		groupId += "_dev"
 	}
 	consumer, err := sarama.NewConsumerGroup(brokers, groupId, config)
-	handler := ReleaseRealQuantityHandler{}
+	handler := ReduceRealQuantityHandler{}
 	for {
 		err = consumer.Consume(
 			context.Background(),
