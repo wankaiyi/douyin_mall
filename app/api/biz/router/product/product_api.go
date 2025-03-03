@@ -18,6 +18,8 @@ func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
 	root.POST("/categories", append(_categoriesMw(), product.Categories)...)
+	root.PUT("/category", append(_categoryinsertMw(), product.CategoryInsert)...)
+	root.DELETE("/category", append(_categorydeleteMw(), product.CategoryDelete)...)
 	root.GET("/product", append(_productselectMw(), product.ProductSelect)...)
 	root.DELETE("/product", append(_productdeleteMw(), product.ProductDelete)...)
 	{
@@ -27,13 +29,9 @@ func Register(r *server.Hertz) {
 		_brand.POST("/select", append(_brandselectMw(), product.BrandSelect)...)
 		_brand.POST("/update", append(_brandupdateMw(), product.BrandUpdate)...)
 	}
-	{
-		_category := root.Group("/category", _categoryMw()...)
-		_category.POST("/delete", append(_categorydeleteMw(), product.CategoryDelete)...)
-		_category.POST("/insert", append(_categoryinsertMw(), product.CategoryInsert)...)
-		_category.POST("/select", append(_categoryselectMw(), product.CategorySelect)...)
-		_category.POST("/update", append(_categoryupdateMw(), product.CategoryUpdate)...)
-	}
+	root.GET("/category", append(_categoryselectMw(), product.CategorySelect)...)
+	_category := root.Group("/category", _categoryMw()...)
+	_category.POST("/update", append(_categoryupdateMw(), product.CategoryUpdate)...)
 	root.PUT("/product", append(_productinsertMw(), product.ProductInsert)...)
 	_product := root.Group("/product", _productMw()...)
 	_product.POST("/list", append(_productselectlistMw(), product.ProductSelectList)...)

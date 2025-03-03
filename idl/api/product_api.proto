@@ -140,15 +140,15 @@ service ProductService {
 
   /***************************************************************************/
   rpc CategorySelect (CategorySelectRequest) returns (CategorySelectResponse) {
-    option (api.post) = "/category/select";
+    option (api.get) = "/category";
   }
 
   rpc CategoryInsert (CategoryInsertRequest) returns (CategoryInsertResponse) {
-    option (api.post) = "/category/insert";
+    option (api.put) = "/category";
   }
 
   rpc CategoryDelete (CategoryDeleteRequest) returns (CategoryDeleteResponse) {
-    option (api.post) = "/category/delete";
+    option (api.delete) = "/category";
   }
 
   rpc CategoryUpdate (CategoryUpdateRequest) returns (CategoryUpdateResponse) {
