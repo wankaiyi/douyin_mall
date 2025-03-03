@@ -7,7 +7,6 @@ option go_package = "api/product";
 
 import "api.proto";
 import "category_api.proto";
-import "brand_api.proto";
 //import "common.proto";
 
 message Product {
@@ -157,24 +156,6 @@ service ProductService {
 
   rpc Categories (CategoryRequest) returns (CategoryResponse) {
     option (api.post) = "/categories";
-  }
-
-
-  /***************************************************************************/
-  rpc BrandSelect (BrandSelectRequest) returns (BrandSelectResponse) {
-    option (api.post) = "/brand/select";
-  }
-
-  rpc BrandInsert (BrandInsertRequest) returns (BrandInsertResponse) {
-    option (api.post) = "/brand/insert";
-  }
-
-  rpc BrandDelete (BrandDeleteRequest) returns (BrandDeleteResponse) {
-    option (api.post) = "/brand/delete";
-  }
-
-  rpc BrandUpdate (BrandUpdateRequest) returns (BrandUpdateResponse) {
-    option (api.post) = "/brand/update";
   }
 
 }
