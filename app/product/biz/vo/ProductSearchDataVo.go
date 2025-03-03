@@ -1,18 +1,18 @@
 package vo
 
 type ProductSearchAllDataVo struct {
-	Took     int32 `json:"took"`
+	Took     int64 `json:"took"`
 	TimedOut bool  `json:"timed_out"`
 	Shards   struct {
-		Total      int32 `json:"total"`
-		Successful int32 `json:"successful"`
-		Skipped    int32 `json:"skipped"`
-		Failed     int32 `json:"failed"`
+		Total      int64 `json:"total"`
+		Successful int64 `json:"successful"`
+		Skipped    int64 `json:"skipped"`
+		Failed     int64 `json:"failed"`
 	} `json:"_shards"`
 	MaxScore float64 `json:"max_score"`
 	Hits     struct {
 		Total struct {
-			Value    int32  `json:"value"`
+			Value    int64  `json:"value"`
 			Relation string `json:"relation"`
 		} `json:"total"`
 		Hits []struct {
@@ -27,9 +27,9 @@ type ProductSearchAllDataVo struct {
 type ProductSearchDataVo struct {
 	Name         string `json:"name,omitempty"`
 	Description  string `json:"description,omitempty"`
-	ID           int32  `json:"id,omitempty"`
+	ID           int64  `json:"id,omitempty"`
 	CategoryName string `json:"category_name,omitempty"`
-	CategoryID   int32  `json:"category_id,omitempty"`
+	CategoryID   int64  `json:"category_id,omitempty"`
 }
 
 type ProductSearchMapping struct {
@@ -94,8 +94,8 @@ type ProductSearchQueryBody struct {
 	Query  *ProductSearchQuery  `json:"query,omitempty"`
 	Doc    *ProductSearchDoc    `json:"doc,omitempty"`
 	Source *ProductSearchSource `json:"_source,omitempty"`
-	From   *int32               `json:"from,omitempty"`
-	Size   *int32               `json:"size,omitempty"`
+	From   *int64               `json:"from,omitempty"`
+	Size   *int64               `json:"size,omitempty"`
 }
 type ProductSearchTermQuery map[string]interface{}
 
@@ -119,7 +119,7 @@ type ProductSearchMultiMatchQuery struct {
 }
 
 type ProductSearchMatchQuery struct {
-	ID          int32  `json:"id,omitempty"`
+	ID          int64  `json:"id,omitempty"`
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 }

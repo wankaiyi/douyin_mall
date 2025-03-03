@@ -33,7 +33,7 @@ ReadFieldError:
 }
 
 func (x *CategorySelectReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -118,7 +118,7 @@ ReadFieldError:
 }
 
 func (x *Category) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -223,7 +223,7 @@ ReadFieldError:
 }
 
 func (x *CategoryDeleteReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -293,7 +293,7 @@ ReadFieldError:
 }
 
 func (x *CategoryUpdateReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -417,7 +417,7 @@ func (x *CategorySelectReq) fastWriteField1(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetCategoryId())
 	return offset
 }
 
@@ -469,7 +469,7 @@ func (x *Category) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -551,7 +551,7 @@ func (x *CategoryDeleteReq) fastWriteField1(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetCategoryId())
 	return offset
 }
 
@@ -594,7 +594,7 @@ func (x *CategoryUpdateReq) fastWriteField1(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetCategoryId())
 	return offset
 }
 
@@ -694,7 +694,7 @@ func (x *CategorySelectReq) sizeField1() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetCategoryId())
+	n += fastpb.SizeInt64(1, x.GetCategoryId())
 	return n
 }
 
@@ -746,7 +746,7 @@ func (x *Category) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -828,7 +828,7 @@ func (x *CategoryDeleteReq) sizeField1() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetCategoryId())
+	n += fastpb.SizeInt64(1, x.GetCategoryId())
 	return n
 }
 
@@ -871,7 +871,7 @@ func (x *CategoryUpdateReq) sizeField1() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetCategoryId())
+	n += fastpb.SizeInt64(1, x.GetCategoryId())
 	return n
 }
 

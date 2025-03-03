@@ -76,7 +76,7 @@ func ReleaseRealQuantity(ctx context.Context, dataVo model.ReleaseRealQuantitySe
 	keys := make([]string, 0)
 	args := make([]interface{}, 0)
 	for _, pro := range products {
-		keys = append(keys, productModel.StockKey(ctx, pro.Id))
+		keys = append(keys, productModel.StockKey(ctx, int64(pro.Id)))
 		args = append(args, pro.Quantity)
 	}
 	//开启事务，批量扣减商品的真实库存和锁定库存

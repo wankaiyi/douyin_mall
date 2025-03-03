@@ -10,34 +10,43 @@ import (
 )
 
 type Product struct {
-	Base
-	Name        string  `gorm:"not null;type:varchar(100)" json:"name"`
-	Description string  `gorm:"not null;type:text" json:"description"`
-	Picture     string  `gorm:"not null;type:varchar(255)" json:"picture"`
-	Price       float32 `gorm:"not null;type:decimal(10,2)" json:"price"`
-	Stock       int32   `gorm:"not null;type:int(32)" json:"stock"`
-	Sale        int32   `gorm:"not null;type:int(32)" json:"sale"`
-	PublicState int32   `gorm:"not null;type:int(32)" json:"public_state"`
-	LockStock   int32   `gorm:"not null;type:int(32)" json:"lock_stock"`
-	CategoryId  int32   `gorm:"not null;index:idx_category_id;not null;type:int(32)" json:"category_id"`
+	ID          int64     `gorm:"primary_key" json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Picture     string    `json:"picture"`
+	Price       float32   `json:"price"`
+	Stock       int64     `json:"stock"`
+	Sale        int64     `json:"sale"`
+	PublicState int64     `json:"public_state"`
+	LockStock   int64     `json:"lock_stock"`
+	CategoryId  int64     `gorm:"index" json:"category_id"`
+	BrandId     int64     `json:"brand_id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	RealStock   int64     `gorm:"-" json:"quantity"`
 }
 type ProductWithCategory struct {
-	ProductId          int32   `json:"product_id"`
+	ProductId          int64   `json:"product_id"`
 	ProductName        string  `json:"product_name"`
 	ProductPrice       float32 `json:"product_price"`
 	ProductDescription string  `json:"product_description"`
-	ProductStock       int32   `json:"product_stock"`
-	ProductLockStock   int32   `json:"product_lock_stock"`
-	ProductSale        int32   `json:"product_sale"`
-	ProductPublicState int32   `json:"product_public_state"`
+	ProductStock       int64   `json:"product_stock"`
+	ProductLockStock   int64   `json:"product_lock_stock"`
+	ProductSale        int64   `json:"product_sale"`
+	ProductPublicState int64   `json:"product_public_state"`
 	ProductPicture     string  `json:"product_picture"`
-	CategoryID         int32   `json:"category_id"`
+	CategoryID         int64   `json:"category_id"`
 	CategoryName       string  `json:"category_name"`
-	RealStock          int32   `gorm:"-" json:"quantity"`
+	RealStock          int64   `gorm:"-" json:"quantity"`
 }
 
 func (p *Product) TableName() string {
 	return "tb_product"
+}
+
+func (p *Product) AfterFind(tx *gorm.DB) (err error) {
+	p.RealStock = p.Stock - p.LockStock
+	return nil
 }
 
 func (p *ProductWithCategory) AfterFind(tx *gorm.DB) (err error) {
@@ -45,7 +54,7 @@ func (p *ProductWithCategory) AfterFind(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func SelectProduct(db *gorm.DB, ctx context.Context, id int32) (product Product, err error) {
+func SelectProduct(db *gorm.DB, ctx context.Context, id int64) (product Product, err error) {
 	product = Product{}
 	result := db.WithContext(ctx).Where("id=?", id).First(&product)
 	err = result.Error
@@ -67,7 +76,7 @@ func SelectProductAllWithoutCondition(db *gorm.DB, ctx context.Context) (product
 	return products, err
 }
 
-func SelectProductList(db *gorm.DB, ctx context.Context, ids []int32) (products []ProductWithCategory, err error) {
+func SelectProductList(db *gorm.DB, ctx context.Context, ids []int64) (products []ProductWithCategory, err error) {
 	result := db.WithContext(ctx).Model(&Product{}).
 		Where("tb_product.id IN ?", ids).
 		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.public_state as product_public_state,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
@@ -82,8 +91,8 @@ func UpdateProduct(db *gorm.DB, ctx context.Context, product *Product) (err erro
 	err = result.Error
 	return err
 }
-func DeleteProduct(db *gorm.DB, ctx context.Context, id int32) (err error) {
-	result := db.WithContext(ctx).Delete(&Product{Base: Base{ID: int32(id)}})
+func DeleteProduct(db *gorm.DB, ctx context.Context, id int64) (err error) {
+	result := db.WithContext(ctx).Delete(&Product{ID: id})
 	err = result.Error
 	return
 }
@@ -93,7 +102,7 @@ func CreateProduct(db *gorm.DB, ctx context.Context, product *Product) (err erro
 	return err
 }
 
-func UpdateLockStock(db *gorm.DB, ctx context.Context, productQuantityMap map[int32]int32) (err error) {
+func UpdateLockStock(db *gorm.DB, ctx context.Context, productQuantityMap map[int64]int64) (err error) {
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for id, quantity := range productQuantityMap {
 			result := db.WithContext(ctx).
@@ -137,7 +146,7 @@ func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Cli
 	if err != nil {
 		return err
 	}
-	if result.(int32) == 1 {
+	if result.(int64) == 1 {
 		return nil
 	} else {
 		return errors.New("product already exists")
@@ -163,37 +172,38 @@ func PushToRedisStock(ctx context.Context, product Product, client *redis.Client
 	if err != nil {
 		return err
 	}
-	if result.(int32) == 1 {
+	if result.(int64) == 1 {
 		return nil
 	} else {
 		return errors.New("product stock already exists")
 	}
 }
 
-var (
-	BaseInfoPattern     = "product:base:"
-	BaseInfoLockPattern = "product:base:lock"
-	StockPattern        = "product:stock:"
-	StockLockPattern    = "product:stock:lock:"
-)
+var BaseInfoPattern = "product:base:"
 
-func BaseInfoKey(ctx context.Context, id int32) string {
-	return BaseInfoPattern + strconv.FormatInt(int64(id), 10)
+func BaseInfoKey(ctx context.Context, id int64) string {
+	return BaseInfoPattern + strconv.FormatInt(id, 10)
 }
 
-func BaseInfoLockKey(ctx context.Context, id int32) string {
-	return BaseInfoLockPattern + strconv.FormatInt(int64(id), 10)
+var BaseInfoLockPattern = "product:base:lock"
+
+func BaseInfoLockKey(ctx context.Context, id int64) string {
+	return BaseInfoLockPattern + strconv.FormatInt(id, 10)
 }
 
-func StockKey(ctx context.Context, id int32) string {
-	return StockPattern + strconv.FormatInt(int64(id), 10)
+var StockPattern = "product:stock:"
+
+func StockKey(ctx context.Context, id int64) string {
+	return StockPattern + strconv.FormatInt(id, 10)
 }
 
-func StockLockKey(ctx context.Context, id int32) string {
-	return StockLockPattern + strconv.FormatInt(int64(id), 10)
+var StockLockPattern = "product:stock:lock:"
+
+func StockLockKey(ctx context.Context, id int64) string {
+	return StockLockPattern + strconv.FormatInt(id, 10)
 }
 
-// SafeDeleteLock 安全地删除锁
+// 安全地删除锁
 func SafeDeleteLock(ctx context.Context, client *redis.Client, key string, value string) (err error) {
 	luaScript := `
 		local key = KEYS[1]
@@ -210,7 +220,7 @@ func SafeDeleteLock(ctx context.Context, client *redis.Client, key string, value
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if result.(int32) == 1 {
+	if result.(int64) == 1 {
 		return nil
 	} else {
 		return errors.New("锁不存在或过期")

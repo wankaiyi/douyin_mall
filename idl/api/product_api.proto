@@ -10,25 +10,25 @@ import "category_api.proto";
 //import "common.proto";
 
 message Product {
-  int32 id = 1;
+  int64 id = 1;
   string name = 2;
   string description = 3;
   string picture = 4;
   float price = 5;
 
   string category_name = 6;
-  int32 stock=7;
-  int32 sale=8;
-  int32 publish_status=9;
-  int32 category_id=10;
-  int32 brand_id=11;
+  int64 stock=7;
+  int64 sale=8;
+  int64 publish_status=9;
+  int64 category_id=10;
+  int64 brand_id=11;
 }
 
 message ProductRequest {
   string product_name = 1 [(api.form)= "query"];
-  int32 category_id=2 [(api.form)="categoryId"];
-  int32 page=3 [(api.form)="page"];
-  int32 page_size=4 [(api.form)="size"];
+  int64 category_id=2 [(api.form)="categoryId"];
+  int64 page=3 [(api.form)="page"];
+  int64 page_size=4 [(api.form)="size"];
 }
 
 message ProductResponse {
@@ -42,9 +42,9 @@ message ProductInsertRequest {
   string description = 2 [(api.form)= "description"];
   string picture = 3 [(api.form)= "picture"];
   float price = 4 [(api.form)= "price"];
-  int32 stock = 5 [(api.form)= "stock"];
-  int32 categoryId = 6 [(api.form)= "categoryId"];
-  int32 brandId = 7 [(api.form)= "brandId"];
+  int64 stock = 5 [(api.form)= "stock"];
+  int64 categoryId = 6 [(api.form)= "categoryId"];
+  int64 brandId = 7 [(api.form)= "brandId"];
 }
 message ProductInsertResponse {
   int32 status_code = 1[(api.go_tag)='json:"status_code"'];
@@ -52,7 +52,7 @@ message ProductInsertResponse {
 }
 
 message ProductSelectRequest {
-  int32 id = 1;
+  int64 id = 1;
 }
 message ProductSelectResponse {
   int32 status_code = 1[(api.go_tag)='json:"status_code"'];
@@ -61,7 +61,7 @@ message ProductSelectResponse {
 }
 
 message ProductDeleteRequest {
-  int32 id = 1;
+  int64 id = 1;
 }
 
 message ProductDeleteResponse {
@@ -69,20 +69,20 @@ message ProductDeleteResponse {
   string status_msg = 2;
 }
 message ProductUpdateRequest {
-  int32 id = 1[(api.form)= "id"];
+  int64 id = 1[(api.form)= "id"];
   string name = 2[(api.form)= "name"];
   string description = 3[(api.form)= "description"];
   string picture = 4[(api.form)= "picture"];
   float price = 5[(api.form)= "price"];
   repeated string categories = 6[(api.form)= "categories"];
-  int32 stock=7[(api.form)= "stock"];
-  int32 sale=8[(api.form)= "sale"];
-  int32 publish_status=9[(api.form)= "publish_status"];
-  int32 category_id=10[(api.form)= "categoryId"];
-  int32 brand_id=11[(api.form)= "brandId"];
+  int64 stock=7[(api.form)= "stock"];
+  int64 sale=8[(api.form)= "sale"];
+  int64 publish_status=9[(api.form)= "publish_status"];
+  int64 category_id=10[(api.form)= "categoryId"];
+  int64 brand_id=11[(api.form)= "brandId"];
 }
 message ProductSelectListRequest {
-  repeated int32 id = 1[(api.form)= "ids"];
+  repeated int64 id = 1[(api.form)= "ids"];
 }
 message ProductSelectListResponse {
   int32 status_code = 1[(api.go_tag) = 'json:"status_code"'];
@@ -96,8 +96,8 @@ message ProductUpdateResponse {
 
 //锁库存
 message ProductLockQuantity{
-  int32 id = 1[(api.body)= "id"];
-  int32 quantity = 2[(api.body)= "quantity"];
+  int64 id = 1[(api.body)= "id"];
+  int64 quantity = 2[(api.body)= "quantity"];
 }
 message ProductLockQuantityRequest {
   repeated ProductLockQuantity products = 1[(api.body)= "products"];

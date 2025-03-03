@@ -48,7 +48,7 @@ func (x *ListProductsReq) fastReadField1(buf []byte, _type int8) (offset int, er
 }
 
 func (x *ListProductsReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.PageSize, offset, err = fastpb.ReadInt32(buf, _type)
+	x.PageSize, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -128,7 +128,7 @@ ReadFieldError:
 }
 
 func (x *Product) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -158,27 +158,27 @@ func (x *Product) fastReadField6(buf []byte, _type int8) (offset int, err error)
 }
 
 func (x *Product) fastReadField7(buf []byte, _type int8) (offset int, err error) {
-	x.Stock, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Stock, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *Product) fastReadField8(buf []byte, _type int8) (offset int, err error) {
-	x.Sale, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Sale, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *Product) fastReadField9(buf []byte, _type int8) (offset int, err error) {
-	x.PublishStatus, offset, err = fastpb.ReadInt32(buf, _type)
+	x.PublishStatus, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *Product) fastReadField10(buf []byte, _type int8) (offset int, err error) {
-	x.BrandId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.BrandId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *Product) fastReadField11(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -348,17 +348,17 @@ func (x *SearchProductsReq) fastReadField1(buf []byte, _type int8) (offset int, 
 }
 
 func (x *SearchProductsReq) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *SearchProductsReq) fastReadField3(buf []byte, _type int8) (offset int, err error) {
-	x.Page, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Page, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *SearchProductsReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
-	x.PageSize, offset, err = fastpb.ReadInt32(buf, _type)
+	x.PageSize, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -483,17 +483,17 @@ func (x *InsertProductReq) fastReadField4(buf []byte, _type int8) (offset int, e
 }
 
 func (x *InsertProductReq) fastReadField5(buf []byte, _type int8) (offset int, err error) {
-	x.Stock, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Stock, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *InsertProductReq) fastReadField10(buf []byte, _type int8) (offset int, err error) {
-	x.BrandId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.BrandId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *InsertProductReq) fastReadField11(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -553,7 +553,7 @@ ReadFieldError:
 }
 
 func (x *SelectProductReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -580,8 +580,8 @@ ReadFieldError:
 func (x *SelectProductListReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
 	offset, err = fastpb.ReadList(buf, _type,
 		func(buf []byte, _type int8) (n int, err error) {
-			var v int32
-			v, offset, err = fastpb.ReadInt32(buf, _type)
+			var v int64
+			v, offset, err = fastpb.ReadInt64(buf, _type)
 			if err != nil {
 				return offset, err
 			}
@@ -712,7 +712,7 @@ ReadFieldError:
 }
 
 func (x *DeleteProductReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -822,7 +822,7 @@ ReadFieldError:
 }
 
 func (x *UpdateProductReq) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -857,27 +857,27 @@ func (x *UpdateProductReq) fastReadField6(buf []byte, _type int8) (offset int, e
 }
 
 func (x *UpdateProductReq) fastReadField7(buf []byte, _type int8) (offset int, err error) {
-	x.Stock, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Stock, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *UpdateProductReq) fastReadField8(buf []byte, _type int8) (offset int, err error) {
-	x.Sale, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Sale, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *UpdateProductReq) fastReadField9(buf []byte, _type int8) (offset int, err error) {
-	x.PublishStatus, offset, err = fastpb.ReadInt32(buf, _type)
+	x.PublishStatus, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *UpdateProductReq) fastReadField10(buf []byte, _type int8) (offset int, err error) {
-	x.BrandId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.BrandId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *UpdateProductReq) fastReadField11(buf []byte, _type int8) (offset int, err error) {
-	x.CategoryId, offset, err = fastpb.ReadInt32(buf, _type)
+	x.CategoryId, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -942,12 +942,12 @@ ReadFieldError:
 }
 
 func (x *ProductLockQuantity) fastReadField1(buf []byte, _type int8) (offset int, err error) {
-	x.Id, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Id, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
 func (x *ProductLockQuantity) fastReadField2(buf []byte, _type int8) (offset int, err error) {
-	x.Quantity, offset, err = fastpb.ReadInt32(buf, _type)
+	x.Quantity, offset, err = fastpb.ReadInt64(buf, _type)
 	return offset, err
 }
 
@@ -1038,7 +1038,7 @@ func (x *ListProductsReq) fastWriteField2(buf []byte) (offset int) {
 	if x.PageSize == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetPageSize())
+	offset += fastpb.WriteInt64(buf[offset:], 2, x.GetPageSize())
 	return offset
 }
 
@@ -1072,7 +1072,7 @@ func (x *Product) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -1120,7 +1120,7 @@ func (x *Product) fastWriteField7(buf []byte) (offset int) {
 	if x.Stock == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 7, x.GetStock())
+	offset += fastpb.WriteInt64(buf[offset:], 7, x.GetStock())
 	return offset
 }
 
@@ -1128,7 +1128,7 @@ func (x *Product) fastWriteField8(buf []byte) (offset int) {
 	if x.Sale == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 8, x.GetSale())
+	offset += fastpb.WriteInt64(buf[offset:], 8, x.GetSale())
 	return offset
 }
 
@@ -1136,7 +1136,7 @@ func (x *Product) fastWriteField9(buf []byte) (offset int) {
 	if x.PublishStatus == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 9, x.GetPublishStatus())
+	offset += fastpb.WriteInt64(buf[offset:], 9, x.GetPublishStatus())
 	return offset
 }
 
@@ -1144,7 +1144,7 @@ func (x *Product) fastWriteField10(buf []byte) (offset int) {
 	if x.BrandId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 10, x.GetBrandId())
+	offset += fastpb.WriteInt64(buf[offset:], 10, x.GetBrandId())
 	return offset
 }
 
@@ -1152,7 +1152,7 @@ func (x *Product) fastWriteField11(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 11, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 11, x.GetCategoryId())
 	return offset
 }
 
@@ -1265,7 +1265,7 @@ func (x *SearchProductsReq) fastWriteField2(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 2, x.GetCategoryId())
 	return offset
 }
 
@@ -1273,7 +1273,7 @@ func (x *SearchProductsReq) fastWriteField3(buf []byte) (offset int) {
 	if x.Page == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 3, x.GetPage())
+	offset += fastpb.WriteInt64(buf[offset:], 3, x.GetPage())
 	return offset
 }
 
@@ -1281,7 +1281,7 @@ func (x *SearchProductsReq) fastWriteField4(buf []byte) (offset int) {
 	if x.PageSize == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 4, x.GetPageSize())
+	offset += fastpb.WriteInt64(buf[offset:], 4, x.GetPageSize())
 	return offset
 }
 
@@ -1371,7 +1371,7 @@ func (x *InsertProductReq) fastWriteField5(buf []byte) (offset int) {
 	if x.Stock == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 5, x.GetStock())
+	offset += fastpb.WriteInt64(buf[offset:], 5, x.GetStock())
 	return offset
 }
 
@@ -1379,7 +1379,7 @@ func (x *InsertProductReq) fastWriteField10(buf []byte) (offset int) {
 	if x.BrandId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 10, x.GetBrandId())
+	offset += fastpb.WriteInt64(buf[offset:], 10, x.GetBrandId())
 	return offset
 }
 
@@ -1387,7 +1387,7 @@ func (x *InsertProductReq) fastWriteField11(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 11, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 11, x.GetCategoryId())
 	return offset
 }
 
@@ -1428,7 +1428,7 @@ func (x *SelectProductReq) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -1447,7 +1447,7 @@ func (x *SelectProductListReq) fastWriteField1(buf []byte) (offset int) {
 	offset += fastpb.WriteListPacked(buf[offset:], 1, len(x.GetIds()),
 		func(buf []byte, numTagOrKey, numIdxOrVal int32) int {
 			offset := 0
-			offset += fastpb.WriteInt32(buf[offset:], numTagOrKey, x.GetIds()[numIdxOrVal])
+			offset += fastpb.WriteInt64(buf[offset:], numTagOrKey, x.GetIds()[numIdxOrVal])
 			return offset
 		})
 	return offset
@@ -1535,7 +1535,7 @@ func (x *DeleteProductReq) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -1586,7 +1586,7 @@ func (x *UpdateProductReq) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -1636,7 +1636,7 @@ func (x *UpdateProductReq) fastWriteField7(buf []byte) (offset int) {
 	if x.Stock == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 7, x.GetStock())
+	offset += fastpb.WriteInt64(buf[offset:], 7, x.GetStock())
 	return offset
 }
 
@@ -1644,7 +1644,7 @@ func (x *UpdateProductReq) fastWriteField8(buf []byte) (offset int) {
 	if x.Sale == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 8, x.GetSale())
+	offset += fastpb.WriteInt64(buf[offset:], 8, x.GetSale())
 	return offset
 }
 
@@ -1652,7 +1652,7 @@ func (x *UpdateProductReq) fastWriteField9(buf []byte) (offset int) {
 	if x.PublishStatus == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 9, x.GetPublishStatus())
+	offset += fastpb.WriteInt64(buf[offset:], 9, x.GetPublishStatus())
 	return offset
 }
 
@@ -1660,7 +1660,7 @@ func (x *UpdateProductReq) fastWriteField10(buf []byte) (offset int) {
 	if x.BrandId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 10, x.GetBrandId())
+	offset += fastpb.WriteInt64(buf[offset:], 10, x.GetBrandId())
 	return offset
 }
 
@@ -1668,7 +1668,7 @@ func (x *UpdateProductReq) fastWriteField11(buf []byte) (offset int) {
 	if x.CategoryId == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 11, x.GetCategoryId())
+	offset += fastpb.WriteInt64(buf[offset:], 11, x.GetCategoryId())
 	return offset
 }
 
@@ -1710,7 +1710,7 @@ func (x *ProductLockQuantity) fastWriteField1(buf []byte) (offset int) {
 	if x.Id == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 1, x.GetId())
+	offset += fastpb.WriteInt64(buf[offset:], 1, x.GetId())
 	return offset
 }
 
@@ -1718,7 +1718,7 @@ func (x *ProductLockQuantity) fastWriteField2(buf []byte) (offset int) {
 	if x.Quantity == 0 {
 		return offset
 	}
-	offset += fastpb.WriteInt32(buf[offset:], 2, x.GetQuantity())
+	offset += fastpb.WriteInt64(buf[offset:], 2, x.GetQuantity())
 	return offset
 }
 
@@ -1787,7 +1787,7 @@ func (x *ListProductsReq) sizeField2() (n int) {
 	if x.PageSize == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(2, x.GetPageSize())
+	n += fastpb.SizeInt64(2, x.GetPageSize())
 	return n
 }
 
@@ -1821,7 +1821,7 @@ func (x *Product) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -1869,7 +1869,7 @@ func (x *Product) sizeField7() (n int) {
 	if x.Stock == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(7, x.GetStock())
+	n += fastpb.SizeInt64(7, x.GetStock())
 	return n
 }
 
@@ -1877,7 +1877,7 @@ func (x *Product) sizeField8() (n int) {
 	if x.Sale == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(8, x.GetSale())
+	n += fastpb.SizeInt64(8, x.GetSale())
 	return n
 }
 
@@ -1885,7 +1885,7 @@ func (x *Product) sizeField9() (n int) {
 	if x.PublishStatus == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(9, x.GetPublishStatus())
+	n += fastpb.SizeInt64(9, x.GetPublishStatus())
 	return n
 }
 
@@ -1893,7 +1893,7 @@ func (x *Product) sizeField10() (n int) {
 	if x.BrandId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(10, x.GetBrandId())
+	n += fastpb.SizeInt64(10, x.GetBrandId())
 	return n
 }
 
@@ -1901,7 +1901,7 @@ func (x *Product) sizeField11() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(11, x.GetCategoryId())
+	n += fastpb.SizeInt64(11, x.GetCategoryId())
 	return n
 }
 
@@ -2014,7 +2014,7 @@ func (x *SearchProductsReq) sizeField2() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(2, x.GetCategoryId())
+	n += fastpb.SizeInt64(2, x.GetCategoryId())
 	return n
 }
 
@@ -2022,7 +2022,7 @@ func (x *SearchProductsReq) sizeField3() (n int) {
 	if x.Page == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(3, x.GetPage())
+	n += fastpb.SizeInt64(3, x.GetPage())
 	return n
 }
 
@@ -2030,7 +2030,7 @@ func (x *SearchProductsReq) sizeField4() (n int) {
 	if x.PageSize == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(4, x.GetPageSize())
+	n += fastpb.SizeInt64(4, x.GetPageSize())
 	return n
 }
 
@@ -2120,7 +2120,7 @@ func (x *InsertProductReq) sizeField5() (n int) {
 	if x.Stock == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(5, x.GetStock())
+	n += fastpb.SizeInt64(5, x.GetStock())
 	return n
 }
 
@@ -2128,7 +2128,7 @@ func (x *InsertProductReq) sizeField10() (n int) {
 	if x.BrandId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(10, x.GetBrandId())
+	n += fastpb.SizeInt64(10, x.GetBrandId())
 	return n
 }
 
@@ -2136,7 +2136,7 @@ func (x *InsertProductReq) sizeField11() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(11, x.GetCategoryId())
+	n += fastpb.SizeInt64(11, x.GetCategoryId())
 	return n
 }
 
@@ -2177,7 +2177,7 @@ func (x *SelectProductReq) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -2196,7 +2196,7 @@ func (x *SelectProductListReq) sizeField1() (n int) {
 	n += fastpb.SizeListPacked(1, len(x.GetIds()),
 		func(numTagOrKey, numIdxOrVal int32) int {
 			n := 0
-			n += fastpb.SizeInt32(numTagOrKey, x.GetIds()[numIdxOrVal])
+			n += fastpb.SizeInt64(numTagOrKey, x.GetIds()[numIdxOrVal])
 			return n
 		})
 	return n
@@ -2284,7 +2284,7 @@ func (x *DeleteProductReq) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -2335,7 +2335,7 @@ func (x *UpdateProductReq) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -2385,7 +2385,7 @@ func (x *UpdateProductReq) sizeField7() (n int) {
 	if x.Stock == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(7, x.GetStock())
+	n += fastpb.SizeInt64(7, x.GetStock())
 	return n
 }
 
@@ -2393,7 +2393,7 @@ func (x *UpdateProductReq) sizeField8() (n int) {
 	if x.Sale == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(8, x.GetSale())
+	n += fastpb.SizeInt64(8, x.GetSale())
 	return n
 }
 
@@ -2401,7 +2401,7 @@ func (x *UpdateProductReq) sizeField9() (n int) {
 	if x.PublishStatus == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(9, x.GetPublishStatus())
+	n += fastpb.SizeInt64(9, x.GetPublishStatus())
 	return n
 }
 
@@ -2409,7 +2409,7 @@ func (x *UpdateProductReq) sizeField10() (n int) {
 	if x.BrandId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(10, x.GetBrandId())
+	n += fastpb.SizeInt64(10, x.GetBrandId())
 	return n
 }
 
@@ -2417,7 +2417,7 @@ func (x *UpdateProductReq) sizeField11() (n int) {
 	if x.CategoryId == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(11, x.GetCategoryId())
+	n += fastpb.SizeInt64(11, x.GetCategoryId())
 	return n
 }
 
@@ -2459,7 +2459,7 @@ func (x *ProductLockQuantity) sizeField1() (n int) {
 	if x.Id == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(1, x.GetId())
+	n += fastpb.SizeInt64(1, x.GetId())
 	return n
 }
 
@@ -2467,7 +2467,7 @@ func (x *ProductLockQuantity) sizeField2() (n int) {
 	if x.Quantity == 0 {
 		return n
 	}
-	n += fastpb.SizeInt32(2, x.GetQuantity())
+	n += fastpb.SizeInt64(2, x.GetQuantity())
 	return n
 }
 

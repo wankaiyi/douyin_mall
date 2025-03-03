@@ -44,7 +44,6 @@ func main() {
 	mtl.InitMetrics(serviceName, conf.GetConf().Kitex.MetricsPort)
 	dal.Init()
 	mysql.DB.AutoMigrate(&model.Product{})
-	mysql.DB.AutoMigrate(&model.Category{})
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.ProductService)
 

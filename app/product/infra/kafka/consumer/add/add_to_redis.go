@@ -10,12 +10,10 @@ import (
 )
 
 func AddProductToRedis(ctx context.Context, product *model.AddProductSendToKafka) (err error) {
-	key := "product:" + strconv.FormatInt(int64(product.ID), 10)
+	key := "product:" + strconv.FormatInt(product.ID, 10)
 	//4 调用redis的set方法将数据导入到redis缓存中
 	err = productModel.PushToRedisBaseInfo(ctx, productModel.Product{
-		Base: productModel.Base{
-			ID: product.ID,
-		},
+		ID:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,

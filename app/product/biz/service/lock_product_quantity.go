@@ -25,14 +25,14 @@ func NewLockProductQuantityService(ctx context.Context) *LockProductQuantityServ
 // Run create note info
 func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
 	originProducts := req.Products
-	var ids = make([]int32, 0)
-	var productQuantityMap = make(map[int32]int32)
+	var ids = make([]int64, 0)
+	var productQuantityMap = make(map[int64]int64)
 	for _, pro := range originProducts {
 		ids = append(ids, pro.Id)
 		productQuantityMap[pro.Id] = pro.Quantity
 	}
 	//pipeline
-	var cmdMap = make(map[int32]*redis.IntCmd)
+	var cmdMap = make(map[int64]*redis.IntCmd)
 	pipeline := redisClient.RedisClient.Pipeline()
 	for _, id := range ids {
 		productKey := model.BaseInfoKey(s.ctx, id)
@@ -44,7 +44,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 		return nil, err
 	}
 	exist := true
-	var notExistIds []int32 = make([]int32, 0)
+	var notExistIds []int64 = make([]int64, 0)
 	for id, cmd := range cmdMap {
 		if cmd.Val() == 0 {
 			notExistIds = append(notExistIds, id)
@@ -88,7 +88,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 	}
 }
 
-func lockQuantity(ctx context.Context, productQuantityMap map[int32]int32) error {
+func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error {
 	luaScript := `
 		local function process_keys(keys, quantities)
 			for i, key in ipairs(keys) do
@@ -125,7 +125,7 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int32]int32) error
 	return nil
 }
 
-func pushToRedis(ctx context.Context, id int32, wg *sync.WaitGroup, hasError bool) {
+func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError bool) {
 	defer wg.Done()
 	//get lock
 	//lock里面设置uuid，
@@ -150,7 +150,7 @@ func pushToRedis(ctx context.Context, id int32, wg *sync.WaitGroup, hasError boo
 			return
 		} else {
 			//先从数据库获取数据
-			list, err := model.SelectProductList(mysql.DB, ctx, []int32{id})
+			list, err := model.SelectProductList(mysql.DB, ctx, []int64{id})
 			if err != nil {
 				hasError = true
 				return
@@ -158,9 +158,7 @@ func pushToRedis(ctx context.Context, id int32, wg *sync.WaitGroup, hasError boo
 			for _, pro := range list {
 				//然后推送到redis
 				err := model.PushToRedisStock(ctx, model.Product{
-					Base: model.Base{
-						ID: pro.ProductId,
-					},
+					ID:          pro.ProductId,
 					Name:        pro.ProductName,
 					Description: pro.ProductDescription,
 					Picture:     pro.ProductPicture,
@@ -170,6 +168,7 @@ func pushToRedis(ctx context.Context, id int32, wg *sync.WaitGroup, hasError boo
 					PublicState: pro.ProductPublicState,
 					LockStock:   pro.ProductLockStock,
 					CategoryId:  pro.CategoryID,
+					RealStock:   pro.RealStock,
 				}, redisClient.RedisClient, stockKey)
 				if err != nil {
 					hasError = true

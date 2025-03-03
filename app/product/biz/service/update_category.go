@@ -20,10 +20,9 @@ func NewUpdateCategoryService(ctx context.Context) *UpdateCategoryService {
 func (s *UpdateCategoryService) Run(req *product.CategoryUpdateReq) (resp *product.CategoryUpdateResp, err error) {
 	// 根据id删除商品
 	err = model.UpdateCategory(mysql.DB, s.ctx, &model.Category{
-		Base: model.Base{
-			ID: req.CategoryId,
-		},
-		Name: req.Name,
+		ID:          req.CategoryId,
+		Name:        req.Name,
+		Description: req.Description,
 	})
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "更新分类失败, err: %v", err)

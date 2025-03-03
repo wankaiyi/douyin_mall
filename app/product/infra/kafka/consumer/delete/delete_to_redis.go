@@ -15,7 +15,7 @@ func DeleteProductToRedis(ctx context.Context, product *model.DeleteProductSendT
 	pro := vo.ProductRedisDataVo{
 		ID: product.ID,
 	}
-	key := "product:" + strconv.FormatInt(int64(product.ID), 10)
+	key := "product:" + strconv.FormatInt(product.ID, 10)
 	//4 调用redis的set方法将数据导入到redis缓存中
 	marshal, err := sonic.MarshalString(pro)
 	if err != nil {
