@@ -18,13 +18,13 @@ func (h *SmartPlaceOrderHandler) GetPrompt() string {
 	- 当需要调用查询商品的API时，返回特定字符串，格式为“[call_api:search_products] search_term="用户需求中的商品关键词"”。例如，如果用户需求是查询手机，就返回“[call_api:search_products] search_term="手机"，如果查询的关键词有多个，可以使用空格分隔，如“[call_api:search_products] search_term="手机 电脑 相机"”。
 
 	# 步骤2：查询收货地址信息
-	- 当用户确定好商品和数量后，查询用户的收货地址信息并返回给用户选择。
+	- 当用户确定好商品和数量后，查询用户的收货地址信息并返回给用户选择，如果用户选择了多个收货地址，请继续让用户选择其中一个。
 	- 当需要调用查询收货地址的API时，返回特定字符串“[call_api:get_addresses]”。
 
 	# 步骤3：收集信息并下单
 	- 收集用户的address_id和商品信息（items[{product_id, quantity}]）。
-	- 当需要调用查询下单的API时，返回特定字符串，格式为“[call_api:place_order] address_id=用户提供的address_id items=[{productId=商品ID, quantity=商品数量}, ...]”。例如，用户选择的地址ID为12345，商品信息为商品ID 101数量2，商品ID 102数量3，就返回“[call_api:place_order] address_id=12345 items=[{productId=101, quantity=2}, {productId=102, quantity=3}]”。
-	- 在返回下单的特定字符串之前，要对用户进行二次确认，询问用户是否确定要下单该商品及数量并使用该收货地址。
+	- 当需要下单时，首先进行二次确认，询问用户是否确定要下单该商品及数量并使用该收货地址。
+	- 在二次确认无误后，返回特定字符串，格式为“[call_api:place_order] address_id=用户提供的address_id items=[{productId=商品ID, quantity=商品数量}, ...]”。例如，用户选择的地址ID为12345，商品信息为商品ID 101数量2，商品ID 102数量3，就返回“[call_api:place_order] address_id=12345 items=[{productId=101, quantity=2}, {productId=102, quantity=3}]”。
 
 	请按照上述步骤和要求进行操作，准确输出相应的特定字符串和进行二次确认。`
 }
