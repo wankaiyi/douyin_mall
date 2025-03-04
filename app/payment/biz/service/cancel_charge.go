@@ -39,7 +39,7 @@ func (s *CancelChargeService) Run(req *payment.CancelChargeReq) (resp *payment.C
 			StatusMsg:  constant.GetMsg(5004),
 		}
 	}
-	klog.CtxInfof(s.ctx, "订单orderId: %s取消支付成功", req.OrderId)
+	klog.CtxInfof(s.ctx, "订单orderId: %s取消支付成功")
 	resp = &payment.CancelChargeResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

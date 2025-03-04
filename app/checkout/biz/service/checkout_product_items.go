@@ -43,19 +43,6 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		return nil, errors.New("用户地址不存在")
 	}
 
-	var totalCost float32
-	//计算总价
-	for _, productItem := range req.Items {
-		getProductResp, err := rpc.ProductClient.GetProduct(s.ctx, &product.GetProductReq{
-			Id: uint32(productItem.GetProductId()),
-		})
-		if err != nil {
-			klog.CtxErrorf(s.ctx, "获取商品信息失败rpc接口调用失败, error: %v, product_id: %d", err, productItem.GetProductId())
-		}
-		totalCost += getProductResp.Product.Price
-
-	}
-
 	//创建订单
 	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{
 		UserId: req.UserId,
@@ -68,7 +55,6 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			DetailAddress: targetAddress.DetailAddress,
 		},
 		OrderItems: convertProductItem2OrderItem(s.ctx, req.Items),
-		TotalCost:  float64(totalCost),
 	})
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "创建订单失败rpc接口调用失败, error: %v", err)
