@@ -55,6 +55,7 @@ func SelectProductAll(db *gorm.DB, ctx context.Context, index int64, total int64
 	result := db.WithContext(ctx).Model(&Product{}).
 		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.public_state as product_public_state,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
 		Joins("left join tb_category on tb_product.category_id=tb_category.id").
+		Where("tb_product.id%?=?", total, index).
 		Scan(&products)
 	err = result.Error
 	return products, err
