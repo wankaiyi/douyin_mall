@@ -107,7 +107,9 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 			return nil, err
 		}
 		searchProductsReq := &product.SearchProductsReq{
-			Query: searchTerm,
+			Query:    searchTerm,
+			Page:     1,
+			PageSize: 5,
 		}
 		searchProductsResp, err := rpc.ProductClient.SearchProducts(ctx, searchProductsReq)
 		if err != nil {
