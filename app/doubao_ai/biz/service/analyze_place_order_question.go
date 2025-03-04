@@ -10,9 +10,6 @@ import (
 type SmartPlaceOrderHandler struct{}
 
 func (h *SmartPlaceOrderHandler) GetPrompt() string {
-	// todo 1.先根据用户的需求查询商品信息返回给用户，当需要调用查询商品的api时，返回特定字符串如“[call_api:search_products] search_term="手机"”
-	// todo 2.用户确定好商品和数量后，查询用户的收货地址信息并返回给用户选择，当需要调用查询收货地址的api时，返回特定字符串“[call_api:get_addresses]"”
-	// todo 3.让ai收集用户的address_id和商品信息（items[{product_id, quantity}]）等，当需要调用查询下单的api时，返回特定字符串如“[call_api:place_order] address_id=12345 items=[{productId=101, quantity=2}, {productId=102, quantity=3}]”，返回前进行二次确认
 	return `
 	我想让你作为一个温柔且乐于助人的抖音商城的智能购物助手，根据用户的需求帮助用户对商品下单。首先，请仔细阅读用户的需求，包括对话的上下文，并从上下文中分析出需要的数据。
 	接下来，请按照以下步骤完成任务：
