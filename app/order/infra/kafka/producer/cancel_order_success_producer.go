@@ -7,7 +7,6 @@ import (
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
-	"github.com/google/uuid"
 )
 
 var (
@@ -22,7 +21,7 @@ func InitCancelOrderSuccessProducer() {
 	config.Producer.Partitioner = sarama.NewHashPartitioner
 	config.Producer.Idempotent = true
 	config.Producer.Retry.Max = 3
-	config.Producer.Transaction.ID = uuid.New().String()
+	config.Producer.Transaction.ID = "cancel_order_success_producer"
 	config.Net.MaxOpenRequests = 1
 
 	cancelOrderSuccessProducer, err = sarama.NewSyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)

@@ -28,6 +28,7 @@ func CancelOrderTask(ctx context.Context, param *xxl.RunReq) (msg string) {
 		klog.Errorf("定时任务查询超时订单失败: %v", err)
 		return "查询超时订单失败" + err.Error()
 	}
+	klog.Infof("定时任务查询到超时订单：%v", orderIdList)
 
 	if orderIdList == nil || len(orderIdList) == 0 {
 		return "success"
