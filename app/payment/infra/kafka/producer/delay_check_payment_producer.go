@@ -11,6 +11,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 )
 
@@ -25,6 +26,10 @@ func InitDelayCheckoutProducer() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 	config.Producer.Partitioner = sarama.NewHashPartitioner
+	config.Producer.Idempotent = true
+	config.Producer.Retry.Max = 3
+	config.Producer.Transaction.ID = uuid.New().String()
+	config.Net.MaxOpenRequests = 1
 
 	producer, err = sarama.NewAsyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)
 	if err != nil {

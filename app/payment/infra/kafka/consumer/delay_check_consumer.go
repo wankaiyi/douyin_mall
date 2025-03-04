@@ -51,6 +51,7 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 
 		orderId := delayCancelOrderMessage.OrderID
 		id, _ := strconv.ParseInt(orderId, 10, 64)
+		klog.CtxInfof(ctx, "查询支付宝系统订单状态,orderId=%d")
 		status, err := checkPaymentStatus(ctx, id)
 
 		if err != nil {
@@ -109,6 +110,7 @@ func checkPaymentStatus(ctx context.Context, orderId int64) (bool, error) {
 			return false, nil
 		}
 		//支付成功，更新订单状态
+		klog.CtxInfof(context.Background(), "支付宝订单状态为TRADE_SUCCESS,orderId=%d,tradeStatus=%s , 更新订单状态", orderId, tradeStatus)
 		markOrderPaidResp, err := rpc.OrderClient.MarkOrderPaid(ctx, &order.MarkOrderPaidReq{
 			OrderId: strconv.FormatInt(orderId, 10),
 		})
