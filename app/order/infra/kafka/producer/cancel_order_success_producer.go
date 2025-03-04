@@ -20,6 +20,7 @@ func InitCancelOrderSuccessProducer() {
 	config.Producer.Return.Successes = true
 	config.Producer.Partitioner = sarama.NewHashPartitioner
 	config.Producer.Idempotent = true
+	config.Producer.Transaction.Retry.Backoff = 10
 	config.Producer.Retry.Max = 3
 	config.Producer.Transaction.ID = "cancel_order_success_producer"
 	config.Net.MaxOpenRequests = 1
@@ -37,17 +38,17 @@ func InitCancelOrderSuccessProducer() {
 
 // SendCancelOrderSuccessMessage 取消订单成功后发送事务消息，释放库存
 func SendCancelOrderSuccessMessage(ctx context.Context, orderId string) {
-	err = producer.BeginTxn()
+	err = cancelOrderSuccessProducer.BeginTxn()
 	if err != nil {
 		klog.Errorf("开启事务失败: %v", err)
 		return
 	}
 	err := sendMessage(ctx, constant.CancelOrderSuccessTopic, []byte(orderId), orderId, cancelOrderSuccessProducer)
 	if err != nil {
-		producer.AbortTxn()
+		cancelOrderSuccessProducer.AbortTxn()
 		return
 	}
-	err = producer.CommitTxn()
+	err = cancelOrderSuccessProducer.CommitTxn()
 	if err != nil {
 		klog.Errorf("提交事务失败: %v", err)
 		return
@@ -56,7 +57,7 @@ func SendCancelOrderSuccessMessage(ctx context.Context, orderId string) {
 }
 
 func SendCancelOrderSuccessMessages(ctx context.Context, orderIds []string) error {
-	err = producer.BeginTxn()
+	err = cancelOrderSuccessProducer.BeginTxn()
 	if err != nil {
 		klog.Errorf("开启事务失败: %v", err)
 		return err
@@ -64,11 +65,11 @@ func SendCancelOrderSuccessMessages(ctx context.Context, orderIds []string) erro
 	for _, orderId := range orderIds {
 		err := sendMessage(ctx, constant.CancelOrderSuccessTopic, []byte(orderId), orderId, cancelOrderSuccessProducer)
 		if err != nil {
-			producer.AbortTxn()
+			cancelOrderSuccessProducer.AbortTxn()
 			return err
 		}
 	}
-	err = producer.CommitTxn()
+	err = cancelOrderSuccessProducer.CommitTxn()
 	if err != nil {
 		klog.Errorf("提交事务失败: %v", err)
 		return err
