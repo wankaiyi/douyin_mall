@@ -211,27 +211,37 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 	}
 	var keysKey = searchHotkey(string(md5Bytes))
 	keysConf := keyModel.NewKeyConf1(constant.ProductService)
+	keysConf.Interval = 10
 	keysHotkeyModel := keyModel.NewHotKeyModelWithConfig(keysKey, &keysConf)
 	var values = make(map[int64]map[string]string)
-	var unMissingIds = make([]int64, 0)
 	localKeysCache := processor.GetValue(*keysHotkeyModel)
 	if localKeysCache != nil {
-		values = localKeysCache.(map[int64]map[string]string)
+		klog.CtxInfof(ctx, "localKeysCache命中！: %v", localKeysCache)
+		err := sonic.UnmarshalString(localKeysCache.(string), &values)
+		if err != nil {
+			klog.CtxErrorf(ctx, "values反序列化缓存失败, err: %v", err)
+			return nil, nil, err
+		}
+		processor.SmartSet(*keysHotkeyModel, localKeysCache)
 	} else {
 		for _, id := range searchIds {
 			productKey := model.BaseInfoKey(ctx, id)
 			result, _ := redisClient.RedisClient.HGetAll(ctx, productKey).Result()
 			klog.CtxInfof(ctx, "redis hgetall %v 获取的结果:%v", productKey, result)
 			if len(result) != 0 {
-				unMissingIds = append(unMissingIds, id)
 				values[id] = result
 			} else {
 				missingIds = append(missingIds, id)
 			}
 		}
-		processor.SmartSet(*keysHotkeyModel, values)
+		marshal, err := sonic.MarshalString(values)
+		if err != nil {
+			klog.CtxErrorf(ctx, "values序列化缓存失败, err: %v", err)
+			return nil, nil, err
+		}
+		processor.SmartSet(*keysHotkeyModel, marshal)
 	}
-	for _, id := range unMissingIds {
+	for _, id := range searchIds {
 		if values[id] == nil {
 			missingIds = append(missingIds, id)
 		} else {
