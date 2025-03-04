@@ -23,11 +23,13 @@ func NewCheckoutProductItemsService(ctx context.Context) *CheckoutProductItemsSe
 // Run create note info
 func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq) (resp *checkout.CheckoutProductItemsResp, err error) {
 	//得到用户地址
-	getReceiveAddressResp, err := rpc.UserClient.GetReceiveAddress(s.ctx, &user.GetReceiveAddressReq{
+	ctx := s.ctx
+	klog.CtxInfof(ctx, "收到结算商品请求, req: %v", req)
+	getReceiveAddressResp, err := rpc.UserClient.GetReceiveAddress(ctx, &user.GetReceiveAddressReq{
 		UserId: req.UserId,
 	})
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "获取用户地址失败rpc接口调用失败, error: %v", err)
+		klog.CtxErrorf(ctx, "获取用户地址失败rpc接口调用失败, error: %v", err)
 		return nil, errors.WithStack(err)
 	}
 	addressList := getReceiveAddressResp.ReceiveAddress
@@ -39,24 +41,49 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		}
 	}
 	if targetAddress == nil {
-		klog.CtxErrorf(s.ctx, "用户地址不存在, address_id: %d", req.AddressId)
+		klog.CtxErrorf(ctx, "用户地址不存在, address_id: %d", req.AddressId)
 		return nil, errors.New("用户地址不存在")
 	}
 
-	var totalCost float32
-	//计算总价
+	// 计算商品的总价
+	var productIds []int64
 	for _, productItem := range req.Items {
-		getProductResp, err := rpc.ProductClient.GetProduct(s.ctx, &product.GetProductReq{
-			Id: uint32(productItem.GetProductId()),
-		})
-		if err != nil {
-			klog.CtxErrorf(s.ctx, "获取商品信息失败rpc接口调用失败, error: %v, product_id: %d", err, productItem.GetProductId())
-		}
-		totalCost += getProductResp.Product.Price
-
+		productIds = append(productIds, int64(productItem.ProductId))
 	}
+	productListReq := &product.SelectProductListReq{
+		Ids: productIds,
+	}
+	productListResp, err := rpc.ProductClient.SelectProductList(ctx, productListReq)
+	if err != nil {
+		klog.CtxErrorf(ctx, "获取商品信息失败rpc接口调用失败, req: %v, error: %v", req, err)
+		return nil, err
+	}
+	klog.CtxInfof(ctx, "获取商品信息成功, resp: %v", productListResp)
+	productMap := make(map[int64]*product.Product)
+	for _, p := range productListResp.Products {
+		productMap[p.Id] = p
+	}
+
+	var cost float32
+	var orderItems []*order.OrderItem
+	for _, productItem := range req.Items {
+		p, ok := productMap[int64(productItem.ProductId)]
+		if !ok {
+			klog.CtxErrorf(ctx, "商品不存在, product_id: %d", productItem.ProductId)
+			return nil, errors.New("商品不存在")
+		}
+		cost += float32(productItem.Quantity) * p.Price
+		orderItems = append(orderItems, &order.OrderItem{
+			Item: &cart.CartItem{
+				ProductId: int32(p.Id),
+				Quantity:  productItem.Quantity,
+			},
+			Cost: float64(float32(productItem.Quantity) * p.Price),
+		})
+	}
+
 	//创建订单
-	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{
+	placeOrderResp, err := rpc.OrderClient.PlaceOrder(ctx, &order.PlaceOrderReq{
 		UserId: req.UserId,
 		Address: &order.Address{
 			Name:          targetAddress.Name,
@@ -66,30 +93,21 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			Region:        targetAddress.Region,
 			DetailAddress: targetAddress.DetailAddress,
 		},
-		OrderItems: convertProductItem2OrderItem(s.ctx, req.Items),
-		TotalCost:  float64(totalCost),
+		OrderItems: orderItems,
+		TotalCost:  float64(cost),
 	})
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "创建订单失败rpc接口调用失败, error: %v", err)
+		klog.CtxErrorf(ctx, "创建订单失败rpc接口调用失败, error: %v", err)
 		return nil, errors.WithStack(err)
 	}
 	orderId := placeOrderResp.Order.OrderId
 
-	//得到订单金额
-	orderResp, err := rpc.OrderClient.GetOrder(s.ctx, &order.GetOrderReq{
+	chargeResp, err := rpc.PaymentClient.Charge(ctx, &payment.ChargeReq{
 		OrderId: orderId,
+		Amount:  cost,
 	})
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "获取订单失败rpc接口调用失败, error: %v", err)
-		return nil, errors.WithStack(err)
-	}
-	cost := orderResp.Order.Cost
-	chargeResp, err := rpc.PaymentClient.Charge(s.ctx, &payment.ChargeReq{
-		OrderId: orderId,
-		Amount:  float32(cost),
-	})
-	if err != nil {
-		klog.CtxErrorf(s.ctx, "支付失败rpc接口调用失败, error: %v", err)
+		klog.CtxErrorf(ctx, "支付失败rpc接口调用失败, error: %v", err)
 		return nil, errors.WithStack(err)
 	}
 
@@ -99,33 +117,4 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		PaymentUrl: chargeResp.PaymentUrl,
 	}
 	return
-}
-
-func convertProductItem2OrderItem(ctx context.Context, productItems []*checkout.ProductItem) []*order.OrderItem {
-	var orderItems []*order.OrderItem
-	for _, productItem := range productItems {
-		productResp, err := rpc.ProductClient.GetProduct(ctx, &product.GetProductReq{
-			Id: uint32(productItem.ProductId),
-		})
-		if err != nil {
-			klog.CtxErrorf(ctx, "获取商品信息失败rpc接口调用失败, error: %v", err)
-
-		}
-		if productResp.Product == nil {
-			klog.CtxErrorf(ctx, "商品不存在, product_id: %d", productItem.ProductId)
-		}
-		//计算商品的总价
-		cost := float32(productItem.Quantity) * productResp.Product.Price
-
-		item := &order.OrderItem{
-			Item: &cart.CartItem{
-				ProductId: productItem.ProductId,
-				Quantity:  productItem.Quantity,
-			},
-			Cost: float64(cost),
-		}
-		orderItems = append(orderItems, item)
-
-	}
-	return orderItems
 }

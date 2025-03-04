@@ -6,6 +6,7 @@ import (
 	"douyin_mall/payment/biz/dal/alipay"
 	kafkaConstant "douyin_mall/payment/infra/kafka/constant"
 	"douyin_mall/payment/infra/kafka/producer"
+	"time"
 
 	payment "douyin_mall/payment/kitex_gen/payment"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -22,33 +23,36 @@ func NewChargeService(ctx context.Context) *ChargeService {
 
 // Run create note info
 func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, err error) {
-	// Finish your business logic.
-	klog.CtxInfof(s.ctx, "支付接口被调用, req: %+v", req)
+	ctx := s.ctx
+	klog.CtxInfof(ctx, "支付接口被调用, req: %+v", req)
 	orderId, err := strconv.ParseInt(req.OrderId, 0, 64)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "parse order id error: %s", err.Error())
+		klog.CtxErrorf(ctx, "parse order id error: %s", err.Error())
 		return nil, errors.WithStack(err)
 	}
 	amount := req.Amount
-
-	paymentUrl, err := alipay.Pay(s.ctx, orderId, amount, req.UserId)
-	if err != nil {
-		klog.CtxErrorf(s.ctx, "pay error: %s,req: %+v", err.Error(), req)
-		resp = &payment.ChargeResp{
-			StatusCode: 5000,
-			StatusMsg:  constant.GetMsg(5000),
-			PaymentUrl: "",
+	paymentUrl := ""
+	maxRetryTimes := 3
+	for i := 0; i < maxRetryTimes; i++ {
+		paymentUrl, err = alipay.Pay(ctx, orderId, amount, req.UserId)
+		if err != nil {
+			klog.CtxErrorf(ctx, "支付失败, 第%d次重试, req: %+v, 错误信息: %+v", i+1, req, err.Error())
+			time.Sleep(500 * time.Millisecond)
 		}
+	}
+	if err != nil {
+		klog.CtxErrorf(ctx, "支付失败, 重试%d次后仍失败, req: %+v, 错误信息: %+v", maxRetryTimes, req, err.Error())
 		return nil, errors.WithStack(err)
 	}
+
 	//给kafka发送延时消息
-	producer.SendCheckoutDelayMsg(s.ctx, strconv.FormatInt(orderId, 10), kafkaConstant.DelayTopic1mLevel)
+	producer.SendCheckoutDelayMsg(ctx, strconv.FormatInt(orderId, 10), kafkaConstant.DelayTopic1mLevel)
 
 	resp = &payment.ChargeResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),
 		PaymentUrl: paymentUrl,
 	}
-	klog.CtxInfof(s.ctx, "支付接口返回, resp: %+v ,支付接口调用结束。", resp)
+	klog.CtxInfof(ctx, "支付接口返回, resp: %+v ,支付接口调用结束。", resp)
 	return
 }

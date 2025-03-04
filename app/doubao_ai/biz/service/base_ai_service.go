@@ -196,20 +196,23 @@ func (s *BaseAiService) generateAiResponse(params *requestAiParams, handler mode
 		Model:  conf.GetConf().Ark.Model,
 		APIKey: conf.GetConf().Ark.ApiKey,
 	})
-	result, err := chatModel.Generate(s.ctx, messages)
-	if err != nil {
-		klog.CtxErrorf(s.ctx, "智能助手：生成对话失败：result: %s, err: %v", result, err)
-		return nil, errors.WithStack(err)
+	maxRetries := 3
+	for i := 0; i < maxRetries; i++ {
+		result, err := chatModel.Generate(s.ctx, messages)
+		if err != nil {
+			klog.CtxErrorf(s.ctx, "智能助手：生成对话失败，尝试第%d次，err: %v", i+1, err)
+			time.Sleep(time.Millisecond * 500)
+			continue
+		}
+		return &model.Message{
+			UserId:   params.UserId,
+			Role:     model.RoleAssistant,
+			Content:  result.Content,
+			Uuid:     params.Uuid,
+			Scenario: scenario,
+		}, nil
 	}
-
-	aiMessage := &model.Message{
-		UserId:   params.UserId,
-		Role:     model.RoleAssistant,
-		Content:  result.Content,
-		Uuid:     params.Uuid,
-		Scenario: scenario,
-	}
-	return aiMessage, nil
+	return nil, err
 }
 
 func (s *BaseAiService) cacheChatMessages(userMessage *model.Message, aiMessage *model.Message, historyMessages []model.Message, uuid string) error {
