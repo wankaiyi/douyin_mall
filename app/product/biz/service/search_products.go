@@ -135,6 +135,7 @@ func searchHotkey(md string) string {
 }
 
 func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int64, error) {
+	DetectKey := "search:id"
 	var ids = make([]int64, 0)
 	dslKey := "product:dslBytes:" + string(md5bytes)
 	keyConf := keyModel.NewKeyConf1(constant.ProductService)
@@ -146,7 +147,11 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 		if err == nil {
 			dslCache = redisCache
 		}
+		klog.CtxInfof(ctx, "命中redis缓存: key:%v,value:%v", DetectKey, redisCache)
+		go addRedisHit(ctx, DetectKey)
 	} else {
+		go addLocalHit(ctx, DetectKey)
+		klog.CtxInfof(ctx, "命中本地缓存: key:%v,value:%v", DetectKey, localCache)
 		dslCache = localCache.(string)
 	}
 	if dslCache != "" && dslCache != "null" {
@@ -156,6 +161,8 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 			return ids, err
 		}
 	} else {
+		klog.CtxInfof(ctx, "未命中缓存, key:%v", DetectKey)
+		go notHit(ctx, DetectKey)
 		//发往elastic
 		search, err := esapi.SearchRequest{
 			Index: []string{"product"},
@@ -203,6 +210,7 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 }
 
 func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
+	detectKey := "search:base"
 	//加入hotkey
 	products = make([]*product.Product, 0)
 	missingIds = make([]int64, 0)
@@ -226,6 +234,8 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 			klog.CtxErrorf(ctx, "values反序列化缓存失败, err: %v", err)
 			return nil, nil, err
 		}
+		klog.CtxInfof(ctx, "搜索缓存，命中本地缓存,key:%v,value:%v", detectKey, localKeysCache)
+		go addLocalHit(ctx, detectKey)
 		processor.SmartSet(*keysHotkeyModel, localKeysCache)
 	} else {
 		for _, id := range searchIds {
@@ -247,6 +257,8 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 	}
 	for _, id := range searchIds {
 		if values[id] == nil {
+			klog.CtxInfof(ctx, "搜索缓存,未命中缓存,key:%v", detectKey)
+			go notHit(ctx, "search:base")
 			missingIds = append(missingIds, id)
 		} else {
 			//解析数据
@@ -339,6 +351,7 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 }
 
 func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
+	detectKey := "search:stock"
 	productStock = make(map[int64]int64)
 	for _, id := range searchIds {
 		//库存的key
@@ -353,6 +366,8 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 		klog.CtxInfof(ctx, "stockKey是否存在:%v", exists == 1)
 		//如果存在，则从redis中获取数据
 		if exists == 1 {
+			klog.CtxInfof(ctx, "命中redis缓存,key:%v", stockKey)
+			go addRedisHit(ctx, detectKey)
 			//连续三次尝试
 			maxTry := 3
 			for i := 0; i < maxTry; i++ {
@@ -374,6 +389,8 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 				}
 			}
 		} else {
+			klog.CtxInfof(ctx, "未命中缓存,key:%v", detectKey)
+			go notHit(ctx, detectKey)
 			//不存在
 			//则先加锁
 			lockKey := model.StockLockKey(ctx, id)
@@ -443,4 +460,29 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 		}
 	}
 	return productStock, nil
+}
+
+func addRedisHit(ctx context.Context, key string) {
+	luaScript := `
+local key = KEYS[1]
+      redis.call('HINCRBY', key,'total_queries',1)
+redis.call('HINCRBY', key,'redis_cache_hit',1)
+`
+	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
+}
+func notHit(ctx context.Context, key string) {
+	luaScript := `
+local key = KEYS[1]
+redis.call('HINCRBY', key,'total_queries',1)
+`
+	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
+}
+
+func addLocalHit(ctx context.Context, key string) {
+	luaScript := `
+local key = KEYS[1]
+redis.call('HINCRBY', key,'total_queries',1)
+redis.call('HINCRBY', key,'local_cache_hit',1)
+`
+	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
 }
