@@ -68,6 +68,7 @@ func (s *AddReceiveAddressService) Run(req *user.AddReceiveAddressReq) (resp *us
 	if err != nil {
 		return nil, err
 	}
+	klog.CtxInfof(ctx, "添加收货地址成功，req：%v", req)
 	resp = &user.AddReceiveAddressResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

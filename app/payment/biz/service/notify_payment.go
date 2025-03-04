@@ -4,7 +4,6 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	"douyin_mall/payment/biz/dal/alipay"
-	redsync "douyin_mall/payment/biz/dal/red_sync"
 	"douyin_mall/payment/infra/kafka/producer"
 	"douyin_mall/payment/infra/rpc"
 	payment "douyin_mall/payment/kitex_gen/payment"
@@ -23,35 +22,27 @@ func NewNotifyPaymentService(ctx context.Context) *NotifyPaymentService {
 
 // Run create note info
 func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment.NotifyPaymentResp, err error) {
-	// Finish your business logic.
+	klog.Infof("收到支付宝支付成功回调，req：%+v", req)
+	ctx := s.ctx
 	notifyData := req.NotifyData
 	//alipayTradeNo := notifyData["alipayTradeNo"]
 	tradeStatus := notifyData["tradeStatus"]
 	//alipayAmount := notifyData["alipayAmount"]
 	orderId := notifyData["orderId"]
 	userId, _ := strconv.ParseInt(notifyData["userId"], 10, 64)
-	//得到互斥锁
-	rsync := redsync.GetRedsync()
-	mutexName := "order_" + orderId
-	mutex := rsync.NewMutex(mutexName)
 
-	//加锁
-	if err := mutex.Lock(); err != nil {
-		klog.CtxErrorf(s.ctx, "获取互斥锁失败，lock failed,orderId:%s,,err:%s", orderId, err.Error())
-		return nil, err
-	}
-	defer mutex.Unlock()
-
-	getOrderResp, err := rpc.OrderClient.GetOrder(s.ctx, &order.GetOrderReq{
+	getOrderReq := &order.GetOrderReq{
 		OrderId: orderId,
-	})
+	}
+	getOrderResp, err := rpc.OrderClient.GetOrder(ctx, getOrderReq)
 	if err != nil {
+		klog.Errorf("支付回调rpc查询订单失败，req: %v,err: %v", getOrderReq, err)
 		return nil, errors.WithStack(err)
 	}
 	if getOrderResp.Order.Status == constant.OrderStatusUnpaid {
 		// 检查支付状态，如果支付成功，则更新订单状态
 		if tradeStatus != "TRADE_SUCCESS" {
-			klog.CtxErrorf(s.ctx, "orderId:%s,pay filed,tradeStatus:%s", orderId, tradeStatus)
+			klog.CtxErrorf(ctx, "orderId:%s,pay filed,tradeStatus:%s", orderId, tradeStatus)
 			resp = &payment.NotifyPaymentResp{
 				StatusCode: 5006,
 				StatusMsg:  constant.GetMsg(5006),
@@ -59,30 +50,27 @@ func (s *NotifyPaymentService) Run(req *payment.NotifyPaymentReq) (resp *payment
 			return resp, nil
 		}
 		//更新订单状态
-		markOrderPaidResp, err := rpc.OrderClient.MarkOrderPaid(s.ctx, &order.MarkOrderPaidReq{
+		markOrderPaidResp, err := rpc.OrderClient.MarkOrderPaid(ctx, &order.MarkOrderPaidReq{
 			OrderId: orderId,
 			UserId:  int32(userId),
 		})
 		if err != nil {
-			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, err.Error())
+			klog.CtxErrorf(ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, err.Error())
 			//退款
-			refund(s.ctx, orderId, getOrderResp)
+			refund(ctx, orderId, getOrderResp)
 			return nil, errors.WithStack(err)
 		}
 		if markOrderPaidResp.StatusCode != 0 {
-			klog.CtxErrorf(s.ctx, "orderId:%s,更新订单状态失败,err:%s", orderId, markOrderPaidResp.StatusMsg)
-			//退款
-			refund(s.ctx, orderId, getOrderResp)
+			klog.CtxInfof(ctx, "修改订单状态失败,orderId: %s,resp: %v", orderId, markOrderPaidResp)
 			return &payment.NotifyPaymentResp{
 				StatusCode: markOrderPaidResp.StatusCode,
 				StatusMsg:  constant.GetMsg(int(markOrderPaidResp.StatusCode)),
 			}, nil
 		}
 		//发送支付成功消息
-		producer.SendPaymentSuccessOrderIdMsg(s.ctx, orderId)
+		producer.SendPaymentSuccessOrderIdMsg(ctx, orderId)
 	}
 
-	klog.CtxInfof(s.ctx, "订单已支付或已取消，无需更新订单状态")
 	resp = &payment.NotifyPaymentResp{
 		StatusCode: 0,
 		StatusMsg:  constant.GetMsg(0),

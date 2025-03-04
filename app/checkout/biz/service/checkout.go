@@ -24,7 +24,9 @@ func NewCheckoutService(ctx context.Context) *CheckoutService {
 
 // Run create note info
 func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.CheckoutResp, err error) {
+	klog.CtxInfof(s.ctx, "用户userId:%d,开始结算订单", req.UserId)
 	//获得userId
+	ctx := s.ctx
 	userId := req.UserId
 	//得到互斥锁
 	rsync := redsync.GetRedsync()
@@ -32,25 +34,27 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	mutex := rsync.NewMutex(mutexName)
 	//加锁
 	if err := mutex.Lock(); err != nil {
-		klog.CtxErrorf(s.ctx, "获取互斥锁失败，lock failed, :%d,err:%s", userId, err.Error())
+		klog.CtxErrorf(ctx, "获取互斥锁失败，lock failed, :%d,err:%s", userId, err.Error())
 		return nil, err
 	}
 	defer mutex.Unlock()
 
 	//获得购物车信息
-	cartResp, err := rpc.CartClient.GetCart(s.ctx, &cart.GetCartReq{UserId: int32(userId)})
+	getCartReq := &cart.GetCartReq{UserId: int32(userId)}
+	cartResp, err := rpc.CartClient.GetCart(ctx, getCartReq)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "获取购物车信息失败:%v,参数:req:%+v", err, req)
+		klog.CtxErrorf(ctx, "获取购物车信息失败:%v,参数:req:%+v", err, getCartReq)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "获取购物车信息成功: req: %v, resp: %v", getCartReq, cartResp)
 	productItems := cartResp.Products
 
 	//判断库存是否充足
 	//锁定库存
-	lockQuantityResponse, _ := rpc.ProductClient.LockProductQuantity(s.ctx, &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)})
+	lockQuantityResponse, _ := rpc.ProductClient.LockProductQuantity(ctx, &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)})
 
 	if lockQuantityResponse.GetStatusCode() != 0 {
-		klog.CtxErrorf(s.ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
+		klog.CtxErrorf(ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
 		return &checkout.CheckoutResp{
 			StatusCode: lockQuantityResponse.GetStatusCode(),
 			StatusMsg:  lockQuantityResponse.GetStatusMsg(),
@@ -67,34 +71,46 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		Region:        req.Address.ReceiveAddress.GetRegion(),
 	}
 
-	//创建订单信息
-	placeOrderResp, err := rpc.OrderClient.PlaceOrder(s.ctx, &order.PlaceOrderReq{UserId: int32(userId), Address: address, OrderItems: convertCartProductItems2OrderItems(productItems)})
-	if err != nil {
-		klog.CtxErrorf(s.ctx, "创建订单失败: %v ,参数:req:%+v", err, req)
-		return nil, errors.WithStack(err)
-	}
-
-	//调用支付接口
 	//计算总价
 	totalCost := float32(0)
 	for _, item := range productItems {
 		totalCost += item.GetPrice() * float32(item.GetQuantity())
 	}
-	chargeResp, err := rpc.PaymentClient.Charge(s.ctx, &payment.ChargeReq{
+
+	//创建订单信息
+	placeOrderReq := &order.PlaceOrderReq{
+		UserId:     int32(userId),
+		Address:    address,
+		OrderItems: convertCartProductItems2OrderItems(productItems),
+		TotalCost:  float64(totalCost),
+	}
+	placeOrderResp, err := rpc.OrderClient.PlaceOrder(ctx, placeOrderReq)
+	if err != nil {
+		klog.CtxErrorf(ctx, "创建订单失败: %v ,参数:req:%+v", err, placeOrderResp)
+		return nil, errors.WithStack(err)
+	}
+	klog.CtxInfof(ctx, "创建订单成功: req: %v, resp: %v", placeOrderResp, placeOrderResp)
+
+	//调用支付接口
+	chargeReq := &payment.ChargeReq{
 		UserId:  int32(userId),
 		Amount:  totalCost,
 		OrderId: placeOrderResp.GetOrder().OrderId,
-	})
+	}
+	chargeResp, err := rpc.PaymentClient.Charge(ctx, chargeReq)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "调用支付接口失败，错误: %v,参数:req:%+v", err, req)
+		klog.CtxErrorf(ctx, "调用支付接口失败，错误: %v,参数:req:%+v", err, chargeReq)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "调用支付接口成功: req: %v, resp: %v", chargeReq, chargeResp)
 	//清空购物车
-	_, err = rpc.CartClient.EmptyCart(s.ctx, &cart.EmptyCartReq{UserId: int32(userId)})
+	emptyCartReq := &cart.EmptyCartReq{UserId: int32(userId)}
+	_, err = rpc.CartClient.EmptyCart(ctx, emptyCartReq)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "清空购物车失败: %v,参数:req:%+v", err, req)
+		klog.CtxErrorf(ctx, "清空购物车失败: %v,参数:req:%+v", err, emptyCartReq)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "清空购物车成功: req: %v", emptyCartReq)
 
 	//调用成功返回结果
 	resp = &checkout.CheckoutResp{
@@ -102,6 +118,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		StatusMsg:  constant.GetMsg(0),
 		PaymentUrl: chargeResp.GetPaymentUrl(),
 	}
+	klog.CtxInfof(s.ctx, "用户userId:%d,结算订单成功", userId)
 	return resp, nil
 }
 

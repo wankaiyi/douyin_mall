@@ -35,6 +35,7 @@ func (s *GetReceiveAddressService) Run(req *user.GetReceiveAddressReq) (resp *us
 
 	var receiveAddresses []*user.ReceiveAddress
 	if exists == 0 {
+		// 未命中缓存
 		addressList, err := s.SelectAndCacheUserAddresses(ctx, userId)
 		if err != nil {
 			return nil, errors.WithStack(err)
@@ -53,6 +54,7 @@ func (s *GetReceiveAddressService) Run(req *user.GetReceiveAddressReq) (resp *us
 			})
 		}
 	} else {
+		myredis.RedisClient.HIncrBy(ctx, redisUtils.GetUserAddressHitRateKey(), "hit", 1)
 		cachedAddresses, err := myredis.RedisClient.LRange(ctx, addressKey, 0, -1).Result()
 		if err != nil && errors.Is(err, redis.Nil) {
 			return nil, errors.WithStack(err)
@@ -62,8 +64,8 @@ func (s *GetReceiveAddressService) Run(req *user.GetReceiveAddressReq) (resp *us
 			_ = sonic.Unmarshal([]byte(cachedAddress), &receiveAddress)
 			receiveAddresses = append(receiveAddresses, &receiveAddress)
 		}
-
 	}
+	myredis.RedisClient.HIncrBy(ctx, redisUtils.GetUserAddressHitRateKey(), "visit", 1)
 
 	return &user.GetReceiveAddressResp{
 		StatusCode:     0,

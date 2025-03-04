@@ -4,6 +4,7 @@ import (
 	"douyin_mall/checkout/conf"
 	"douyin_mall/common/middleware"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/retry"
 	"os"
 
 	"sync"
@@ -47,25 +48,36 @@ func InitClient() {
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite,
+		client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
 	}
 }
 func initCartClient() {
-	CartClient, err = cartservice.NewClient("cart-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	CartClient, err = cartservice.NewClient("cart-service", commonSuite,
+		client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init cart client failed: ", err)
 	}
 }
 func initOrderClient() {
-	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	OrderClient, err = orderservice.NewClient("order-service", commonSuite,
+		client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
 	}
 }
 func initPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
 	}

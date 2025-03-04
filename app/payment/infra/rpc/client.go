@@ -5,6 +5,7 @@ import (
 	"douyin_mall/user/conf"
 	"douyin_mall/user/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/retry"
 	"os"
 
 	"sync"
@@ -56,7 +57,10 @@ func initCartClient() {
 	}
 }
 func initOrderClient() {
-	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	OrderClient, err = orderservice.NewClient("order-service", commonSuite,
+		client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
 	}

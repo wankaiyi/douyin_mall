@@ -8,6 +8,7 @@ import (
 	"douyin_mall/rpc/kitex_gen/payment/paymentservice"
 	"douyin_mall/rpc/kitex_gen/user/userservice"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/cloudwego/kitex/pkg/retry"
 	"os"
 	"time"
 
@@ -53,14 +54,20 @@ func initProductClient() {
 }
 
 func InitPaymentClient() {
-	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	PaymentClient, err = paymentservice.NewClient("payment-service", commonSuite,
+		client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init payment client failed: ", err)
 	}
 }
 
 func InitDoubaoClient() {
-	DoubaoClient, err = doubaoaiservice.NewClient("doubao-service", commonSuite, client.WithRPCTimeout(6*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	fp := retry.NewFailurePolicy()
+	fp.WithMaxRetryTimes(2)
+	DoubaoClient, err = doubaoaiservice.NewClient("doubao-service", commonSuite,
+		client.WithRPCTimeout(5*time.Second), client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init doubao client failed: ", err)
 	}

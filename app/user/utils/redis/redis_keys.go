@@ -5,6 +5,7 @@ import "fmt"
 const (
 	UserInfoCacheKey      = "user:info:%d"
 	UserAddressesCacheKey = "user:addresses:%d"
+	UserAddressHitRateKey = "user:get_receive_address:hit_rate"
 )
 
 func GetUserKey(userId int32) string {
@@ -13,4 +14,8 @@ func GetUserKey(userId int32) string {
 
 func GetUserAddressKey(userId int32) string {
 	return fmt.Sprintf(UserAddressesCacheKey, userId)
+}
+
+func GetUserAddressHitRateKey() string {
+	return UserAddressHitRateKey
 }

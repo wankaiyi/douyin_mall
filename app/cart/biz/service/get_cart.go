@@ -28,6 +28,7 @@ func (s *GetCartService) Run(req *cart.GetCartReq) (resp *cart.GetCartResp, err 
 		klog.CtxErrorf(ctx, "数据库查询购物车信息失败，req: %v, err: %v", req, err)
 		return nil, err
 	}
+	klog.CtxInfof(ctx, "查询购物车信息成功，req: %v, cartItems: %v", req, cartItems)
 
 	if len(cartItems) == 0 {
 		return &cart.GetCartResp{
@@ -50,6 +51,7 @@ func (s *GetCartService) Run(req *cart.GetCartReq) (resp *cart.GetCartResp, err 
 		klog.CtxErrorf(ctx, "rpc查询商品信息失败，req: %v, err: %v", productListReq, err)
 		return nil, errors.WithStack(err)
 	}
+	klog.CtxInfof(ctx, "rpc查询商品信息成功，req: %v, getProductListResp: %v", productListReq, getProductListResp)
 
 	productMap := make(map[int]*product.Product)
 	for _, p := range getProductListResp.Products {

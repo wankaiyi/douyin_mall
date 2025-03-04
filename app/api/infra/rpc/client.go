@@ -85,14 +85,14 @@ func initCartClient() {
 }
 
 func InitOrderClient() {
-	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithRPCTimeout(7*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	OrderClient, err = orderservice.NewClient("order-service", commonSuite, client.WithRPCTimeout(5*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init order client failed: ", err)
 	}
 }
 
 func InitCheckoutClient() {
-	CheckoutClient, err = checkoutservice.NewClient("checkout-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	CheckoutClient, err = checkoutservice.NewClient("checkout-service", commonSuite, client.WithRPCTimeout(5*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init checkout client failed: ", err)
 	}

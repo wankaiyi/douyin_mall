@@ -72,9 +72,10 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 	// 如果返回特定的结果（正则匹配），则调用对应的接口
 	var customerChatMessage string
 	if strings.HasPrefix(aiResponse, specificPlaceOrderPrefix) {
+		klog.CtxInfof(ctx, "智能购物助手检测到用户下单，req: %v", req)
 		addressId, cartItems, err := parsePlaceOrderResponse(aiResponse)
 		if err != nil {
-			klog.CtxErrorf(ctx, "匹配到特定结果，但解析AI返回结果失败，ai结果：%v, err：%v", aiResponse, err)
+			klog.CtxErrorf(ctx, "智能购物助手检测到用户下单，解析AI返回结果失败，ai结果：%v, err：%v", aiResponse, err)
 			return nil, err
 		}
 		// 请求结算接口进行下单
@@ -92,13 +93,14 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 		}
 		checkoutProductItemsResp, err := rpc.CheckoutClient.CheckoutProductItems(ctx, checkoutProductItemsReq)
 		if err != nil {
-			klog.CtxErrorf(ctx, "rpc调用结算接口失败，req：%v, err：%v", checkoutProductItemsReq, err)
+			klog.CtxErrorf(ctx, "智能购物助手rpc调用结算接口失败，req：%v, err：%v", checkoutProductItemsReq, err)
 			return nil, errors.WithStack(err)
 		}
-		klog.Infof("结算接口成功，req：%v, resp：%v", checkoutProductItemsReq, checkoutProductItemsResp)
+		klog.Infof("智能购物助手rpc调用结算接口成功，req：%v, resp：%v", checkoutProductItemsReq, checkoutProductItemsResp)
 		customerChatMessage = "下单成功，请扫码进行支付：" + checkoutProductItemsResp.PaymentUrl
 	} else if strings.HasPrefix(aiResponse, specificSearchOrderPrefix) {
 		// 搜索商品
+		klog.CtxInfof(ctx, "智能购物助手检测到用户搜索商品，req: %v", req)
 		searchTerm, err := parseSearchTermResponse(aiResponse)
 		if err != nil {
 			klog.CtxErrorf(ctx, "匹配到特定结果，但解析AI返回结果失败，ai结果：%v, err：%v", aiResponse, err)
@@ -115,6 +117,7 @@ func (s *SmartPlaceOrderService) Run(req *order.SmartPlaceOrderReq) (resp *order
 		klog.CtxInfof(ctx, "搜索商品成功，req：%v, resp：%v", searchProductsReq, searchProductsResp)
 		customerChatMessage = fmt.Sprintf("为您找到以下商品：%v", searchProductsResp.Results)
 	} else if strings.HasPrefix(aiResponse, specificGetAddressesPrefix) {
+		klog.CtxInfof(ctx, "智能购物助手检测到用户查询收货地址，req: %v", req)
 		getReceiveAddressReq := &user.GetReceiveAddressReq{
 			UserId: userId,
 		}
