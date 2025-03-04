@@ -95,24 +95,24 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	//根据返回的数据确认是否有缺失数据，有的话把当前的id存进去
 	var missingIds []int64
 	//先判断redis是否存在数据，如果存在，则直接返回数据
-	products, missingIds, err = getCache(s.ctx, searchIds, md5Bytes)
+	products, missingIds, err = GetCache(s.ctx, searchIds, md5Bytes)
 	klog.CtxInfof(s.ctx, "products: %v,missingsIds:%v", products, missingIds)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "getCache: missingsIds:%v,err:%v", missingIds, err)
+		klog.CtxErrorf(s.ctx, "GetCache: missingsIds:%v,err:%v", missingIds, err)
 		return nil, err
 	}
 
 	//如果不存在，则从数据库中获取数据，并存入redis
-	missingProduct, err := getMissingProduct(s.ctx, missingIds)
+	missingProduct, err := GetMissingProduct(s.ctx, missingIds)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "getMissingProduct: err:%v", err)
+		klog.CtxErrorf(s.ctx, "GetMissingProduct: err:%v", err)
 		return nil, err
 	}
 	products = append(products, missingProduct...)
 	klog.CtxInfof(s.ctx, "搜索的products: %v", products)
 
 	//根据商品id查询库存信息
-	productStock, err := getStock(s.ctx, searchIds)
+	productStock, err := GetStock(s.ctx, searchIds)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "获取库存时, err: %v", err)
 		return nil, err
@@ -202,7 +202,7 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 	return ids, nil
 }
 
-func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
+func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
 	//加入hotkey
 	products = make([]*product.Product, 0)
 	missingIds = make([]int64, 0)
@@ -261,7 +261,7 @@ func getCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 	return products, missingIds, nil
 }
 
-func getMissingProduct(ctx context.Context, missingIds []int64) (products []*product.Product, err error) {
+func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*product.Product, err error) {
 	products = make([]*product.Product, 0)
 	if len(missingIds) > 0 {
 		//从数据库中获取数据
@@ -325,7 +325,7 @@ func getMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 	return products, nil
 }
 
-func getStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
+func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
 	productStock = make(map[int64]int64)
 	for _, id := range searchIds {
 		stockKey := model.StockKey(ctx, id)
