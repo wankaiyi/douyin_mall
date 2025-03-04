@@ -53,10 +53,10 @@ func (h ReduceLockQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSess
 
 func ReduceLockQuantity(ctx context.Context, orderId string) (err error) {
 	//根据orderId查询订单信息
-	klog.CtxInfof(ctx, "开始释放未支付订单的锁定库存,订单号是%v", orderId)
+	klog.CtxInfof(ctx, "订单号是%v,开始释放未支付订单的锁定库存", orderId)
 	orderData, err := rpc.OrderClient.GetOrder(ctx, &order.GetOrderReq{OrderId: orderId})
 	if err != nil {
-		klog.CtxErrorf(ctx, "rpc查询订单信息失败，err=%v", errors.WithStack(err))
+		klog.CtxErrorf(ctx, "订单号是%v,rpc查询订单信息失败，err=%v", orderId, errors.WithStack(err))
 		return err
 	}
 	//先判断订单是否被消费
@@ -67,18 +67,18 @@ func ReduceLockQuantity(ctx context.Context, orderId string) (err error) {
 		redis.call('EXPIRE', k, 600)
 		return a
 	`
-	klog.CtxInfof(ctx, "开始判断订单是否被消费,订单号是%v", orderId)
+	klog.CtxInfof(ctx, "订单号是%v,开始判断订单是否被消费", orderId)
 	result, err := redis.RedisClient.Eval(ctx, ensureScript, []string{orderKey}).Result()
 	if err != nil || result == nil {
-		klog.CtxErrorf(ctx, "判断订单有无消费时异常，err=%v", errors.WithStack(err))
+		klog.CtxErrorf(ctx, "订单号是%v,判断订单有无消费时异常，err=%v", orderId, errors.WithStack(err))
 		return err
 	}
 	//只有为1的时候才能消费
 	if result.(int64) != 1 {
-		klog.CtxInfof(ctx, "订单已被消费，不再处理")
+		klog.CtxInfof(ctx, "订单号是%v,订单已被消费，不再处理", orderId)
 		return nil
 	}
-	klog.CtxInfof(ctx, "释放真实库存，订单id=%v, result=%v", orderId, result)
+	klog.CtxInfof(ctx, "订单号是%v,释放真实库存, result=%v", orderId, result)
 	//从订单信息获取商品信息列表，其中包括各个商品的id和购买的数量
 	products := orderData.Order.Products
 	luaScript := `
@@ -97,16 +97,17 @@ func ReduceLockQuantity(ctx context.Context, orderId string) (err error) {
 		keys = append(keys, productModel.StockKey(ctx, int64(pro.Id)))
 		args = append(args, pro.Quantity)
 	}
-	klog.CtxInfof(ctx, "开始释放真实库存,订单号是%v, 商品id列表是%v, 数量列表是%v", orderId, keys, args)
+	klog.CtxInfof(ctx, "订单号是%v,开始释放真实库存,商品id列表是%v, 数量列表是%v", orderId, keys, args)
 	//开启事务，批量扣减商品的真实库存和锁定库存
 	result, err = redis.RedisClient.Eval(ctx, luaScript, keys, args).Result()
 	if err != nil {
-		klog.CtxErrorf(ctx, "释放锁定库存失败，err=%v", errors.WithStack(err))
+		klog.CtxErrorf(ctx, "订单号是%v,释放锁定库存失败，err=%v", orderId, errors.WithStack(err))
 		return err
 	}
 	if result.(int64) != 1 {
-		klog.CtxErrorf(ctx, "redis执行异常，result=%v", result)
+		klog.CtxErrorf(ctx, "订单号是%v,redis执行异常，result=%v", orderId, result)
 		return errors.New("redis执行异常")
 	}
+	klog.CtxInfof(ctx, "订单号是%v,成功消费", orderId)
 	return nil
 }
