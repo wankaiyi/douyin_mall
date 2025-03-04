@@ -20,7 +20,7 @@ func NewCancelChargeService(ctx context.Context) *CancelChargeService {
 // Run create note info
 func (s *CancelChargeService) Run(req *payment.CancelChargeReq) (resp *payment.CancelChargeResp, err error) {
 	// Finish your business logic.
-	klog.CtxInfof(s.ctx, "订单orderId: %s请求取消支付")
+	klog.CtxInfof(s.ctx, "订单orderId: %s请求取消支付", req.OrderId)
 	orderId, err := strconv.ParseInt(req.OrderId, 0, 64)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "parse order id error: %s", err.Error())
