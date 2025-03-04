@@ -9,7 +9,6 @@ import (
 	rpc "douyin_mall/product/infra/rpc"
 	"douyin_mall/rpc/kitex_gen/order"
 	"github.com/IBM/sarama"
-	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -31,17 +30,16 @@ func (h ReduceLockQuantityHandler) ConsumeClaim(session sarama.ConsumerGroupSess
 		ctx = context.WithValue(ctx, "TRACE_ID", uuidStr)
 		session.MarkMessage(msg, "start")
 		value := msg.Value //消息内容
-		var orderId string = ""
-		//将消息反序列化成Product结构体
-		_ = sonic.Unmarshal(value, &orderId)
-		klog.CtxInfof(ctx, "orderId:%v", orderId)
+		var orderId = string(value)
+		klog.CtxInfof(ctx, "msg.Value=%v, orderId:%v", value, orderId)
 		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
 		_, span := otel.Tracer(constant.ServiceName).Start(msgCtx, constant.AddService)
 		err := ReduceLockQuantity(ctx, orderId)
 		if err != nil {
-			klog.CtxErrorf(msgCtx, "消费者处理消息失败，err=%v", err)
+			klog.CtxErrorf(msgCtx, "减少锁定库存失败，err=%v", err)
 			return err
 		}
+		klog.CtxInfof(msgCtx, "减少锁定库存成功, orderId=%v", orderId)
 
 		span.End()
 		session.MarkMessage(msg, "done")
