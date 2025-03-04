@@ -141,6 +141,16 @@ func sentinelRuleInit(configClient config_client.IConfigClient) {
 		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
 		return
 	}
+	hotSpotParamRulesHandler := datasource.NewHotSpotParamRulesHandler(datasource.HotSpotParamRuleJsonArrayParser)
+	hotspotSource, err := sentinelNacosDataSource.NewNacosDataSource(configClient, "DEFAULT_GROUP", "sentinel_api_hot_spot_rules.json", hotSpotParamRulesHandler)
+
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+	}
+	err = hotspotSource.Initialize()
+	if err != nil {
+		klog.CtxErrorf(context.Background(), "初始化sentinel规则失败: %v", err)
+	}
 	klog.Info("初始化sentinel规则成功")
 }
 func listenAndLoadConfig(client config_client.IConfigClient, cfg struct {
