@@ -88,39 +88,45 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	md5Bytes := harsher.Sum(nil)
 
 	//搜索返回的id
+	klog.CtxInfof(s.ctx, "开始搜索,参数为: dsl:%v", queryBody)
 	searchIds, err := getSearchIds(s.ctx, dslBytes, md5Bytes)
-	klog.CtxInfof(s.ctx, "searchIds: %v", searchIds)
+	klog.CtxInfof(s.ctx, "搜索完成,dsl:%v,搜索结果为%v", queryBody, searchIds)
+
 	var products = make([]*product.Product, 0)
-	//根据id从缓存或者数据库钟获取数据
-	//根据返回的数据确认是否有缺失数据，有的话把当前的id存进去
 	var missingIds []int64
-	//先判断redis是否存在数据，如果存在，则直接返回数据
+
+	klog.CtxInfof(s.ctx, "开始获取缓存,参数:searchIds:%v,md5Bytes:%v", searchIds, md5Bytes)
 	products, missingIds, err = GetCache(s.ctx, searchIds, md5Bytes)
-	klog.CtxInfof(s.ctx, "products: %v,missingsIds:%v", products, missingIds)
+	klog.CtxInfof(s.ctx, "获取缓存结果,products: %v,缺失的商品数据:%v", products, missingIds)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "GetCache: missingsIds:%v,err:%v", missingIds, err)
+		klog.CtxErrorf(s.ctx, "获取缓存信息失败, err: %v", err)
 		return nil, err
 	}
 
-	//如果不存在，则从数据库中获取数据，并存入redis
+	klog.CtxInfof(s.ctx, "开始获取缺失的商品数据")
 	missingProduct, err := GetMissingProduct(s.ctx, missingIds)
 	if err != nil {
-		klog.CtxErrorf(s.ctx, "GetMissingProduct: err:%v", err)
+		klog.CtxErrorf(s.ctx, "获取缺失的商品数据失败, err:%v", err)
 		return nil, err
 	}
+	klog.CtxInfof(s.ctx, "获取缺失的商品数据成功, missingProduct: %v", missingProduct)
+
 	products = append(products, missingProduct...)
-	klog.CtxInfof(s.ctx, "搜索的products: %v", products)
+	klog.CtxInfof(s.ctx, "组装的的products: %v", products)
 
 	//根据商品id查询库存信息
+	klog.CtxInfof(s.ctx, "开始获取商品的库存信息")
 	productStock, err := GetStock(s.ctx, searchIds)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "获取库存时, err: %v", err)
 		return nil, err
 	}
+	klog.CtxInfof(s.ctx, "获取商品的库存信息成功")
 	for _, pro := range products {
 		pro.Stock = productStock[pro.Id]
 	}
 
+	klog.CtxInfof(s.ctx, "最终返回的products: %v", products)
 	//将返回的数据返回到前端
 	resp = &product.SearchProductsResp{
 		StatusCode: 0,
@@ -228,20 +234,19 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 	var values = make(map[int64]map[string]string)
 	localKeysCache := processor.GetValue(*keysHotkeyModel)
 	if localKeysCache != nil {
-		klog.CtxInfof(ctx, "localKeysCache命中: %v", localKeysCache)
+		go addLocalHit(ctx, detectKey)
+		klog.CtxInfof(ctx, "本地缓存命中,key:%v,value: %v", detectKey, localKeysCache)
 		err := sonic.UnmarshalString(localKeysCache.(string), &values)
 		if err != nil {
-			klog.CtxErrorf(ctx, "values反序列化缓存失败, err: %v", err)
+			klog.CtxErrorf(ctx, "本地缓存反序列化缓存失败, err: %v", err)
 			return nil, nil, err
 		}
-		klog.CtxInfof(ctx, "搜索缓存，命中本地缓存,key:%v,value:%v", detectKey, localKeysCache)
-		go addLocalHit(ctx, detectKey)
 		processor.SmartSet(*keysHotkeyModel, localKeysCache)
 	} else {
 		for _, id := range searchIds {
 			productKey := model.BaseInfoKey(ctx, id)
 			result, _ := redisClient.RedisClient.HGetAll(ctx, productKey).Result()
-			klog.CtxInfof(ctx, "redis hgetall %v 获取的结果:%v", productKey, result)
+			klog.CtxInfof(ctx, "id:%v,productKey:%v执行hgetall命令获取的结果为:%v", id, productKey, result)
 			if len(result) != 0 {
 				values[id] = result
 			} else {
@@ -250,14 +255,14 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 		}
 		marshal, err := sonic.MarshalString(values)
 		if err != nil {
-			klog.CtxErrorf(ctx, "values序列化缓存失败, err: %v", err)
+			klog.CtxErrorf(ctx, "values：%v,redis序列化缓存失败, err: %v", values, err)
 			return nil, nil, err
 		}
 		processor.SmartSet(*keysHotkeyModel, marshal)
 	}
 	for _, id := range searchIds {
 		if values[id] == nil {
-			klog.CtxInfof(ctx, "搜索缓存,未命中缓存,key:%v", detectKey)
+			klog.CtxInfof(ctx, "未命中缓存,key:%v", detectKey)
 			go notHit(ctx, "search:base")
 			missingIds = append(missingIds, id)
 		} else {
@@ -279,7 +284,6 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 				Sale:          Sale,
 				PublishStatus: PublishStatus,
 			}
-			klog.CtxInfof(ctx, "valueMap的值:%v,productData:%v", valueMap, &productData)
 			products = append(products, &productData)
 		}
 	}
@@ -287,24 +291,32 @@ func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products
 }
 
 func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*product.Product, err error) {
+	klog.CtxInfof(ctx, "开始获取缺失的商品数据,参数:missingIds:%v", missingIds)
 	products = make([]*product.Product, 0)
 	if len(missingIds) > 0 {
+
 		//从数据库中获取数据
+		klog.CtxInfof(ctx, "开始从数据库中获取数据，根据missingIds:%v", missingIds)
 		list, err := model.SelectProductList(mysql.DB, context.Background(), missingIds)
-		klog.CtxInfof(ctx, "数据库的数据:%v", list)
 		if err != nil {
 			klog.CtxErrorf(ctx, "从数据库中获取数据失败, err: %v", err)
 			return nil, errors.WithStack(err)
 		}
+
+		klog.CtxInfof(ctx, "根据缺失的id列表查询数据库,结果:%v", list)
 		for i := range list {
+
 			func(ctx context.Context, pro *model.ProductWithCategory) {
 				uuidString := uuid.New().String()
 				lockKey := model.BaseInfoLockKey(ctx, pro.ProductId)
+				klog.CtxInfof(ctx, "请求分布式锁,key:%v,uuid:%v", lockKey, uuidString)
 				lock, err := model.SetLock(ctx, redisClient.RedisClient, lockKey, uuidString)
 				if err != nil {
 					klog.CtxInfof(ctx, "key %v 上锁失败", lockKey)
 					return
 				}
+
+				klog.CtxInfof(ctx, "key %v 上锁状态:%v", lockKey, lock)
 				if lock {
 					p := product.Product{
 						Id:            pro.ProductId,
@@ -319,7 +331,6 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 						PublishStatus: pro.ProductPublicState,
 					}
 					products = append(products, &p)
-					klog.CtxInfof(ctx, "从数据库内查找的数据:%v", &p)
 					productKey := model.BaseInfoKey(ctx, list[i].ProductId)
 					err = model.PushToRedisBaseInfo(ctx, model.Product{
 						Base: model.Base{
@@ -336,11 +347,15 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 					}, redisClient.RedisClient, productKey)
 					if err != nil {
 						klog.CtxErrorf(ctx, "product数据缓存到redis失败, err: %v", err)
+					} else {
+						klog.CtxInfof(ctx, "product数据缓存到redis成功")
 					}
 					err := model.SafeDeleteLock(ctx, redisClient.RedisClient, lockKey, uuidString)
 					if err != nil {
 						klog.CtxInfof(ctx, "删除锁失败")
 						return
+					} else {
+						klog.CtxInfof(ctx, "安全删除锁成功,key:%v", lockKey)
 					}
 				}
 
@@ -353,16 +368,18 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
 	detectKey := "search:stock"
 	productStock = make(map[int64]int64)
+
 	for _, id := range searchIds {
 		//库存的key
 		stockKey := model.StockKey(ctx, id)
-		klog.CtxInfof(ctx, "stockKey:%v", stockKey)
+		klog.CtxInfof(ctx, "id:%v,stockKey:%v", id, stockKey)
 		//判断是否存在
 		exists, err := redisClient.RedisClient.Exists(ctx, stockKey).Result()
 		if err != nil {
 			klog.CtxErrorf(ctx, "获取库存信息时判断key :%v , err: %v", stockKey, err)
 			return nil, errors.WithStack(err)
 		}
+
 		klog.CtxInfof(ctx, "stockKey是否存在:%v", exists == 1)
 		//如果存在，则从redis中获取数据
 		if exists == 1 {
@@ -383,7 +400,7 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					if err != nil {
 						klog.CtxErrorf(ctx, "获取库存信息时 库存由string转int64异常,stock:%v ,stock:%v,err: %v", result["stock"], stockKey, err)
 					}
-					klog.CtxInfof(ctx, "redis上的stock:%v", stock)
+					klog.CtxInfof(ctx, "成功获取redis上的stock:%v", stock)
 					productStock[id] = stock
 					break
 				}
@@ -397,6 +414,7 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 			uuidString := uuid.New().String()
 			klog.CtxInfof(ctx, "lockKey:%v,uuidString:%v", lockKey, uuidString)
 			result, err := redisClient.RedisClient.SetNX(ctx, lockKey, uuidString, 2*time.Second).Result()
+
 			//如果加锁失败
 			if err != nil || result == false {
 				klog.CtxInfof(ctx, "lockKey:%v,uuidString:%v加锁失败", lockKey, uuidString)
@@ -409,6 +427,7 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 							return nil, errors.WithStack(err)
 						}
 					} else {
+						klog.CtxInfof(ctx, "redis中获取库存信息成功,key:%v,result:%v", stockKey, result)
 						stock, err := strconv.ParseInt(result["stock"], 10, 64)
 						if err != nil {
 							klog.CtxErrorf(ctx, "获取库存信息时 库存由string转int64异常,stock:%v ,stock:%v,err: %v", result["stock"], stockKey, err)
@@ -425,7 +444,7 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					klog.CtxErrorf(ctx, "获取库存信息时 从数据库中获取数据失败, err: %v", err)
 					return nil, errors.WithStack(err)
 				}
-				klog.CtxInfof(ctx, "数据库中的数据:%v", list)
+				klog.CtxInfof(ctx, "数据库中的库存数据:%v", list)
 				if len(list) == 1 {
 					productStock[id] = list[0].ProductStock
 					err = model.PushToRedisStock(ctx, model.Product{
