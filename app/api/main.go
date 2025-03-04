@@ -11,7 +11,6 @@ import (
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
 	"fmt"
-	"github.com/alibaba/sentinel-golang/core/hotspot"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"os"
 	"time"
@@ -171,20 +170,6 @@ func registerMiddleware(h *server.Hertz, cfg *hertztracing.Config) {
 	h.Use(hertztracing.ServerMiddleware(cfg))
 	h.Use(middleware.TraceLogMiddleware())
 	h.Use(middleware.AuthorizationMiddleware())
-
-	_, err := hotspot.LoadRules([]*hotspot.Rule{
-		{
-			Resource:        "limit_ip",
-			MetricType:      hotspot.QPS,
-			ControlBehavior: hotspot.Reject,
-			Threshold:       1,
-			ParamIndex:      0,
-			DurationInSec:   1,
-		},
-	})
-	if err != nil {
-		hlog.Errorf("init sentinel error: %v", err)
-	}
 
 	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
 		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
