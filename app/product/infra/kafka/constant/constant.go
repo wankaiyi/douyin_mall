@@ -9,5 +9,5 @@ var (
 	UpdateService  = "update_product_to_es_redis"
 	DelService     = "del_product_from_es_redis"
 	PaymentSuccess = "payment-success"
-	CancelOrder    = "cancel-order"
+	CancelOrder    = "cancel-order-success"
 )
