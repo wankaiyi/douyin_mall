@@ -133,7 +133,7 @@ func alias(ctx context.Context, indexName string, total int64) (err error) {
 		if redis.call("EXISTS", key) == 0 then
 			redis.call("SET", key, total)
 		end
-		local result = redis.call("DECRBY", key)
+		local result = redis.call("DECR", key)
 		return result
 `
 	keys := []string{indexName}
