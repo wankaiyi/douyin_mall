@@ -44,6 +44,7 @@ func CreateOrder(ctx context.Context, db *gorm.DB, order *Order) error {
 func GetOrdersByUserId(ctx context.Context, db *gorm.DB, id int32) (orderList []Order, err error) {
 	err = db.WithContext(ctx).Model(&Order{}).
 		Where(&Order{UserID: id}).
+		Order("created_at DESC").
 		Preload("OrderItems").
 		Find(&orderList).Error
 	return
@@ -93,7 +94,6 @@ func MarkOrderPaid(ctx context.Context, db *gorm.DB, orderId string) (int64, err
 func GetOrder(ctx context.Context, db *gorm.DB, orderId string) (order *Order, err error) {
 	err = db.WithContext(ctx).Model(&Order{}).
 		Where(&Order{OrderID: orderId}).
-		Order("created_at DESC").
 		Preload("OrderItems").
 		First(&order).Error
 	return

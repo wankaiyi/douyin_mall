@@ -24,6 +24,7 @@ func NewCheckoutProductItemsService(ctx context.Context) *CheckoutProductItemsSe
 func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq) (resp *checkout.CheckoutProductItemsResp, err error) {
 	//得到用户地址
 	ctx := s.ctx
+	klog.CtxInfof(ctx, "收到结算商品请求, req: %v", req)
 	getReceiveAddressResp, err := rpc.UserClient.GetReceiveAddress(ctx, &user.GetReceiveAddressReq{
 		UserId: req.UserId,
 	})
