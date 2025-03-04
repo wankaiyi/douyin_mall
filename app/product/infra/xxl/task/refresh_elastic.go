@@ -62,6 +62,7 @@ func refresh(ctx context.Context, index int64, total int64) (err error) {
 		klog.CtxErrorf(ctx, "设置索引库别名失败,err:%v", err)
 		return err
 	}
+	klog.CtxInfof(ctx, "索引库刷新成功,(%v/%v)", index, total)
 	return nil
 }
 
@@ -90,6 +91,8 @@ func setAlias(ctx context.Context, indexName string) (err error) {
 	}
 	if aliasUpdate.StatusCode == 200 {
 		klog.CtxInfof(ctx, "更新%v索引库别名成功", indexName)
+	} else {
+		klog.CtxErrorf(ctx, "为索引库 %v 设置别名失败", indexName)
 	}
 	return nil
 }
@@ -207,7 +210,8 @@ func createIndex(ctx context.Context, lockKey string, indexName string) (err err
 		return err
 	}
 	//如果result为1，那么需要创建新索引库product_V{timestamp}
-	if result.(int64) != 1 {
+	klog.CtxInfof(ctx, "result的结果为%v", result)
+	if result.(int64) == 1 {
 		klog.CtxInfof(ctx, "创建新索引库 %s", indexName)
 		marshal, err := sonic.Marshal(vo.ProductSearchMappingSetting)
 		if err != nil {
@@ -282,5 +286,6 @@ func importDataToIndex(ctx context.Context, indexName string, index int64, total
 		klog.CtxErrorf(ctx, "导入数据到索引库失败,statusCode:%v", bulkResponse.Body)
 		return errors.New("导入数据到索引库失败,es状态码不为200")
 	}
+	klog.CtxInfof(ctx, "导入数据至索引库%v成功", indexName)
 	return nil
 }
