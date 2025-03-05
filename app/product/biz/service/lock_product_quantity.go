@@ -92,6 +92,7 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error
 	luaScript := `
 		local function process_keys(keys, quantities)
 			for i, key in ipairs(keys) do
+				redis.call('expire', key, 300)
 				local quantity = tonumber(quantities[i])
 				local stock = tonumber(redis.call('HGET', key, 'stock') or 0)
 				local lock_stock = tonumber(redis.call('HGET', key, 'lock_stock') or 0)

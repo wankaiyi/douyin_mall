@@ -5,12 +5,12 @@ import (
 	"context"
 	"crypto/md5"
 	"douyin_mall/common/constant"
-	keyModel "douyin_mall/common/infra/hot_key_client/model/key"
-	"douyin_mall/common/infra/hot_key_client/processor"
 	"douyin_mall/product/biz/dal/mysql"
 	redisClient "douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
 	"douyin_mall/product/biz/vo"
+	cacheModel "douyin_mall/product/infra/cache/model"
+	cacheUtil "douyin_mall/product/infra/cache/util"
 	"douyin_mall/product/infra/elastic/client"
 	product "douyin_mall/product/kitex_gen/product"
 	"encoding/json"
@@ -22,6 +22,16 @@ import (
 	"io"
 	"strconv"
 	"time"
+)
+
+var (
+	searchDetectKey  = "product:cache"
+	totalQueries     = "total_queries"
+	searchLocalIds   = "local_search_ids"
+	searchRedisIds   = "redis_search_ids"
+	productLocalBase = "local_product_base"
+	productRedisBase = "redis_product_base"
+	stockRedis       = "redis_product_base"
 )
 
 type SearchProductsService struct {
@@ -141,34 +151,41 @@ func searchHotkey(md string) string {
 }
 
 func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int64, error) {
-	DetectKey := "search:id"
 	var ids = make([]int64, 0)
 	dslKey := "product:dslBytes:" + string(md5bytes)
-	keyConf := keyModel.NewKeyConf1(constant.ProductService)
-	hotkeyModel := keyModel.NewHotKeyModelWithConfig(dslKey, &keyConf)
-	localCache := processor.GetValue(*hotkeyModel)
 	var dslCache string
-	if localCache == nil || localCache.(string) == "" || localCache.(string) == "null" {
+	isHotKey := cacheUtil.IsHotKey(ctx, dslKey)
+	if isHotKey {
+		klog.CtxInfof(ctx, "key:%v为hotkey", dslKey)
+		value, success := cacheUtil.SmartGet(ctx, dslKey, cacheModel.LocalCache)
+		if success {
+			//命中本地缓存
+			dslCache = value.(string)
+			klog.CtxInfof(ctx, "获取搜索id,记录本地缓存命中次数")
+			go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries, searchLocalIds}, redisClient.RedisClient)
+		} else {
+			//未命中本地缓存
+		}
+	}
+
+	//如果是这些值，则从redis中获取缓存
+	if dslCache == "null" || dslCache == "" || dslCache == "nil" {
 		redisCache, err := redisClient.RedisClient.Get(ctx, dslKey).Result()
 		if err == nil {
 			dslCache = redisCache
+			klog.CtxInfof(ctx, "获取搜索id,记录redis缓存命中次数")
+			go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries, searchRedisIds}, redisClient.RedisClient)
 		}
-		klog.CtxInfof(ctx, "命中redis缓存: key:%v,value:%v", DetectKey, redisCache)
-		go addRedisHit(ctx, DetectKey)
-	} else {
-		go addLocalHit(ctx, DetectKey)
-		klog.CtxInfof(ctx, "命中本地缓存: key:%v,value:%v", DetectKey, localCache)
-		dslCache = localCache.(string)
 	}
-	if dslCache != "" && dslCache != "null" {
+
+	//如果dslCache不为空，则序列化缓存
+	if dslCache != "" && dslCache != "null" && dslCache != "nil" {
 		err := sonic.UnmarshalString(dslCache, &ids)
 		if err != nil {
 			klog.CtxErrorf(ctx, "dsl缓存反序列化失败, err: %v", err)
 			return ids, err
 		}
 	} else {
-		klog.CtxInfof(ctx, "未命中缓存, key:%v", DetectKey)
-		go notHit(ctx, DetectKey)
 		//发往elastic
 		search, err := esapi.SearchRequest{
 			Index: []string{"product"},
@@ -204,70 +221,85 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 				klog.CtxErrorf(ctx, "dsl搜索结果缓存到redis失败, err: %v", err)
 				return nil, errors.WithStack(err)
 			}
-			marshalString, err := sonic.MarshalString(ids)
+			err := cacheUtil.SmartSet(ctx, isHotKey, dslKey, dslCacheToRedis, cacheModel.LocalCache, 10*time.Second)
 			if err != nil {
-				klog.CtxErrorf(ctx, "dsl搜索结果序列化失败, err: %v", err)
+				klog.CtxErrorf(ctx, "dsl搜索结果缓存到本地缓存失败, err: %v", err)
 				return nil, errors.WithStack(err)
 			}
-			processor.SmartSet(*hotkeyModel, marshalString)
 		}
 	}
 	return ids, nil
 }
 
 func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
-	detectKey := "search:base"
+	klog.CtxInfof(ctx, "获取product数据,记录查询次数")
+	go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries}, redisClient.RedisClient)
+
 	//加入hotkey
 	products = make([]*product.Product, 0)
 	missingIds = make([]int64, 0)
 	if len(searchIds) == 0 {
 		return products, missingIds, nil
 	}
-	var keysKey = searchHotkey(string(md5Bytes))
-	keysConf := keyModel.KeyConf{
-		ServiceName: constant.ProductService,
-		Threshold:   10,
-		Interval:    10,
-		Duration:    10,
-	}
-	keysHotkeyModel := keyModel.NewHotKeyModelWithConfig(keysKey, &keysConf)
-	var values = make(map[int64]map[string]string)
-	localKeysCache := processor.GetValue(*keysHotkeyModel)
-	if localKeysCache != nil {
-		go addLocalHit(ctx, detectKey)
-		klog.CtxInfof(ctx, "本地缓存命中,key:%v,value: %v", detectKey, localKeysCache)
-		err := sonic.UnmarshalString(localKeysCache.(string), &values)
-		if err != nil {
-			klog.CtxErrorf(ctx, "本地缓存反序列化缓存失败, err: %v", err)
-			return nil, nil, err
-		}
-		processor.SmartSet(*keysHotkeyModel, localKeysCache)
-	} else {
-		for _, id := range searchIds {
-			productKey := model.BaseInfoKey(ctx, id)
-			result, _ := redisClient.RedisClient.HGetAll(ctx, productKey).Result()
-			klog.CtxInfof(ctx, "id:%v,productKey:%v执行hgetall命令获取的结果为:%v", id, productKey, result)
-			if len(result) != 0 {
-				values[id] = result
-			} else {
-				missingIds = append(missingIds, id)
+
+	for _, id := range searchIds {
+		productKey := model.BaseInfoKey(ctx, id)
+		var (
+			valueMap     = make(map[string]string)
+			localSuccess = false
+		)
+
+		isHotKey := cacheUtil.IsHotKey(ctx, productKey)
+		if isHotKey {
+			//尝试获取本地缓存
+			value, success := cacheUtil.SmartGet(ctx, productKey, cacheModel.LocalCache)
+			if success {
+				err := sonic.UnmarshalString(value.(string), &valueMap)
+				if err != nil {
+					klog.CtxErrorf(ctx, "本地缓存反序列化缓存失败, err: %v", err)
+				} else {
+					//命中本地缓存
+					localSuccess = true
+					klog.CtxInfof(ctx, "获取product数据,命中本地缓存,记录查询次数")
+					go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries, productLocalBase}, redisClient.RedisClient)
+					marshalString, err := sonic.MarshalString(valueMap)
+					if err != nil {
+						klog.CtxErrorf(ctx, "本地缓存序列化失败, err: %v", errors.WithStack(err))
+						return nil, nil, err
+					}
+					cacheUtil.SmartSet(ctx, isHotKey, productKey, marshalString, cacheModel.LocalCache, 10*time.Second)
+				}
 			}
 		}
-		marshal, err := sonic.MarshalString(values)
-		if err != nil {
-			klog.CtxErrorf(ctx, "values：%v,redis序列化缓存失败, err: %v", values, err)
-			return nil, nil, err
+
+		//如果本地缓存未命中，则尝试获取redis缓存
+		if !localSuccess {
+			//获取redis缓存
+			valueMap, err = redisClient.RedisClient.HGetAll(ctx, productKey).Result()
+			if err != nil {
+				klog.CtxErrorf(ctx, "redis缓存获取失败, err: %v", err)
+			}
+			klog.CtxInfof(ctx, "id:%v,productKey:%v执行hgetall命令获取的结果为:%v", id, productKey, valueMap)
+			if len(valueMap) != 0 {
+				//命中本地缓存
+				klog.CtxInfof(ctx, "获取product数据,命中本地缓存,记录查询次数")
+				go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries, productRedisBase}, redisClient.RedisClient)
+				marshalString, err := sonic.MarshalString(valueMap)
+				if err != nil {
+					klog.CtxErrorf(ctx, "redis缓存序列化失败, err: %v", errors.WithStack(err))
+					return nil, nil, err
+				}
+				cacheUtil.SmartSet(ctx, isHotKey, productKey, marshalString, cacheModel.LocalCache, 10*time.Second)
+			}
 		}
-		processor.SmartSet(*keysHotkeyModel, marshal)
-	}
-	for _, id := range searchIds {
-		if values[id] == nil {
-			klog.CtxInfof(ctx, "未命中缓存,key:%v", detectKey)
-			go notHit(ctx, "search:base")
+
+		if !localSuccess {
+			//未命中缓存
+			klog.CtxInfof(ctx, "获取product数据,未命中缓存,记录查询次数")
+			go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries}, redisClient.RedisClient)
 			missingIds = append(missingIds, id)
 		} else {
 			//解析数据
-			valueMap := values[id]
 			id, _ := strconv.ParseInt(valueMap["id"], 10, 64)
 			Stock, _ := strconv.ParseInt(valueMap["stock"], 10, 64)
 			Sale, _ := strconv.ParseInt(valueMap["sale"], 10, 64)
@@ -305,68 +337,63 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 
 		klog.CtxInfof(ctx, "根据缺失的id列表查询数据库,结果:%v", list)
 		for i := range list {
+			pro := list[i]
+			uuidString := uuid.New().String()
+			lockKey := model.BaseInfoLockKey(ctx, pro.ProductId)
+			klog.CtxInfof(ctx, "请求分布式锁,key:%v,uuid:%v", lockKey, uuidString)
+			lock, err := model.SetLock(ctx, redisClient.RedisClient, lockKey, uuidString)
+			if err != nil {
+				klog.CtxInfof(ctx, "key %v 上锁失败", lockKey)
+			}
 
-			func(ctx context.Context, pro *model.ProductWithCategory) {
-				uuidString := uuid.New().String()
-				lockKey := model.BaseInfoLockKey(ctx, pro.ProductId)
-				klog.CtxInfof(ctx, "请求分布式锁,key:%v,uuid:%v", lockKey, uuidString)
-				lock, err := model.SetLock(ctx, redisClient.RedisClient, lockKey, uuidString)
+			klog.CtxInfof(ctx, "key %v 上锁状态:%v", lockKey, lock)
+			if lock {
+				p := product.Product{
+					Id:            pro.ProductId,
+					Name:          pro.ProductName,
+					Description:   pro.ProductDescription,
+					Picture:       pro.ProductPicture,
+					Price:         pro.ProductPrice,
+					Stock:         pro.ProductStock,
+					Sale:          pro.ProductSale,
+					CategoryId:    pro.CategoryID,
+					CategoryName:  pro.CategoryName,
+					PublishStatus: pro.ProductPublicState,
+				}
+				products = append(products, &p)
+				productKey := model.BaseInfoKey(ctx, pro.ProductId)
+				err = model.PushToRedisBaseInfo(ctx, model.Product{
+					Base: model.Base{
+						ID: pro.ProductId,
+					},
+					Name:        pro.ProductName,
+					Description: pro.ProductDescription,
+					Picture:     pro.ProductPicture,
+					Price:       pro.ProductPrice,
+					Stock:       pro.ProductStock,
+					LockStock:   pro.ProductLockStock,
+					PublicState: pro.ProductPublicState,
+					Sale:        pro.ProductSale,
+				}, redisClient.RedisClient, productKey)
 				if err != nil {
-					klog.CtxInfof(ctx, "key %v 上锁失败", lockKey)
-					return
+					klog.CtxErrorf(ctx, "product数据缓存到redis失败, err: %v", err)
+				} else {
+					klog.CtxInfof(ctx, "product数据缓存到redis成功")
 				}
-
-				klog.CtxInfof(ctx, "key %v 上锁状态:%v", lockKey, lock)
-				if lock {
-					p := product.Product{
-						Id:            pro.ProductId,
-						Name:          pro.ProductName,
-						Description:   pro.ProductDescription,
-						Picture:       pro.ProductPicture,
-						Price:         pro.ProductPrice,
-						Stock:         pro.ProductStock,
-						Sale:          pro.ProductSale,
-						CategoryId:    pro.CategoryID,
-						CategoryName:  pro.CategoryName,
-						PublishStatus: pro.ProductPublicState,
-					}
-					products = append(products, &p)
-					productKey := model.BaseInfoKey(ctx, list[i].ProductId)
-					err = model.PushToRedisBaseInfo(ctx, model.Product{
-						Base: model.Base{
-							ID: pro.ProductId,
-						},
-						Name:        pro.ProductName,
-						Description: pro.ProductDescription,
-						Picture:     pro.ProductPicture,
-						Price:       pro.ProductPrice,
-						Stock:       pro.ProductStock,
-						LockStock:   pro.ProductLockStock,
-						PublicState: pro.ProductPublicState,
-						Sale:        pro.ProductSale,
-					}, redisClient.RedisClient, productKey)
-					if err != nil {
-						klog.CtxErrorf(ctx, "product数据缓存到redis失败, err: %v", err)
-					} else {
-						klog.CtxInfof(ctx, "product数据缓存到redis成功")
-					}
-					err := model.SafeDeleteLock(ctx, redisClient.RedisClient, lockKey, uuidString)
-					if err != nil {
-						klog.CtxInfof(ctx, "删除锁失败")
-						return
-					} else {
-						klog.CtxInfof(ctx, "安全删除锁成功,key:%v", lockKey)
-					}
+				err := model.SafeDeleteLock(ctx, redisClient.RedisClient, lockKey, uuidString)
+				if err != nil {
+					klog.CtxInfof(ctx, "删除锁失败")
+				} else {
+					klog.CtxInfof(ctx, "安全删除锁成功,key:%v", lockKey)
 				}
+			}
 
-			}(ctx, &list[i])
 		}
 	}
 	return products, nil
 }
 
 func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]int64, err error) {
-	detectKey := "search:stock"
 	productStock = make(map[int64]int64)
 
 	for _, id := range searchIds {
@@ -384,7 +411,7 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 		//如果存在，则从redis中获取数据
 		if exists == 1 {
 			klog.CtxInfof(ctx, "命中redis缓存,key:%v", stockKey)
-			go addRedisHit(ctx, detectKey)
+			go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries, stockRedis}, redisClient.RedisClient)
 			//连续三次尝试
 			maxTry := 3
 			for i := 0; i < maxTry; i++ {
@@ -402,12 +429,15 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 					}
 					klog.CtxInfof(ctx, "成功获取redis上的stock:%v", stock)
 					productStock[id] = stock
+
+					//命中redis缓存
+
 					break
 				}
 			}
 		} else {
-			klog.CtxInfof(ctx, "未命中缓存,key:%v", detectKey)
-			go notHit(ctx, detectKey)
+			klog.CtxInfof(ctx, "stock未命中redis缓存,key:%v", stockKey)
+			go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries}, redisClient.RedisClient)
 			//不存在
 			//则先加锁
 			lockKey := model.StockLockKey(ctx, id)
@@ -479,29 +509,4 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 		}
 	}
 	return productStock, nil
-}
-
-func addRedisHit(ctx context.Context, key string) {
-	luaScript := `
-local key = KEYS[1]
-      redis.call('HINCRBY', key,'total_queries',1)
-redis.call('HINCRBY', key,'redis_cache_hit',1)
-`
-	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
-}
-func notHit(ctx context.Context, key string) {
-	luaScript := `
-local key = KEYS[1]
-redis.call('HINCRBY', key,'total_queries',1)
-`
-	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
-}
-
-func addLocalHit(ctx context.Context, key string) {
-	luaScript := `
-local key = KEYS[1]
-redis.call('HINCRBY', key,'total_queries',1)
-redis.call('HINCRBY', key,'local_cache_hit',1)
-`
-	redisClient.RedisClient.Eval(ctx, luaScript, []string{key})
 }

@@ -11,9 +11,7 @@ import (
 	"douyin_mall/product/biz/dal/mysql"
 	"douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
-	"douyin_mall/product/infra/elastic"
-	"douyin_mall/product/infra/kafka"
-	"douyin_mall/product/infra/rpc"
+	"douyin_mall/product/infra"
 	"douyin_mall/product/infra/xxl"
 	"net"
 	"os"
@@ -47,10 +45,8 @@ func main() {
 	//启动hotKeyClient
 	go hotKeyClient.Start(redis.RedisClient, constant.ProductService)
 
-	elastic.InitClient()
-	kafka.Init()
+	infra.Init()
 	opts := kitexInit()
-	rpc.InitClient()
 
 	svr := productcatalogservice.NewServer(new(ProductCatalogServiceImpl), opts...)
 

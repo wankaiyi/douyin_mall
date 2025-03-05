@@ -129,6 +129,7 @@ func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Cli
 		
 		if redis.call("EXISTS", key) == 0 then
 			redis.call("HSET", key, "id", id, "name", name, "description", description, "picture", picture, "price", price ,'sale',sale,'publish_status',publish_status)
+			redis.call("EXPIRE", key, 300)
 			return 1
 		else
 			return 0
@@ -155,6 +156,7 @@ func PushToRedisStock(ctx context.Context, product Product, client *redis.Client
 		
 		if redis.call("EXISTS", key) == 0 then
 			redis.call("HSET", key, "stock", stock, "lock_stock", lock_stock)
+			redis.call("EXPIRE", key, 300)
 			return 1
 		else
 			return 0
