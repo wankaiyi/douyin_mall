@@ -11,7 +11,7 @@ import (
 func Init() {
 	elastic.InitClient()
 	kafka.Init()
-	xxl.Init()
+	go xxl.Init()
 	rpc.InitClient()
 	cache.Init()
 }
