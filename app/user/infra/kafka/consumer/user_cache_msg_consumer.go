@@ -3,19 +3,14 @@ package consumer
 import (
 	"context"
 	"douyin_mall/common/infra/kafka/tracing"
-	"douyin_mall/user/biz/dal/mysql"
-	"douyin_mall/user/biz/dal/redis"
-	"douyin_mall/user/biz/model"
 	"douyin_mall/user/biz/service"
 	"douyin_mall/user/conf"
-	redisUtils "douyin_mall/user/utils/redis"
 	"fmt"
 	"github.com/IBM/sarama"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
 	"go.opentelemetry.io/otel"
-	"time"
 )
 
 type msgConsumerGroup struct{}
@@ -37,7 +32,7 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 		msgCtx := otel.GetTextMapPropagator().Extract(ctx, tracing.NewConsumerMessageCarrier(msg))
 		_, span := otel.Tracer("delay-order-consumer").Start(msgCtx, "consume-delay-order-message")
 
-		err = selectAndCacheUserInfo(sess.Context(), userCacheMsg.UserId)
+		_, err = service.NewGetUserService(ctx).SelectAndCacheUserInfo(sess.Context(), userCacheMsg.UserId)
 		if err != nil {
 			klog.Errorf("缓存用户信息失败，err：%v", err)
 			span.End()
@@ -54,25 +49,6 @@ func (h msgConsumerGroup) ConsumeClaim(sess sarama.ConsumerGroupSession, claim s
 		sess.MarkMessage(msg, "")
 		sess.Commit()
 		span.End()
-	}
-	return nil
-}
-
-func selectAndCacheUserInfo(ctx context.Context, userId int32) error {
-	user, err := model.GetUserBasicInfoById(mysql.DB, ctx, userId)
-	if err != nil {
-		return err
-	}
-	key := redisUtils.GetUserKey(userId)
-	redisClient := redis.RedisClient
-	err = redisClient.HSet(ctx, key, user.ToMap()).Err()
-	if err != nil {
-		return err
-	}
-	// 设置过期时间和access token的过期时间一致
-	err = redisClient.Expire(ctx, key, time.Hour*2).Err()
-	if err != nil {
-		return err
 	}
 	return nil
 }

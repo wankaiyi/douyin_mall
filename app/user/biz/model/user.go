@@ -31,6 +31,7 @@ type UserBasicInfo struct {
 	Sex         int32
 	Description string
 	Avatar      string
+	CreatedAt   string
 }
 
 func (u UserBasicInfo) ToMap() map[string]interface{} {
@@ -40,6 +41,7 @@ func (u UserBasicInfo) ToMap() map[string]interface{} {
 		"sex":         SexToString(u.Sex),
 		"description": u.Description,
 		"avatar":      u.Avatar,
+		"created_at":  u.CreatedAt,
 	}
 }
 

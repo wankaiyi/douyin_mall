@@ -59,6 +59,7 @@ func (s *GetReceiveAddressService) Run(req *user.GetReceiveAddressReq) (resp *us
 		if err != nil && errors.Is(err, redis.Nil) {
 			return nil, errors.WithStack(err)
 		}
+		myredis.RedisClient.Expire(ctx, addressKey, 7200)
 		for _, cachedAddress := range cachedAddresses {
 			var receiveAddress user.ReceiveAddress
 			_ = sonic.Unmarshal([]byte(cachedAddress), &receiveAddress)
