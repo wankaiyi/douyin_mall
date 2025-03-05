@@ -12,10 +12,10 @@ const (
 
 type Address struct {
 	Base
-	UserId        int32  `gorm:"not null;type:int;index:idx_user_id_default_status"`
+	UserId        int32  `gorm:"not null;type:int;index:idx_user_id"`
 	Name          string `gorm:"not null;type:varchar(64);comment:收件人姓名"`
 	PhoneNumber   string `gorm:"not null;type:varchar(64);comment:收件人手机号"`
-	DefaultStatus int8   `gorm:"not null;type:int(1);default:0;index:idx_user_id_default_status;comment:是否默认地址，0-否，1-是"`
+	DefaultStatus int8   `gorm:"not null;type:int(1);default:0;comment:是否默认地址，0-否，1-是"`
 	Province      string `gorm:"not null;type:varchar(64);comment:省"`
 	City          string `gorm:"not null;type:varchar(64);comment:市"`
 	Region        string `gorm:"not null;type:varchar(64);comment:区"`

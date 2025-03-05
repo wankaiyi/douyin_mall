@@ -63,7 +63,7 @@ func (s *BaseAiService) Run(req *model.BaseRequest, handler model.AIConversation
 		return nil, errors.WithStack(err)
 	}
 
-	chatHistory, historyMessages, optional, err := s.getChatHistory(exist, uuid)
+	chatHistory, historyMessages, optional, err := s.getChatHistory(exist, uuid, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -95,29 +95,30 @@ func (s *BaseAiService) Run(req *model.BaseRequest, handler model.AIConversation
 	}, nil
 }
 
-func (s *BaseAiService) getChatHistory(exist bool, uuid string) (chatHistory []*schema.Message, historyMessages []model.Message, optional bool, err error) {
+func (s *BaseAiService) getChatHistory(exist bool, uuid string, userId int32) (chatHistory []*schema.Message, historyMessages []model.Message, optional bool, err error) {
+	ctx := s.ctx
 	optional = true
 	if exist {
 		optional = false
-		cacheMessages, err := redis.RedisClient.LRange(s.ctx, redisUtils.GetChatHistoryKey(uuid), 0, 19).Result()
+		cacheMessages, err := redis.RedisClient.LRange(ctx, redisUtils.GetChatHistoryKey(uuid), 0, 19).Result()
 		if err != nil {
-			klog.CtxErrorf(s.ctx, "智能助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
+			klog.CtxErrorf(ctx, "智能助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
 		}
 		if len(cacheMessages) > 0 {
 			for _, value := range cacheMessages {
 				message := &schema.Message{}
 				err = sonic.Unmarshal([]byte(value), &message)
 				if err != nil {
-					klog.CtxErrorf(s.ctx, "智能助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
+					klog.CtxErrorf(ctx, "智能助手：json解析会话历史对话失败，value: %s, err: %v", value, err)
 					err = errors.WithStack(err)
 					return nil, nil, false, err
 				}
 				chatHistory = append(chatHistory, message)
 			}
 		} else {
-			historyMessages, err = model.GetChatHistoryByUuid(mysql.DB, s.ctx, uuid)
+			historyMessages, err = model.GetChatHistoryByUuid(mysql.DB, ctx, uuid, userId)
 			if err != nil {
-				klog.CtxErrorf(s.ctx, "智能助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
+				klog.CtxErrorf(ctx, "智能助手：查询会话历史对话失败，会话id: %s, err: %v", uuid, err)
 				return nil, nil, false, errors.WithStack(err)
 			}
 			chatHistory = make([]*schema.Message, len(historyMessages))
