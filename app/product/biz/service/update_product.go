@@ -4,6 +4,7 @@ import (
 	"context"
 	"douyin_mall/common/constant"
 	"douyin_mall/product/biz/dal/mysql"
+	"douyin_mall/product/biz/dal/redis"
 	"douyin_mall/product/biz/model"
 	producerModel "douyin_mall/product/infra/kafka/model"
 	"douyin_mall/product/infra/kafka/producer"
@@ -37,6 +38,21 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 	err = model.UpdateProduct(mysql.DB, s.ctx, &pro)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "更新商品失败,error:%v", err)
+		return nil, err
+	}
+	//4 调用redis的set方法将数据导入到redis缓存中
+	err = model.PushToRedisBaseInfo(s.ctx, model.Product{
+		Base: model.Base{
+			ID: pro.ID,
+		},
+		Name:        pro.Name,
+		Description: pro.Description,
+		Price:       pro.Price,
+		Stock:       pro.Stock,
+		LockStock:   pro.LockStock,
+	}, redis.RedisClient, model.BaseInfoKey(s.ctx, pro.ID))
+	if err != nil {
+		klog.CtxErrorf(s.ctx, "redis push product to redis err:%v", err)
 		return nil, err
 	}
 	//发送到kafka

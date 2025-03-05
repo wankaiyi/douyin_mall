@@ -31,7 +31,7 @@ type ProductWithCategory struct {
 	ProductStock       int64   `json:"product_stock"`
 	ProductLockStock   int64   `json:"product_lock_stock"`
 	ProductSale        int64   `json:"product_sale"`
-	ProductPublicState int64   `json:"product_public_state"`
+	ProductPublicState int64   `json:"product_publish_status"`
 	ProductPicture     string  `json:"product_picture"`
 	CategoryID         int64   `json:"category_id"`
 	CategoryName       string  `json:"category_name"`
@@ -55,7 +55,7 @@ func SelectProduct(db *gorm.DB, ctx context.Context, id int64) (product Product,
 }
 func SelectProductAll(db *gorm.DB, ctx context.Context, index int64, total int64) (products []ProductWithCategory, err error) {
 	result := db.WithContext(ctx).Model(&Product{}).
-		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.public_state as product_public_state,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
+		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.publish_status as product_publish_status,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
 		Joins("left join tb_category on tb_product.category_id=tb_category.id").
 		Where("tb_product.id%?=?", total, index).
 		Scan(&products)
@@ -65,7 +65,7 @@ func SelectProductAll(db *gorm.DB, ctx context.Context, index int64, total int64
 
 func SelectProductAllWithoutCondition(db *gorm.DB, ctx context.Context) (products []ProductWithCategory, err error) {
 	result := db.WithContext(ctx).Model(&Product{}).
-		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.public_state as product_public_state,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
+		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.publish_status as product_publish_status,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
 		Joins("left join tb_category on tb_product.category_id=tb_category.id").
 		Scan(&products)
 	err = result.Error
@@ -75,7 +75,7 @@ func SelectProductAllWithoutCondition(db *gorm.DB, ctx context.Context) (product
 func SelectProductList(db *gorm.DB, ctx context.Context, ids []int64) (products []ProductWithCategory, err error) {
 	result := db.WithContext(ctx).Model(&Product{}).
 		Where("tb_product.id IN ?", ids).
-		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.public_state as product_public_state,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
+		Select("tb_product.id as product_id,tb_product.name as product_name,tb_product.price as product_price,tb_product.description as product_description,tb_product.stock as product_stock,tb_product.lock_stock as product_lock_stock,tb_product.sale as product_sale,tb_product.publish_status as product_publish_status,tb_product.picture as product_picture,tb_category.id as category_id,tb_category.name as category_name").
 		Joins("left join tb_category on tb_product.category_id=tb_category.id").
 		Scan(&products)
 	err = result.Error
