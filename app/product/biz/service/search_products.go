@@ -366,14 +366,14 @@ func GetMissingProduct(ctx context.Context, missingIds []int64) (products []*pro
 					Base: model.Base{
 						ID: pro.ProductId,
 					},
-					Name:        pro.ProductName,
-					Description: pro.ProductDescription,
-					Picture:     pro.ProductPicture,
-					Price:       pro.ProductPrice,
-					Stock:       pro.ProductStock,
-					LockStock:   pro.ProductLockStock,
-					PublicState: pro.ProductPublicState,
-					Sale:        pro.ProductSale,
+					Name:          pro.ProductName,
+					Description:   pro.ProductDescription,
+					Picture:       pro.ProductPicture,
+					Price:         pro.ProductPrice,
+					Stock:         pro.ProductStock,
+					LockStock:     pro.ProductLockStock,
+					PublishStatus: pro.ProductPublicState,
+					Sale:          pro.ProductSale,
 				}, redisClient.RedisClient, productKey)
 				if err != nil {
 					klog.CtxErrorf(ctx, "product数据缓存到redis失败, err: %v", err)
@@ -481,14 +481,14 @@ func GetStock(ctx context.Context, searchIds []int64) (productStock map[int64]in
 						Base: model.Base{
 							ID: list[0].ProductId,
 						},
-						Name:        list[0].ProductName,
-						Description: list[0].ProductDescription,
-						Picture:     list[0].ProductPicture,
-						Price:       list[0].ProductPrice,
-						Stock:       list[0].ProductStock,
-						LockStock:   list[0].ProductLockStock,
-						PublicState: list[0].ProductPublicState,
-						Sale:        list[0].ProductSale,
+						Name:          list[0].ProductName,
+						Description:   list[0].ProductDescription,
+						Picture:       list[0].ProductPicture,
+						Price:         list[0].ProductPrice,
+						Stock:         list[0].ProductStock,
+						LockStock:     list[0].ProductLockStock,
+						PublishStatus: list[0].ProductPublicState,
+						Sale:          list[0].ProductSale,
 					}, redisClient.RedisClient, stockKey)
 					if err != nil {
 						klog.CtxErrorf(ctx, "获取库存信息时 推送到redis时异常,err: %v", err)

@@ -5,21 +5,23 @@ import (
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 	"strconv"
 	"time"
 )
 
 type Product struct {
 	Base
-	Name        string  `gorm:"not null;type:varchar(100)" json:"name"`
-	Description string  `gorm:"not null;type:text" json:"description"`
-	Picture     string  `gorm:"not null;type:varchar(255)" json:"picture"`
-	Price       float32 `gorm:"not null;type:decimal(10,2)" json:"price"`
-	Stock       int64   `gorm:"not null;type:int(32)" json:"stock"`
-	Sale        int64   `gorm:"not null;type:int(32)" json:"sale"`
-	PublicState int64   `gorm:"not null;type:int(32)" json:"public_state"`
-	LockStock   int64   `gorm:"not null;type:int(32)" json:"lock_stock"`
-	CategoryId  int64   `gorm:"not null;index:idx_category_id;not null;type:int(32)" json:"category_id"`
+	Name          string                `gorm:"not null;type:varchar(100)" json:"name"`
+	Description   string                `gorm:"not null;type:text" json:"description"`
+	Picture       string                `gorm:"not null;type:varchar(255)" json:"picture"`
+	Price         float32               `gorm:"not null;type:decimal(10,2)" json:"price"`
+	Stock         int64                 `gorm:"not null;type:int(32)" json:"stock"`
+	Sale          int64                 `gorm:"not null;type:int(32)" json:"sale"`
+	PublishStatus int64                 `gorm:"not null;type:int(32)" json:"publish_status"`
+	LockStock     int64                 `gorm:"not null;type:int(32)" json:"lock_stock"`
+	CategoryId    int64                 `gorm:"not null;index:idx_category_id_deleted_at,priority:1;not null;type:int(32)" json:"category_id"`
+	DeletedAt     soft_delete.DeletedAt `gorm:"index:idx_category_id_deleted_at,priority:2;" json:"deleted_at"`
 }
 type ProductWithCategory struct {
 	ProductId          int64   `json:"product_id"`
@@ -136,7 +138,7 @@ func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Cli
 		end
 `
 	keys := []string{key}
-	args := []interface{}{product.ID, product.Name, product.Description, product.Picture, product.Price, product.Sale, product.PublicState}
+	args := []interface{}{product.ID, product.Name, product.Description, product.Picture, product.Price, product.Sale, product.PublishStatus}
 	result, err := client.Eval(ctx, luaScript, keys, args).Result()
 	if err != nil {
 		return err

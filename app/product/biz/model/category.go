@@ -3,11 +3,13 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 type Category struct {
 	Name string `gorm:"not null;type:varchar(100)" json:"name"`
 	Base
+	DeletedAt soft_delete.DeletedAt `gorm:"index:idx_deleted_at" json:"deleted_at"`
 }
 
 func (p *Category) TableName() string {

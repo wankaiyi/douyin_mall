@@ -166,15 +166,15 @@ func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError boo
 					Base: model.Base{
 						ID: pro.ProductId,
 					},
-					Name:        pro.ProductName,
-					Description: pro.ProductDescription,
-					Picture:     pro.ProductPicture,
-					Price:       pro.ProductPrice,
-					Stock:       pro.ProductStock,
-					Sale:        pro.ProductSale,
-					PublicState: pro.ProductPublicState,
-					LockStock:   pro.ProductLockStock,
-					CategoryId:  pro.CategoryID,
+					Name:          pro.ProductName,
+					Description:   pro.ProductDescription,
+					Picture:       pro.ProductPicture,
+					Price:         pro.ProductPrice,
+					Stock:         pro.ProductStock,
+					Sale:          pro.ProductSale,
+					PublishStatus: pro.ProductPublicState,
+					LockStock:     pro.ProductLockStock,
+					CategoryId:    pro.CategoryID,
 				}, redisClient.RedisClient, stockKey)
 				if err != nil {
 					hasError = true

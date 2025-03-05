@@ -24,15 +24,15 @@ func (s *UpdateProductService) Run(req *product.UpdateProductReq) (resp *product
 		Base: model.Base{
 			ID: req.Id,
 		},
-		Name:        req.Name,
-		Description: req.Description,
-		Picture:     req.Picture,
-		Price:       req.Price,
-		Stock:       req.Stock,
-		Sale:        req.Sale,
-		PublicState: req.PublishStatus,
-		LockStock:   req.Stock,
-		CategoryId:  req.CategoryId,
+		Name:          req.Name,
+		Description:   req.Description,
+		Picture:       req.Picture,
+		Price:         req.Price,
+		Stock:         req.Stock,
+		Sale:          req.Sale,
+		PublishStatus: req.PublishStatus,
+		LockStock:     req.Stock,
+		CategoryId:    req.CategoryId,
 	}
 	err = model.UpdateProduct(mysql.DB, s.ctx, &pro)
 	if err != nil {
