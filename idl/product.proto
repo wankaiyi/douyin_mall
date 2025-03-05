@@ -15,6 +15,7 @@ service ProductCatalogService {
   rpc DeleteProduct(DeleteProductReq) returns (DeleteProductResp) {}
   rpc UpdateProduct(UpdateProductReq) returns (UpdateProductResp) {}
   rpc LockProductQuantity(ProductLockQuantityRequest) returns (ProductLockQuantityResponse) {}
+  rpc UnlockProductQuantity(ProductUnLockQuantityRequest) returns (ProductUnLockQuantityResponse) {}
 
   rpc SelectCategory(CategorySelectReq) returns (CategorySelectResp) {}
   rpc InsertCategory(CategoryInsertReq) returns (CategoryInsertResp) {}
@@ -146,6 +147,20 @@ message ProductLockQuantityRequest {
   repeated ProductLockQuantity products = 1;
 }
 message ProductLockQuantityResponse {
+  int32 status_code = 1;
+  string status_msg = 2;
+}
+
+message ProductUnLockQuantity{
+  int64 productId = 1;
+  int64 quantity = 2;
+}
+
+message ProductUnLockQuantityRequest {
+  repeated ProductUnLockQuantity products = 1;
+}
+
+message ProductUnLockQuantityResponse {
   int32 status_code = 1;
   string status_msg = 2;
 }

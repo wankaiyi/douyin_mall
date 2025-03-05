@@ -15,21 +15,20 @@ import (
 	"time"
 )
 
-type LockProductQuantityService struct {
+type UnlockProductQuantityService struct {
 	ctx context.Context
-} // NewLockProductQuantityService new LockProductQuantityService
-func NewLockProductQuantityService(ctx context.Context) *LockProductQuantityService {
-	return &LockProductQuantityService{ctx: ctx}
+} // NewUnlockProductQuantityService new UnlockProductQuantityService
+func NewUnlockProductQuantityService(ctx context.Context) *UnlockProductQuantityService {
+	return &UnlockProductQuantityService{ctx: ctx}
 }
 
 // Run create note info
-func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest) (resp *product.ProductLockQuantityResponse, err error) {
-	originProducts := req.Products
-	var ids = make([]int64, 0)
-	var productQuantityMap = make(map[int64]int64)
-	for _, pro := range originProducts {
-		ids = append(ids, pro.Id)
-		productQuantityMap[pro.Id] = pro.Quantity
+func (s *UnlockProductQuantityService) Run(req *product.ProductUnLockQuantityRequest) (resp *product.ProductUnLockQuantityResponse, err error) {
+	ids := make([]int64, 0)
+	quantities := make([]int64, 0)
+	for _, pro := range req.Products {
+		ids = append(ids, pro.ProductId)
+		quantities = append(quantities, pro.Quantity)
 	}
 	//pipeline
 	var cmdMap = make(map[int64]*redis.IntCmd)
@@ -53,11 +52,11 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 	}
 
 	if exist {
-		err := lockQuantity(s.ctx, productQuantityMap)
+		err := unlockQuantity(s.ctx, ids, quantities)
 		if err != nil {
 			return nil, err
 		}
-		return &product.ProductLockQuantityResponse{
+		return &product.ProductUnLockQuantityResponse{
 			StatusCode: 0,
 			StatusMsg:  constant.GetMsg(0),
 		}, nil
@@ -68,7 +67,7 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 		var wg sync.WaitGroup
 		for _, id := range notExistIds {
 			wg.Add(1)
-			go pushToRedis(s.ctx, id, &wg, *hasError)
+			go pushToRedisUnlock(s.ctx, id, &wg, *hasError)
 		}
 		wg.Wait()
 
@@ -76,19 +75,23 @@ func (s *LockProductQuantityService) Run(req *product.ProductLockQuantityRequest
 		if *hasError {
 			time.Sleep(500 * time.Millisecond)
 		}
-		err := lockQuantity(s.ctx, productQuantityMap)
+		err := unlockQuantity(s.ctx, ids, quantities)
 		if err != nil {
-			klog.CtxErrorf(s.ctx, "redis锁库存时执行失败 %v，keysMap:%v", errors.WithStack(err), productQuantityMap)
+			klog.CtxErrorf(s.ctx, "redis锁库存时执行失败 %v", errors.WithStack(err))
 			return nil, err
 		}
-		return &product.ProductLockQuantityResponse{
+		return &product.ProductUnLockQuantityResponse{
 			StatusCode: 0,
 			StatusMsg:  constant.GetMsg(0),
 		}, nil
 	}
 }
 
-func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error {
+func unlockQuantity(ctx context.Context, ids []int64, quantity []int64) error {
+	keys := make([]string, 0)
+	for _, id := range ids {
+		keys = append(keys, model.StockKey(ctx, id))
+	}
 	luaScript := `
 		local function process_keys(keys, quantities)
 			for i, key in ipairs(keys) do
@@ -97,28 +100,20 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error
 				else
 					redis.call('EXPIRE', key, 600)
 				end
-				local quantity = tonumber(quantities[i])
-				local stock = tonumber(redis.call('HGET', key, 'stock') or 0)
-				local lock_stock = tonumber(redis.call('HGET', key, 'lock_stock') or 0)
-				if stock - lock_stock < quantity then
-					return 2
-				end
 			end
 			for i, key in ipairs(keys) do
 				local quantity = tonumber(quantities[i])
-				redis.call('HINCRBY', key, 'lock_stock',quantity)
+				redis.call('HINCRBY', key, 'lock_stock',-quantity)
 			end
 			return 1
 		end
 		return process_keys(KEYS, ARGV)
 		`
-	keys := make([]string, 0)
-	args := make([]interface{}, 0)
-	for id, quantity := range productQuantityMap {
-		productKey := model.StockKey(ctx, id)
-		keys = append(keys, productKey)
-		args = append(args, quantity)
+	args := []interface{}{}
+	for _, q := range quantity {
+		args = append(args, q)
 	}
+
 	eval := redisClient.RedisClient.Eval(ctx, luaScript, keys, args)
 	result, err := eval.Result()
 	if err != nil {
@@ -130,7 +125,7 @@ func lockQuantity(ctx context.Context, productQuantityMap map[int64]int64) error
 	return nil
 }
 
-func pushToRedis(ctx context.Context, id int64, wg *sync.WaitGroup, hasError bool) {
+func pushToRedisUnlock(ctx context.Context, id int64, wg *sync.WaitGroup, hasError bool) {
 	defer wg.Done()
 	//get lock
 	//lock里面设置uuid，

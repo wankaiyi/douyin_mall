@@ -106,3 +106,10 @@ func (s *ProductCatalogServiceImpl) GetAllCategories(ctx context.Context, req *p
 
 	return resp, err
 }
+
+// UnlockProductQuantity implements the ProductCatalogServiceImpl interface.
+func (s *ProductCatalogServiceImpl) UnlockProductQuantity(ctx context.Context, req *product.ProductUnLockQuantityRequest) (resp *product.ProductUnLockQuantityResponse, err error) {
+	resp, err = service.NewUnlockProductQuantityService(ctx).Run(req)
+
+	return resp, err
+}
