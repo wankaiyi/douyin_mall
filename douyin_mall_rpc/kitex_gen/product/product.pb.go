@@ -1330,6 +1330,163 @@ func (x *ProductLockQuantityResponse) GetStatusMsg() string {
 	return ""
 }
 
+type ProductUnLockQuantity struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ProductId int64 `protobuf:"varint,1,opt,name=productId,proto3" json:"productId,omitempty"`
+	Quantity  int64 `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+}
+
+func (x *ProductUnLockQuantity) Reset() {
+	*x = ProductUnLockQuantity{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_product_proto_msgTypes[20]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProductUnLockQuantity) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductUnLockQuantity) ProtoMessage() {}
+
+func (x *ProductUnLockQuantity) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[20]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductUnLockQuantity.ProtoReflect.Descriptor instead.
+func (*ProductUnLockQuantity) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ProductUnLockQuantity) GetProductId() int64 {
+	if x != nil {
+		return x.ProductId
+	}
+	return 0
+}
+
+func (x *ProductUnLockQuantity) GetQuantity() int64 {
+	if x != nil {
+		return x.Quantity
+	}
+	return 0
+}
+
+type ProductUnLockQuantityRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Products []*ProductUnLockQuantity `protobuf:"bytes,1,rep,name=products,proto3" json:"products,omitempty"`
+}
+
+func (x *ProductUnLockQuantityRequest) Reset() {
+	*x = ProductUnLockQuantityRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_product_proto_msgTypes[21]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProductUnLockQuantityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductUnLockQuantityRequest) ProtoMessage() {}
+
+func (x *ProductUnLockQuantityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[21]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductUnLockQuantityRequest.ProtoReflect.Descriptor instead.
+func (*ProductUnLockQuantityRequest) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ProductUnLockQuantityRequest) GetProducts() []*ProductUnLockQuantity {
+	if x != nil {
+		return x.Products
+	}
+	return nil
+}
+
+type ProductUnLockQuantityResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	StatusCode int32  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	StatusMsg  string `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+}
+
+func (x *ProductUnLockQuantityResponse) Reset() {
+	*x = ProductUnLockQuantityResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_product_proto_msgTypes[22]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ProductUnLockQuantityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProductUnLockQuantityResponse) ProtoMessage() {}
+
+func (x *ProductUnLockQuantityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_product_proto_msgTypes[22]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProductUnLockQuantityResponse.ProtoReflect.Descriptor instead.
+func (*ProductUnLockQuantityResponse) Descriptor() ([]byte, []int) {
+	return file_product_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ProductUnLockQuantityResponse) GetStatusCode() int32 {
+	if x != nil {
+		return x.StatusCode
+	}
+	return 0
+}
+
+func (x *ProductUnLockQuantityResponse) GetStatusMsg() string {
+	if x != nil {
+		return x.StatusMsg
+	}
+	return ""
+}
+
 var File_product_proto protoreflect.FileDescriptor
 
 var file_product_proto_rawDesc = []byte{
@@ -1482,7 +1639,24 @@ var file_product_proto_rawDesc = []byte{
 	0x75, 0x73, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x73,
 	0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x74, 0x61,
 	0x74, 0x75, 0x73, 0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73,
-	0x74, 0x61, 0x74, 0x75, 0x73, 0x4d, 0x73, 0x67, 0x32, 0xcd, 0x08, 0x0a, 0x15, 0x50, 0x72, 0x6f,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x4d, 0x73, 0x67, 0x22, 0x51, 0x0a, 0x15, 0x50, 0x72, 0x6f, 0x64,
+	0x75, 0x63, 0x74, 0x55, 0x6e, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74,
+	0x79, 0x12, 0x1c, 0x0a, 0x09, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x49, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x49, 0x64, 0x12,
+	0x1a, 0x0a, 0x08, 0x71, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x08, 0x71, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x22, 0x5a, 0x0a, 0x1c, 0x50,
+	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x55, 0x6e, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e,
+	0x74, 0x69, 0x74, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3a, 0x0a, 0x08, 0x70,
+	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1e, 0x2e,
+	0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x55,
+	0x6e, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x08, 0x70,
+	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x22, 0x5f, 0x0a, 0x1d, 0x50, 0x72, 0x6f, 0x64, 0x75,
+	0x63, 0x74, 0x55, 0x6e, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x5f, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6f, 0x64, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x5f, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x4d, 0x73, 0x67, 0x32, 0xb7, 0x09, 0x0a, 0x15, 0x50, 0x72, 0x6f,
 	0x64, 0x75, 0x63, 0x74, 0x43, 0x61, 0x74, 0x61, 0x6c, 0x6f, 0x67, 0x53, 0x65, 0x72, 0x76, 0x69,
 	0x63, 0x65, 0x12, 0x45, 0x0a, 0x0c, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63,
 	0x74, 0x73, 0x12, 0x18, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x4c, 0x69, 0x73,
@@ -1527,34 +1701,40 @@ var file_product_proto_rawDesc = []byte{
 	0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x1a, 0x24, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x50, 0x72, 0x6f, 0x64,
 	0x75, 0x63, 0x74, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x0e, 0x53, 0x65, 0x6c,
-	0x65, 0x63, 0x74, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x1a, 0x2e, 0x70, 0x72,
-	0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x53, 0x65,
-	0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63,
-	0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74,
-	0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x0e, 0x49, 0x6e, 0x73, 0x65, 0x72, 0x74,
-	0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75,
-	0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x49, 0x6e, 0x73, 0x65, 0x72,
-	0x74, 0x52, 0x65, 0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43,
-	0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x49, 0x6e, 0x73, 0x65, 0x72, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x61, 0x74,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x68, 0x0a, 0x15, 0x55, 0x6e, 0x6c,
+	0x6f, 0x63, 0x6b, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69,
+	0x74, 0x79, 0x12, 0x25, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x50, 0x72, 0x6f,
+	0x64, 0x75, 0x63, 0x74, 0x55, 0x6e, 0x4c, 0x6f, 0x63, 0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69,
+	0x74, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x70, 0x72, 0x6f, 0x64,
+	0x75, 0x63, 0x74, 0x2e, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x55, 0x6e, 0x4c, 0x6f, 0x63,
+	0x6b, 0x51, 0x75, 0x61, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x0e, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x43, 0x61, 0x74,
 	0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e,
-	0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65,
+	0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65,
 	0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65,
-	0x67, 0x6f, 0x72, 0x79, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00,
-	0x12, 0x4b, 0x0a, 0x0e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f,
+	0x67, 0x6f, 0x72, 0x79, 0x53, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00,
+	0x12, 0x4b, 0x0a, 0x0e, 0x49, 0x6e, 0x73, 0x65, 0x72, 0x74, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f,
 	0x72, 0x79, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74,
-	0x65, 0x67, 0x6f, 0x72, 0x79, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x1b,
+	0x65, 0x67, 0x6f, 0x72, 0x79, 0x49, 0x6e, 0x73, 0x65, 0x72, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x1b,
 	0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72,
-	0x79, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x49, 0x0a,
-	0x10, 0x47, 0x65, 0x74, 0x41, 0x6c, 0x6c, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65,
-	0x73, 0x12, 0x18, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65,
-	0x67, 0x6f, 0x72, 0x79, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x19, 0x2e, 0x70, 0x72,
+	0x79, 0x49, 0x6e, 0x73, 0x65, 0x72, 0x74, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x4b, 0x0a,
+	0x0e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12,
+	0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f,
+	0x72, 0x79, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x72,
+	0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x44, 0x65,
+	0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x4b, 0x0a, 0x0e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x12, 0x1a, 0x2e, 0x70,
+	0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75,
+	0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x12, 0x49, 0x0a, 0x10, 0x47, 0x65, 0x74, 0x41, 0x6c,
+	0x6c, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x69, 0x65, 0x73, 0x12, 0x18, 0x2e, 0x70, 0x72,
 	0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e, 0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x4c, 0x69,
-	0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x22, 0x00, 0x42, 0x23, 0x5a, 0x21, 0x64, 0x6f, 0x75, 0x79,
-	0x69, 0x6e, 0x5f, 0x6d, 0x61, 0x6c, 0x6c, 0x2f, 0x72, 0x70, 0x63, 0x2f, 0x6b, 0x69, 0x74, 0x65,
-	0x78, 0x5f, 0x67, 0x65, 0x6e, 0x2f, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x74, 0x52, 0x65, 0x71, 0x1a, 0x19, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x2e,
+	0x43, 0x61, 0x74, 0x65, 0x67, 0x6f, 0x72, 0x79, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x22, 0x00, 0x42, 0x23, 0x5a, 0x21, 0x64, 0x6f, 0x75, 0x79, 0x69, 0x6e, 0x5f, 0x6d, 0x61, 0x6c,
+	0x6c, 0x2f, 0x72, 0x70, 0x63, 0x2f, 0x6b, 0x69, 0x74, 0x65, 0x78, 0x5f, 0x67, 0x65, 0x6e, 0x2f,
+	0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1569,38 +1749,41 @@ func file_product_proto_rawDescGZIP() []byte {
 	return file_product_proto_rawDescData
 }
 
-var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_product_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_product_proto_goTypes = []interface{}{
-	(*ListProductsReq)(nil),             // 0: product.ListProductsReq
-	(*Product)(nil),                     // 1: product.Product
-	(*ListProductsResp)(nil),            // 2: product.ListProductsResp
-	(*GetProductReq)(nil),               // 3: product.GetProductReq
-	(*GetProductResp)(nil),              // 4: product.GetProductResp
-	(*SearchProductsReq)(nil),           // 5: product.SearchProductsReq
-	(*SearchProductsResp)(nil),          // 6: product.SearchProductsResp
-	(*InsertProductReq)(nil),            // 7: product.InsertProductReq
-	(*InsertProductResp)(nil),           // 8: product.InsertProductResp
-	(*SelectProductReq)(nil),            // 9: product.SelectProductReq
-	(*SelectProductListReq)(nil),        // 10: product.SelectProductListReq
-	(*SelectProductListResp)(nil),       // 11: product.SelectProductListResp
-	(*SelectProductResp)(nil),           // 12: product.SelectProductResp
-	(*DeleteProductReq)(nil),            // 13: product.DeleteProductReq
-	(*DeleteProductResp)(nil),           // 14: product.DeleteProductResp
-	(*UpdateProductReq)(nil),            // 15: product.UpdateProductReq
-	(*UpdateProductResp)(nil),           // 16: product.UpdateProductResp
-	(*ProductLockQuantity)(nil),         // 17: product.ProductLockQuantity
-	(*ProductLockQuantityRequest)(nil),  // 18: product.ProductLockQuantityRequest
-	(*ProductLockQuantityResponse)(nil), // 19: product.ProductLockQuantityResponse
-	(*CategorySelectReq)(nil),           // 20: product.CategorySelectReq
-	(*CategoryInsertReq)(nil),           // 21: product.CategoryInsertReq
-	(*CategoryDeleteReq)(nil),           // 22: product.CategoryDeleteReq
-	(*CategoryUpdateReq)(nil),           // 23: product.CategoryUpdateReq
-	(*CategoryListReq)(nil),             // 24: product.CategoryListReq
-	(*CategorySelectResp)(nil),          // 25: product.CategorySelectResp
-	(*CategoryInsertResp)(nil),          // 26: product.CategoryInsertResp
-	(*CategoryDeleteResp)(nil),          // 27: product.CategoryDeleteResp
-	(*CategoryUpdateResp)(nil),          // 28: product.CategoryUpdateResp
-	(*CategoryListResp)(nil),            // 29: product.CategoryListResp
+	(*ListProductsReq)(nil),               // 0: product.ListProductsReq
+	(*Product)(nil),                       // 1: product.Product
+	(*ListProductsResp)(nil),              // 2: product.ListProductsResp
+	(*GetProductReq)(nil),                 // 3: product.GetProductReq
+	(*GetProductResp)(nil),                // 4: product.GetProductResp
+	(*SearchProductsReq)(nil),             // 5: product.SearchProductsReq
+	(*SearchProductsResp)(nil),            // 6: product.SearchProductsResp
+	(*InsertProductReq)(nil),              // 7: product.InsertProductReq
+	(*InsertProductResp)(nil),             // 8: product.InsertProductResp
+	(*SelectProductReq)(nil),              // 9: product.SelectProductReq
+	(*SelectProductListReq)(nil),          // 10: product.SelectProductListReq
+	(*SelectProductListResp)(nil),         // 11: product.SelectProductListResp
+	(*SelectProductResp)(nil),             // 12: product.SelectProductResp
+	(*DeleteProductReq)(nil),              // 13: product.DeleteProductReq
+	(*DeleteProductResp)(nil),             // 14: product.DeleteProductResp
+	(*UpdateProductReq)(nil),              // 15: product.UpdateProductReq
+	(*UpdateProductResp)(nil),             // 16: product.UpdateProductResp
+	(*ProductLockQuantity)(nil),           // 17: product.ProductLockQuantity
+	(*ProductLockQuantityRequest)(nil),    // 18: product.ProductLockQuantityRequest
+	(*ProductLockQuantityResponse)(nil),   // 19: product.ProductLockQuantityResponse
+	(*ProductUnLockQuantity)(nil),         // 20: product.ProductUnLockQuantity
+	(*ProductUnLockQuantityRequest)(nil),  // 21: product.ProductUnLockQuantityRequest
+	(*ProductUnLockQuantityResponse)(nil), // 22: product.ProductUnLockQuantityResponse
+	(*CategorySelectReq)(nil),             // 23: product.CategorySelectReq
+	(*CategoryInsertReq)(nil),             // 24: product.CategoryInsertReq
+	(*CategoryDeleteReq)(nil),             // 25: product.CategoryDeleteReq
+	(*CategoryUpdateReq)(nil),             // 26: product.CategoryUpdateReq
+	(*CategoryListReq)(nil),               // 27: product.CategoryListReq
+	(*CategorySelectResp)(nil),            // 28: product.CategorySelectResp
+	(*CategoryInsertResp)(nil),            // 29: product.CategoryInsertResp
+	(*CategoryDeleteResp)(nil),            // 30: product.CategoryDeleteResp
+	(*CategoryUpdateResp)(nil),            // 31: product.CategoryUpdateResp
+	(*CategoryListResp)(nil),              // 32: product.CategoryListResp
 }
 var file_product_proto_depIdxs = []int32{
 	1,  // 0: product.ListProductsResp.products:type_name -> product.Product
@@ -1609,39 +1792,42 @@ var file_product_proto_depIdxs = []int32{
 	1,  // 3: product.SelectProductListResp.products:type_name -> product.Product
 	1,  // 4: product.SelectProductResp.product:type_name -> product.Product
 	17, // 5: product.ProductLockQuantityRequest.products:type_name -> product.ProductLockQuantity
-	0,  // 6: product.ProductCatalogService.ListProducts:input_type -> product.ListProductsReq
-	3,  // 7: product.ProductCatalogService.GetProduct:input_type -> product.GetProductReq
-	5,  // 8: product.ProductCatalogService.SearchProducts:input_type -> product.SearchProductsReq
-	7,  // 9: product.ProductCatalogService.InsertProduct:input_type -> product.InsertProductReq
-	9,  // 10: product.ProductCatalogService.SelectProduct:input_type -> product.SelectProductReq
-	10, // 11: product.ProductCatalogService.SelectProductList:input_type -> product.SelectProductListReq
-	13, // 12: product.ProductCatalogService.DeleteProduct:input_type -> product.DeleteProductReq
-	15, // 13: product.ProductCatalogService.UpdateProduct:input_type -> product.UpdateProductReq
-	18, // 14: product.ProductCatalogService.LockProductQuantity:input_type -> product.ProductLockQuantityRequest
-	20, // 15: product.ProductCatalogService.SelectCategory:input_type -> product.CategorySelectReq
-	21, // 16: product.ProductCatalogService.InsertCategory:input_type -> product.CategoryInsertReq
-	22, // 17: product.ProductCatalogService.DeleteCategory:input_type -> product.CategoryDeleteReq
-	23, // 18: product.ProductCatalogService.UpdateCategory:input_type -> product.CategoryUpdateReq
-	24, // 19: product.ProductCatalogService.GetAllCategories:input_type -> product.CategoryListReq
-	2,  // 20: product.ProductCatalogService.ListProducts:output_type -> product.ListProductsResp
-	4,  // 21: product.ProductCatalogService.GetProduct:output_type -> product.GetProductResp
-	6,  // 22: product.ProductCatalogService.SearchProducts:output_type -> product.SearchProductsResp
-	8,  // 23: product.ProductCatalogService.InsertProduct:output_type -> product.InsertProductResp
-	12, // 24: product.ProductCatalogService.SelectProduct:output_type -> product.SelectProductResp
-	11, // 25: product.ProductCatalogService.SelectProductList:output_type -> product.SelectProductListResp
-	14, // 26: product.ProductCatalogService.DeleteProduct:output_type -> product.DeleteProductResp
-	16, // 27: product.ProductCatalogService.UpdateProduct:output_type -> product.UpdateProductResp
-	19, // 28: product.ProductCatalogService.LockProductQuantity:output_type -> product.ProductLockQuantityResponse
-	25, // 29: product.ProductCatalogService.SelectCategory:output_type -> product.CategorySelectResp
-	26, // 30: product.ProductCatalogService.InsertCategory:output_type -> product.CategoryInsertResp
-	27, // 31: product.ProductCatalogService.DeleteCategory:output_type -> product.CategoryDeleteResp
-	28, // 32: product.ProductCatalogService.UpdateCategory:output_type -> product.CategoryUpdateResp
-	29, // 33: product.ProductCatalogService.GetAllCategories:output_type -> product.CategoryListResp
-	20, // [20:34] is the sub-list for method output_type
-	6,  // [6:20] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	20, // 6: product.ProductUnLockQuantityRequest.products:type_name -> product.ProductUnLockQuantity
+	0,  // 7: product.ProductCatalogService.ListProducts:input_type -> product.ListProductsReq
+	3,  // 8: product.ProductCatalogService.GetProduct:input_type -> product.GetProductReq
+	5,  // 9: product.ProductCatalogService.SearchProducts:input_type -> product.SearchProductsReq
+	7,  // 10: product.ProductCatalogService.InsertProduct:input_type -> product.InsertProductReq
+	9,  // 11: product.ProductCatalogService.SelectProduct:input_type -> product.SelectProductReq
+	10, // 12: product.ProductCatalogService.SelectProductList:input_type -> product.SelectProductListReq
+	13, // 13: product.ProductCatalogService.DeleteProduct:input_type -> product.DeleteProductReq
+	15, // 14: product.ProductCatalogService.UpdateProduct:input_type -> product.UpdateProductReq
+	18, // 15: product.ProductCatalogService.LockProductQuantity:input_type -> product.ProductLockQuantityRequest
+	21, // 16: product.ProductCatalogService.UnlockProductQuantity:input_type -> product.ProductUnLockQuantityRequest
+	23, // 17: product.ProductCatalogService.SelectCategory:input_type -> product.CategorySelectReq
+	24, // 18: product.ProductCatalogService.InsertCategory:input_type -> product.CategoryInsertReq
+	25, // 19: product.ProductCatalogService.DeleteCategory:input_type -> product.CategoryDeleteReq
+	26, // 20: product.ProductCatalogService.UpdateCategory:input_type -> product.CategoryUpdateReq
+	27, // 21: product.ProductCatalogService.GetAllCategories:input_type -> product.CategoryListReq
+	2,  // 22: product.ProductCatalogService.ListProducts:output_type -> product.ListProductsResp
+	4,  // 23: product.ProductCatalogService.GetProduct:output_type -> product.GetProductResp
+	6,  // 24: product.ProductCatalogService.SearchProducts:output_type -> product.SearchProductsResp
+	8,  // 25: product.ProductCatalogService.InsertProduct:output_type -> product.InsertProductResp
+	12, // 26: product.ProductCatalogService.SelectProduct:output_type -> product.SelectProductResp
+	11, // 27: product.ProductCatalogService.SelectProductList:output_type -> product.SelectProductListResp
+	14, // 28: product.ProductCatalogService.DeleteProduct:output_type -> product.DeleteProductResp
+	16, // 29: product.ProductCatalogService.UpdateProduct:output_type -> product.UpdateProductResp
+	19, // 30: product.ProductCatalogService.LockProductQuantity:output_type -> product.ProductLockQuantityResponse
+	22, // 31: product.ProductCatalogService.UnlockProductQuantity:output_type -> product.ProductUnLockQuantityResponse
+	28, // 32: product.ProductCatalogService.SelectCategory:output_type -> product.CategorySelectResp
+	29, // 33: product.ProductCatalogService.InsertCategory:output_type -> product.CategoryInsertResp
+	30, // 34: product.ProductCatalogService.DeleteCategory:output_type -> product.CategoryDeleteResp
+	31, // 35: product.ProductCatalogService.UpdateCategory:output_type -> product.CategoryUpdateResp
+	32, // 36: product.ProductCatalogService.GetAllCategories:output_type -> product.CategoryListResp
+	22, // [22:37] is the sub-list for method output_type
+	7,  // [7:22] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_product_proto_init() }
@@ -1891,6 +2077,42 @@ func file_product_proto_init() {
 				return nil
 			}
 		}
+		file_product_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProductUnLockQuantity); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_product_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProductUnLockQuantityRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_product_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ProductUnLockQuantityResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1898,7 +2120,7 @@ func file_product_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_product_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
@@ -1926,6 +2148,7 @@ type ProductCatalogService interface {
 	DeleteProduct(ctx context.Context, req *DeleteProductReq) (res *DeleteProductResp, err error)
 	UpdateProduct(ctx context.Context, req *UpdateProductReq) (res *UpdateProductResp, err error)
 	LockProductQuantity(ctx context.Context, req *ProductLockQuantityRequest) (res *ProductLockQuantityResponse, err error)
+	UnlockProductQuantity(ctx context.Context, req *ProductUnLockQuantityRequest) (res *ProductUnLockQuantityResponse, err error)
 	SelectCategory(ctx context.Context, req *CategorySelectReq) (res *CategorySelectResp, err error)
 	InsertCategory(ctx context.Context, req *CategoryInsertReq) (res *CategoryInsertResp, err error)
 	DeleteCategory(ctx context.Context, req *CategoryDeleteReq) (res *CategoryDeleteResp, err error)

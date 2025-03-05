@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	product "douyin_mall/product/kitex_gen/product"
-	
+	"testing"
 )
 
 func TestLockProductQuantity_Run(t *testing.T) {

@@ -21,6 +21,7 @@ type RPCClient interface {
 	DeleteProduct(ctx context.Context, Req *product.DeleteProductReq, callOptions ...callopt.Option) (r *product.DeleteProductResp, err error)
 	UpdateProduct(ctx context.Context, Req *product.UpdateProductReq, callOptions ...callopt.Option) (r *product.UpdateProductResp, err error)
 	LockProductQuantity(ctx context.Context, Req *product.ProductLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductLockQuantityResponse, err error)
+	UnlockProductQuantity(ctx context.Context, Req *product.ProductUnLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductUnLockQuantityResponse, err error)
 	SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error)
 	InsertCategory(ctx context.Context, Req *product.CategoryInsertReq, callOptions ...callopt.Option) (r *product.CategoryInsertResp, err error)
 	DeleteCategory(ctx context.Context, Req *product.CategoryDeleteReq, callOptions ...callopt.Option) (r *product.CategoryDeleteResp, err error)
@@ -88,6 +89,10 @@ func (c *clientImpl) UpdateProduct(ctx context.Context, Req *product.UpdateProdu
 
 func (c *clientImpl) LockProductQuantity(ctx context.Context, Req *product.ProductLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductLockQuantityResponse, err error) {
 	return c.kitexClient.LockProductQuantity(ctx, Req, callOptions...)
+}
+
+func (c *clientImpl) UnlockProductQuantity(ctx context.Context, Req *product.ProductUnLockQuantityRequest, callOptions ...callopt.Option) (r *product.ProductUnLockQuantityResponse, err error) {
+	return c.kitexClient.UnlockProductQuantity(ctx, Req, callOptions...)
 }
 
 func (c *clientImpl) SelectCategory(ctx context.Context, Req *product.CategorySelectReq, callOptions ...callopt.Option) (r *product.CategorySelectResp, err error) {
