@@ -2,8 +2,11 @@ package model
 
 import (
 	"context"
+	"douyin_mall/user/biz/dal/redis"
+	redisUtils "douyin_mall/user/utils/redis"
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
+	"time"
 )
 
 type Role string
@@ -103,4 +106,18 @@ func GetUserRoleById(ctx context.Context, db *gorm.DB, id int32) (role string, e
 	var user *User
 	err = db.WithContext(ctx).Select("role").Where(User{Base: Base{ID: id}}).First(&user).Error
 	return string(user.Role), err
+}
+
+func CacheUserInfo(ctx context.Context, userInfo *UserBasicInfo, userId int32) error {
+	key := redisUtils.GetUserKey(userId)
+	err := redis.RedisClient.HSet(ctx, key, userInfo.ToMap()).Err()
+	if err != nil {
+		return err
+	}
+	// 设置过期时间和access token的过期时间一致
+	err = redis.RedisClient.Expire(ctx, key, time.Hour*2).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }

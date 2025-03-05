@@ -71,14 +71,7 @@ func (s *GetUserService) SelectAndCacheUserInfo(ctx context.Context, userId int3
 	if err != nil {
 		return nil, err
 	}
-	key := redisUtils.GetUserKey(userId)
-	redisClient := redis.RedisClient
-	err = redisClient.HSet(ctx, key, u.ToMap()).Err()
-	if err != nil {
-		return nil, err
-	}
-	// 设置过期时间和access token的过期时间一致
-	err = redisClient.Expire(ctx, key, time.Hour*2).Err()
+	err = model.CacheUserInfo(ctx, u, userId)
 	if err != nil {
 		return nil, err
 	}
