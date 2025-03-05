@@ -22,10 +22,10 @@ const (
 
 type Message struct {
 	Base
-	UserId   int32    `gorm:"not null;type:int;comment:'用户ID'"`
+	UserId   int32    `gorm:"not null;type:int;comment:'用户ID';index:idx_user_id_uuid,priority:1;"`
 	Role     Role     `gorm:"type:varchar(64);not null;comment:'角色：user-用户，assistant-AI'"`
 	Content  string   `gorm:"not null; type:text;comment:'消息内容'"`
-	Uuid     string   `gorm:"type:varchar(64);not null;index;comment:'一次会话的唯一标识'"`
+	Uuid     string   `gorm:"type:varchar(64);not null;index:idx_user_id_uuid,priority:2;comment:'一次会话的唯一标识'"`
 	Scenario Scenario `gorm:"type:tinyint;not null;comment:'对话场景，1-查询订单，2-模拟下单'"`
 }
 
@@ -52,11 +52,11 @@ func ConversionExist(db *gorm.DB, ctx context.Context, userId int32, uuid string
 	return false, result.Error
 }
 
-func GetChatHistoryByUuid(db *gorm.DB, ctx context.Context, uuid string) ([]Message, error) {
+func GetChatHistoryByUuid(db *gorm.DB, ctx context.Context, uuid string, userId int32) ([]Message, error) {
 	var messages []Message
 	result := db.WithContext(ctx).
 		Model(&Message{}).
-		Where(&Message{Uuid: uuid}).
+		Where(&Message{Uuid: uuid, UserId: userId}).
 		Order("id asc").
 		Find(&messages)
 	return messages, result.Error

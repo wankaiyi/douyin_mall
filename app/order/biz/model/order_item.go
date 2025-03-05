@@ -3,14 +3,16 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 type OrderItem struct {
 	Base
-	OrderID string `gorm:"not null;type:varchar(64);index:idx_order_id"`
+	OrderID string `gorm:"not null;type:varchar(64);index:idx_order_id_deleted_at"`
 	Product
-	Quantity int32   `gorm:"not null;type:int"`
-	Cost     float64 `gorm:"not null;type:decimal(10,2)"`
+	Quantity  int32                 `gorm:"not null;type:int"`
+	Cost      float64               `gorm:"not null;type:decimal(10,2)"`
+	DeletedAt soft_delete.DeletedAt `gorm:"index:idx_order_id_deleted_at"`
 }
 
 type Product struct {

@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 	"strings"
 	"time"
 )
@@ -14,18 +15,19 @@ const (
 )
 
 type Order struct {
-	OrderID       string      `gorm:"primarykey;type:varchar(64)"`
-	UserID        int32       `gorm:"not null;type:int;index:idx_user_id_created_at"`
-	TotalCost     float64     `gorm:"not null;type:decimal(10,2)"`
-	Name          string      `gorm:"not null;type:varchar(64)"`
-	PhoneNumber   string      `gorm:"not null;type:char(11)"`
-	Province      string      `gorm:"not null;type:varchar(64)"`
-	City          string      `gorm:"not null;type:varchar(64)"`
-	Region        string      `gorm:"not null;type:varchar(64)"`
-	DetailAddress string      `gorm:"not null;type:varchar(255)"`
-	Status        int32       `gorm:"not null;type:int;default:0"`
-	CreatedAt     time.Time   `gorm:"index:idx_user_id_created_at"`
-	OrderItems    []OrderItem `gorm:"foreignKey:OrderID;references:OrderID"`
+	OrderID       string                `gorm:"primarykey;type:varchar(64)"`
+	UserID        int32                 `gorm:"not null;type:int;index:idx_user_id_deleted_at_created_at,priority:1"`
+	TotalCost     float64               `gorm:"not null;type:decimal(10,2)"`
+	Name          string                `gorm:"not null;type:varchar(64)"`
+	PhoneNumber   string                `gorm:"not null;type:char(11)"`
+	Province      string                `gorm:"not null;type:varchar(64)"`
+	City          string                `gorm:"not null;type:varchar(64)"`
+	Region        string                `gorm:"not null;type:varchar(64)"`
+	DetailAddress string                `gorm:"not null;type:varchar(255)"`
+	Status        int32                 `gorm:"not null;type:int;default:0;index:idx_status_created_at_deleted_at,priority:1"`
+	CreatedAt     time.Time             `gorm:"index:idx_user_id_deleted_at_created_at,priority:3;index:idx_status_created_at_deleted_at,priority:2"`
+	DeletedAt     soft_delete.DeletedAt `gorm:"index:idx_user_id_deleted_at_created_at,priority:2;index:idx_status_created_at_deleted_at,priority:3"`
+	OrderItems    []OrderItem           `gorm:"foreignKey:OrderID;references:OrderID"`
 }
 
 type OrderInfo struct {
