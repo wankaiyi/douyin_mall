@@ -15,6 +15,7 @@ func ReleaseLockQuantityConsumer() {
 	strategies[0] = sarama.NewBalanceStrategyRange()
 	config.Consumer.Group.Rebalance.GroupStrategies = strategies
 	config.Consumer.Offsets.Initial = sarama.OffsetOldest
+	config.Consumer.Offsets.AutoCommit.Enable = false
 
 	// 创建消费者
 	brokers := strings.Split(conf.GetConf().Kafka.BizKafka.BootstrapServers, ",")
