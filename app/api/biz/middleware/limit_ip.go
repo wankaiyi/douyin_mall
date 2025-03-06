@@ -8,20 +8,12 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/kitex/pkg/klog"
-	"strings"
 )
 
 func LimitIpMiddleware() app.HandlerFunc {
 
 	return func(ctx context.Context, c *app.RequestContext) {
-		forwardedFor := string(c.GetHeader("X-Forwarded-For"))
-		var clientIP string
-		if forwardedFor != "" {
-			ips := strings.Split(forwardedFor, ", ")
-			clientIP = ips[0]
-		} else {
-			clientIP = c.ClientIP()
-		}
+		clientIP := c.ClientIP()
 		klog.CtxInfof(ctx, "接收到请求, IP: %s, 访问接口", clientIP)
 		entry, blockError := sentinel.Entry("limit_ip", sentinel.WithTrafficType(base.Inbound), sentinel.WithResourceType(base.ResTypeWeb), sentinel.WithArgs(c.Host()))
 		if blockError != nil {
