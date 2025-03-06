@@ -11,16 +11,17 @@ import (
 
 func LimitIpMiddleware() app.HandlerFunc {
 
-	return func(c context.Context, ctx *app.RequestContext) {
-		entry, blockError := sentinel.Entry("limit_ip", sentinel.WithTrafficType(base.Inbound), sentinel.WithResourceType(base.ResTypeWeb), sentinel.WithArgs(ctx.ClientIP()))
+	return func(ctx context.Context, c *app.RequestContext) {
+		entry, blockError := sentinel.Entry("limit_ip", sentinel.WithTrafficType(base.Inbound), sentinel.WithResourceType(base.ResTypeWeb), sentinel.WithArgs(c.Host()))
 		if blockError != nil {
-			hlog.CtxInfof(c, "IP: %s, 被流控", ctx.ClientIP())
-			ctx.AbortWithStatusJSON(429, utils.H{"code": 429, "message": "Too many requests"})
+			utils.LocalIP()
+			hlog.CtxInfof(ctx, "IP: %s, 被流控", c.Host())
+			c.AbortWithStatusJSON(429, utils.H{"code": 429, "message": "Too many requests"})
 			return
 		}
 
 		defer entry.Exit()
-		ctx.Next(c)
+		c.Next(ctx)
 
 	}
 }
