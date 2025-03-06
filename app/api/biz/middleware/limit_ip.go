@@ -7,15 +7,18 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
+	"github.com/cloudwego/kitex/pkg/klog"
 )
 
 func LimitIpMiddleware() app.HandlerFunc {
 
 	return func(ctx context.Context, c *app.RequestContext) {
+		clientIP := c.Host()
+		klog.CtxInfof(ctx, "接收到请求, IP: %s, 访问接口", clientIP)
 		entry, blockError := sentinel.Entry("limit_ip", sentinel.WithTrafficType(base.Inbound), sentinel.WithResourceType(base.ResTypeWeb), sentinel.WithArgs(c.Host()))
 		if blockError != nil {
 			utils.LocalIP()
-			hlog.CtxInfof(ctx, "IP: %s, 被流控", c.Host())
+			hlog.CtxInfof(ctx, "IP: %s, 被流控", clientIP)
 			c.AbortWithStatusJSON(429, utils.H{"code": 429, "message": "Too many requests"})
 			return
 		}
