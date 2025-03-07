@@ -96,6 +96,7 @@ func ReduceRealQuantity(ctx context.Context, orderId string) (err error) {
 				local quantity = tonumber(quantities[i])
 				redis.call('hincrby', key, 'stock', -quantity)
 				redis.call('hincrby', key, 'lock_stock', -quantity)
+				redis.call('EXPIRE', key, 300)
 			end
 			return 1
 		end

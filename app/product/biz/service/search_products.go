@@ -106,7 +106,7 @@ func (s *SearchProductsService) Run(req *product.SearchProductsReq) (resp *produ
 	var missingIds []int64
 
 	klog.CtxInfof(s.ctx, "开始获取缓存,参数:searchIds:%v,md5Bytes:%v", searchIds, md5Bytes)
-	products, missingIds, err = GetCache(s.ctx, searchIds, md5Bytes)
+	products, missingIds, err = GetCache(s.ctx, searchIds)
 	klog.CtxInfof(s.ctx, "获取缓存结果,products: %v,缺失的商品数据:%v", products, missingIds)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "获取缓存信息失败, err: %v", err)
@@ -231,7 +231,7 @@ func getSearchIds(ctx context.Context, dslBytes []byte, md5bytes []byte) ([]int6
 	return ids, nil
 }
 
-func GetCache(ctx context.Context, searchIds []int64, md5Bytes []byte) (products []*product.Product, missingIds []int64, err error) {
+func GetCache(ctx context.Context, searchIds []int64) (products []*product.Product, missingIds []int64, err error) {
 	klog.CtxInfof(ctx, "获取product数据,记录查询次数")
 	go cacheUtil.AddHit(ctx, searchDetectKey, []string{totalQueries}, redisClient.RedisClient)
 

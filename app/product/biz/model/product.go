@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -134,6 +135,7 @@ func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Cli
 			redis.call("EXPIRE", key, 300)
 			return 1
 		else
+			redis.call("EXPIRE", key, 300)
 			return 0
 		end
 `
@@ -144,9 +146,11 @@ func PushToRedisBaseInfo(ctx context.Context, product Product, client *redis.Cli
 		return err
 	}
 	if result.(int64) == 1 {
+		klog.CtxInfof(ctx, "推送baseinfo到redis上时，key %v 不存在", key)
 		return nil
 	} else {
-		return errors.New("product already exists")
+		klog.CtxInfof(ctx, "推送baseinfo到redis上时，key %v 已存在", key)
+		return nil
 	}
 }
 func PushToRedisStock(ctx context.Context, product Product, client *redis.Client, key string) (err error) {
@@ -161,6 +165,7 @@ func PushToRedisStock(ctx context.Context, product Product, client *redis.Client
 			redis.call("EXPIRE", key, 300)
 			return 1
 		else
+			redis.call("EXPIRE", key, 300)
 			return 0
 		end
 `
@@ -171,9 +176,11 @@ func PushToRedisStock(ctx context.Context, product Product, client *redis.Client
 		return err
 	}
 	if result.(int64) == 1 {
+		klog.CtxInfof(ctx, "推送stock到redis上时，key %v 不存在", key)
 		return nil
 	} else {
-		return errors.New("product stock already exists")
+		klog.CtxInfof(ctx, "推送stock到redis上时，key %v已存在", key)
+		return nil
 	}
 }
 

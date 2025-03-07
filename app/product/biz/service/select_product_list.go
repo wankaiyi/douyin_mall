@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"crypto/md5"
 	"douyin_mall/common/constant"
 	product "douyin_mall/product/kitex_gen/product"
-	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 )
 
@@ -26,14 +24,7 @@ func (s *SelectProductListService) Run(req *product.SelectProductListReq) (resp 
 	//根据返回的数据确认是否有缺失数据，有的话把当前的id存进去
 	var missingIds []int64
 	//先判断redis是否存在数据，如果存在，则直接返回数据
-	searchIdsBytes, err := sonic.Marshal(searchIds)
-	if err != nil {
-		return nil, err
-	}
-	harsher := md5.New()
-	harsher.Write(searchIdsBytes)
-	md5Bytes := harsher.Sum(nil)
-	products, missingIds, err = GetCache(s.ctx, searchIds, md5Bytes)
+	products, missingIds, err = GetCache(s.ctx, searchIds)
 	klog.CtxInfof(s.ctx, "products: %v,missingsIds:%v", products, missingIds)
 	if err != nil {
 		klog.CtxErrorf(s.ctx, "GetCache: missingsIds:%v,err:%v", missingIds, err)

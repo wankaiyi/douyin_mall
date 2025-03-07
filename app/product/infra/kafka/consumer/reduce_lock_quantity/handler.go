@@ -84,6 +84,7 @@ func ReduceLockQuantity(ctx context.Context, orderId string) (err error) {
 			for i, key in ipairs(keys) do
 				local quantity = quantities[i]
 				redis.call('hincrby', key, 'lock_stock', -quantity)
+				redis.call('EXPIRE', key, 300)
 			end
 			return 1
 		end
