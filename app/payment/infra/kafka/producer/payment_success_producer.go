@@ -2,10 +2,12 @@ package producer
 
 import (
 	"context"
+	"douyin_mall/common/infra/kafka/tracing"
 	"douyin_mall/payment/conf"
 	"douyin_mall/payment/infra/kafka/constant"
 	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel"
 
 	"github.com/IBM/sarama"
 	"github.com/cloudwego/kitex/pkg/klog"
@@ -13,7 +15,7 @@ import (
 )
 
 var (
-	paymentSuccessProducer sarama.AsyncProducer
+	paymentSuccessProducer sarama.SyncProducer
 	err1                   error
 )
 
@@ -28,22 +30,10 @@ func InitNormalPaymentProducer() {
 	config.Producer.Transaction.ID = uuid.New().String()
 	config.Net.MaxOpenRequests = 1
 
-	paymentSuccessProducer, err1 = sarama.NewAsyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)
+	paymentSuccessProducer, err1 = sarama.NewSyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)
 	if err1 != nil {
 		panic(err1.Error())
 	}
-
-	go func() {
-		for msg := range paymentSuccessProducer.Successes() {
-			klog.Infof("消息发送成功 消息内容: %s topic:%s partition:%d offset:%d\n", msg.Value, msg.Topic, msg.Partition, msg.Offset)
-		}
-	}()
-
-	go func() {
-		for err1 = range paymentSuccessProducer.Errors() {
-			klog.Errorf("消息发送失败: %v\n", err1)
-		}
-	}()
 
 	server.RegisterShutdownHook(func() {
 		_ = paymentSuccessProducer.Close()
@@ -52,6 +42,38 @@ func InitNormalPaymentProducer() {
 }
 
 func SendPaymentSuccessOrderIdMsg(ctx context.Context, orderId string) {
+	err = paymentSuccessProducer.BeginTxn()
+	if err != nil {
+		klog.Errorf("开启事务失败: %v", err)
+		return
+	}
 	data, _ := sonic.Marshal(orderId)
-	sendMessage(ctx, constant.PaymentSuccessTopic, data, constant.PaymentSuccessKeyPrefix+orderId)
+	err = sendMessage(ctx, constant.PaymentSuccessTopic, data, constant.PaymentSuccessKeyPrefix+orderId)
+	if err != nil {
+		paymentSuccessProducer.AbortTxn()
+		return
+	}
+	err = paymentSuccessProducer.CommitTxn()
+	if err != nil {
+		klog.Errorf("提交事务失败: %v", err)
+		return
+	}
+}
+
+func sendMessage(ctx context.Context, topic string, message []byte, key string) error {
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder(message),
+		Key:   sarama.StringEncoder(key),
+	}
+
+	otel.GetTextMapPropagator().Inject(ctx, tracing.NewProducerMessageCarrier(msg))
+
+	partition, offset, err := paymentSuccessProducer.SendMessage(msg)
+	if err != nil {
+		klog.Errorf("消息发送失败, topic: %s, key: %s, value: %s, error: %v", topic, key, message, err)
+		return err
+	}
+	klog.Infof("消息发送成功, topic: %s, key: %s, value: %s, partition: %d, offset: %d", topic, key, message, partition, offset)
+	return nil
 }

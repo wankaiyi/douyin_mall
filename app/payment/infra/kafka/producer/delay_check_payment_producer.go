@@ -11,7 +11,6 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/cloudwego/kitex/server"
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 )
 
@@ -26,10 +25,7 @@ func InitDelayCheckoutProducer() {
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 	config.Producer.Partitioner = sarama.NewHashPartitioner
-	config.Producer.Idempotent = true
 	config.Producer.Retry.Max = 3
-	config.Producer.Transaction.ID = uuid.New().String()
-	config.Net.MaxOpenRequests = 1
 
 	producer, err = sarama.NewAsyncProducer(conf.GetConf().Kafka.BizKafka.BootstrapServers, config)
 	if err != nil {
@@ -54,7 +50,7 @@ func InitDelayCheckoutProducer() {
 
 }
 
-func sendMessage(ctx context.Context, topic string, message []byte, key string) {
+func sendMessageAsync(ctx context.Context, topic string, message []byte, key string) {
 	msg := &sarama.ProducerMessage{
 		Topic: topic,
 		Value: sarama.StringEncoder(message),
@@ -67,6 +63,11 @@ func sendMessage(ctx context.Context, topic string, message []byte, key string) 
 }
 
 func SendCheckoutDelayMsg(ctx context.Context, orderId string, delayLevel int8) {
+	err = producer.BeginTxn()
+	if err != nil {
+		klog.Errorf("开启事务失败, error: %v", err)
+		return
+	}
 	delayOrderMessage := model2.DelayOrderMessage{OrderID: orderId, Level: delayLevel}
 
 	delayMsg := &model.DelayMessage{
@@ -76,5 +77,5 @@ func SendCheckoutDelayMsg(ctx context.Context, orderId string, delayLevel int8) 
 		Value: delayOrderMessage.ToJson(),
 	}
 	delayMsgBytes, _ := sonic.Marshal(delayMsg)
-	sendMessage(ctx, constant.DelayTopic, delayMsgBytes, constant.DelayCheckOrderPrefix+orderId)
+	sendMessageAsync(ctx, constant.DelayTopic, delayMsgBytes, constant.DelayCheckOrderPrefix+orderId)
 }
