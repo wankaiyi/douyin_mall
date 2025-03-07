@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"douyin_mall/checkout/infra/kafka/model"
+	"douyin_mall/checkout/infra/kafka/producer"
 	"douyin_mall/checkout/infra/rpc"
 	checkout "douyin_mall/checkout/kitex_gen/checkout"
 	"douyin_mall/checkout/kitex_gen/user"
@@ -10,6 +12,7 @@ import (
 	"douyin_mall/rpc/kitex_gen/payment"
 	"douyin_mall/rpc/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -66,12 +69,19 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 
 	var cost float32
 	var orderItems []*order.OrderItem
+	var productItems []*cart.Product
 	for _, productItem := range req.Items {
 		p, ok := productMap[int64(productItem.ProductId)]
 		if !ok {
 			klog.CtxErrorf(ctx, "商品不存在, product_id: %d", productItem.ProductId)
 			return nil, errors.New("商品不存在")
 		}
+
+		productItems = append(productItems, &cart.Product{
+			Id:       productItem.ProductId,
+			Quantity: productItem.Quantity,
+		})
+
 		cost += float32(productItem.Quantity) * p.Price
 		orderItems = append(orderItems, &order.OrderItem{
 			Item: &cart.CartItem{
@@ -81,6 +91,30 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			Cost: float64(float32(productItem.Quantity) * p.Price),
 		})
 	}
+
+	lockQuantityRequest := &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)}
+	lockQuantityResponse, err := rpc.ProductClient.LockProductQuantity(ctx, lockQuantityRequest)
+	if err != nil {
+		klog.CtxErrorf(ctx, "锁定库存失败，req: %v, err: %v", lockQuantityRequest, err)
+		return nil, errors.WithStack(err)
+	}
+	if lockQuantityResponse.GetStatusCode() != 0 {
+		klog.CtxInfof(ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
+		return &checkout.CheckoutProductItemsResp{
+			StatusCode: lockQuantityResponse.GetStatusCode(),
+			StatusMsg:  lockQuantityResponse.GetStatusMsg(),
+		}, nil
+	}
+	uuidStr := uuid.New().String()
+
+	var lockProductItems []model.ProductItem
+	for _, item := range productItems {
+		lockProductItems = append(lockProductItems, model.ProductItem{
+			ProductID: item.Id,
+			Quantity:  item.Quantity,
+		})
+	}
+	producer.SendDelayStockCompensationMessage(ctx, uuidStr, lockProductItems)
 
 	//创建订单
 	placeOrderResp, err := rpc.OrderClient.PlaceOrder(ctx, &order.PlaceOrderReq{
@@ -95,6 +129,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		},
 		OrderItems: orderItems,
 		TotalCost:  float64(cost),
+		Uuid:       uuidStr,
 	})
 	if err != nil {
 		klog.CtxErrorf(ctx, "创建订单失败rpc接口调用失败, error: %v", err)

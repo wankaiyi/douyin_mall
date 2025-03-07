@@ -38,6 +38,7 @@ message PlaceOrderReq {
   Address address = 2;
   repeated OrderItem order_items = 3;
   double total_cost = 4;
+  string uuid = 5;
 }
 
 message OrderItem {

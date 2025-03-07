@@ -185,6 +185,11 @@ func (x *PlaceOrderReq) FastRead(buf []byte, _type int8, number int32) (offset i
 		if err != nil {
 			goto ReadFieldError
 		}
+	case 5:
+		offset, err = x.fastReadField5(buf, _type)
+		if err != nil {
+			goto ReadFieldError
+		}
 	default:
 		offset, err = fastpb.Skip(buf, _type, number)
 		if err != nil {
@@ -225,6 +230,11 @@ func (x *PlaceOrderReq) fastReadField3(buf []byte, _type int8) (offset int, err 
 
 func (x *PlaceOrderReq) fastReadField4(buf []byte, _type int8) (offset int, err error) {
 	x.TotalCost, offset, err = fastpb.ReadDouble(buf, _type)
+	return offset, err
+}
+
+func (x *PlaceOrderReq) fastReadField5(buf []byte, _type int8) (offset int, err error) {
+	x.Uuid, offset, err = fastpb.ReadString(buf, _type)
 	return offset, err
 }
 
@@ -963,6 +973,7 @@ func (x *PlaceOrderReq) FastWrite(buf []byte) (offset int) {
 	offset += x.fastWriteField2(buf[offset:])
 	offset += x.fastWriteField3(buf[offset:])
 	offset += x.fastWriteField4(buf[offset:])
+	offset += x.fastWriteField5(buf[offset:])
 	return offset
 }
 
@@ -997,6 +1008,14 @@ func (x *PlaceOrderReq) fastWriteField4(buf []byte) (offset int) {
 		return offset
 	}
 	offset += fastpb.WriteDouble(buf[offset:], 4, x.GetTotalCost())
+	return offset
+}
+
+func (x *PlaceOrderReq) fastWriteField5(buf []byte) (offset int) {
+	if x.Uuid == "" {
+		return offset
+	}
+	offset += fastpb.WriteString(buf[offset:], 5, x.GetUuid())
 	return offset
 }
 
@@ -1558,6 +1577,7 @@ func (x *PlaceOrderReq) Size() (n int) {
 	n += x.sizeField2()
 	n += x.sizeField3()
 	n += x.sizeField4()
+	n += x.sizeField5()
 	return n
 }
 
@@ -1592,6 +1612,14 @@ func (x *PlaceOrderReq) sizeField4() (n int) {
 		return n
 	}
 	n += fastpb.SizeDouble(4, x.GetTotalCost())
+	return n
+}
+
+func (x *PlaceOrderReq) sizeField5() (n int) {
+	if x.Uuid == "" {
+		return n
+	}
+	n += fastpb.SizeString(5, x.GetUuid())
 	return n
 }
 
@@ -2046,6 +2074,7 @@ var fieldIDToName_PlaceOrderReq = map[int32]string{
 	2: "Address",
 	3: "OrderItems",
 	4: "TotalCost",
+	5: "Uuid",
 }
 
 var fieldIDToName_OrderItem = map[int32]string{

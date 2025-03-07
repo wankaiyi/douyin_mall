@@ -53,7 +53,7 @@ func SendCancelOrderSuccessMessage(ctx context.Context, orderId string) {
 		klog.Errorf("提交事务失败: %v", err)
 		return
 	}
-	klog.Infof("消息发送成功，订单号: %v", orderId)
+	klog.Infof("订单取消成功消息发送成功，订单号: %v", orderId)
 }
 
 func SendCancelOrderSuccessMessages(ctx context.Context, orderIds []string) error {
@@ -74,6 +74,6 @@ func SendCancelOrderSuccessMessages(ctx context.Context, orderIds []string) erro
 		klog.Errorf("提交事务失败: %v", err)
 		return err
 	}
-	klog.Infof("消息发送成功，订单号: %v", orderIds)
+	klog.Infof("订单取消成功消息发送成功，订单号: %v", orderIds)
 	return nil
 }

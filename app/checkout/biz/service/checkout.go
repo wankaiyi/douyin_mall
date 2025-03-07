@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	redsync "douyin_mall/checkout/biz/dal/red_sync"
+	"douyin_mall/checkout/infra/kafka/model"
+	"douyin_mall/checkout/infra/kafka/producer"
 	"douyin_mall/checkout/infra/rpc"
 	checkout "douyin_mall/checkout/kitex_gen/checkout"
 	"douyin_mall/common/constant"
@@ -11,6 +13,7 @@ import (
 	"douyin_mall/rpc/kitex_gen/payment"
 	"douyin_mall/rpc/kitex_gen/product"
 	"github.com/cloudwego/kitex/pkg/klog"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"strconv"
 )
@@ -51,15 +54,29 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 
 	//判断库存是否充足
 	//锁定库存
-	lockQuantityResponse, _ := rpc.ProductClient.LockProductQuantity(ctx, &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)})
-
+	lockQuantityRequest := &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)}
+	lockQuantityResponse, err := rpc.ProductClient.LockProductQuantity(ctx, lockQuantityRequest)
+	if err != nil {
+		klog.CtxErrorf(ctx, "锁定库存失败，req: %v, err: %v", lockQuantityRequest, err)
+		return nil, errors.WithStack(err)
+	}
 	if lockQuantityResponse.GetStatusCode() != 0 {
-		klog.CtxErrorf(ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
+		klog.CtxInfof(ctx, "锁定库存失败: %v", lockQuantityResponse.GetStatusMsg())
 		return &checkout.CheckoutResp{
 			StatusCode: lockQuantityResponse.GetStatusCode(),
 			StatusMsg:  lockQuantityResponse.GetStatusMsg(),
 		}, nil
 	}
+	uuidStr := uuid.New().String()
+
+	var lockProductItems []model.ProductItem
+	for _, item := range productItems {
+		lockProductItems = append(lockProductItems, model.ProductItem{
+			ProductID: item.Id,
+			Quantity:  item.Quantity,
+		})
+	}
+	producer.SendDelayStockCompensationMessage(ctx, uuidStr, lockProductItems)
 
 	//得到用户地址
 	address := &order.Address{
@@ -83,6 +100,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 		Address:    address,
 		OrderItems: convertCartProductItems2OrderItems(productItems),
 		TotalCost:  float64(totalCost),
+		Uuid:       uuidStr,
 	}
 	placeOrderResp, err := rpc.OrderClient.PlaceOrder(ctx, placeOrderReq)
 	if err != nil {
@@ -123,7 +141,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 }
 
 func convertProductItems(productItems []*cart.Product) (productsLockQuantity []*product.ProductLockQuantity) {
-	productsLockQuantity = make([]*product.ProductLockQuantity, len(productItems))
+	//productsLockQuantity = make([]*product.ProductLockQuantity, len(productItems))
 	for _, item := range productItems {
 		productLockQuantity := &product.ProductLockQuantity{
 			Id:       int64(item.GetId()),

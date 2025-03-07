@@ -14,6 +14,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 type PlaceOrderService struct {
@@ -72,6 +73,8 @@ func (s *PlaceOrderService) Run(req *order.PlaceOrderReq) (resp *order.PlaceOrde
 			City:          req.Address.City,
 			Region:        req.Address.Region,
 			DetailAddress: req.Address.DetailAddress,
+			Uuid:          req.Uuid,
+			DeletedAt:     soft_delete.DeletedAt(soft_delete.FlagActived),
 		}
 		err = model.CreateOrder(ctx, tx, newOrder)
 		if err != nil {

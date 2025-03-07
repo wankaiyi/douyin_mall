@@ -7,6 +7,7 @@ import (
 
 func Init() {
 	consumer.InitDelayOrderConsumer()
+	consumer.InitDelayStatusCompensationConsumer()
 	producer.InitDelayOrderProducer()
 	producer.InitCancelOrderSuccessProducer()
 }

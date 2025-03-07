@@ -25,6 +25,7 @@ type Order struct {
 	Region        string                `gorm:"not null;type:varchar(64)"`
 	DetailAddress string                `gorm:"not null;type:varchar(255)"`
 	Status        int32                 `gorm:"not null;type:int;default:0;index:idx_status_created_at_deleted_at,priority:1"`
+	Uuid          string                `gorm:"not null;type:varchar(255);uniqueIndex:udx_uuid"`
 	CreatedAt     time.Time             `gorm:"index:idx_user_id_deleted_at_created_at,priority:3;index:idx_status_created_at_deleted_at,priority:2"`
 	DeletedAt     soft_delete.DeletedAt `gorm:"index:idx_user_id_deleted_at_created_at,priority:2;index:idx_status_created_at_deleted_at,priority:3"`
 	OrderItems    []OrderItem           `gorm:"foreignKey:OrderID;references:OrderID"`
@@ -134,4 +135,13 @@ func SelectCanceledSuccessOrders(ctx context.Context, db *gorm.DB, orderIdList [
 		Pluck("order_id", &canceledOrderIdList).
 		Error
 	return
+}
+
+func CheckOrderExist(ctx context.Context, db *gorm.DB, uuid string) (bool, error) {
+	var count int64
+	err := db.WithContext(ctx).Model(&Order{}).Where("uuid = ?", uuid).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
 }

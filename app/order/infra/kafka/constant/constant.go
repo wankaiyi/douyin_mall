@@ -9,4 +9,7 @@ const (
 	DelayTopic5mLevel       = 8
 
 	CancelOrderSuccessTopic = "cancel-order-success"
+
+	DelayStockCompensationTopic   = "delay-stock-compensation"
+	DelayStockCompensationGroupId = "delay-stock-compensation"
 )

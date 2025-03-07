@@ -69,12 +69,17 @@ type Alert struct {
 
 type Kafka struct {
 	ClsKafka ClsKafka `yaml:"cls_kafka"`
+	BizKafka BizKafka `yaml:"biz_kafka"`
 }
 
 type ClsKafka struct {
 	Usser    string `yaml:"user"`
 	Password string `yaml:"password"`
 	TopicId  string `yaml:"topic_id"`
+}
+
+type BizKafka struct {
+	BootstrapServers []string `yaml:"bootstrap_servers"`
 }
 
 type Jaeger struct {
