@@ -14,6 +14,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 )
 
 type CheckoutProductItemsService struct {
@@ -67,7 +68,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 		productMap[p.Id] = p
 	}
 
-	var cost float32
+	cost := decimal.NewFromFloat(0)
 	var orderItems []*order.OrderItem
 	var productItems []*cart.Product
 	for _, productItem := range req.Items {
@@ -82,7 +83,11 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			Quantity: productItem.Quantity,
 		})
 
-		cost += float32(productItem.Quantity) * p.Price
+		price := decimal.NewFromFloat(float64(p.Price))
+		quantity := decimal.NewFromFloat(float64(productItem.GetQuantity()))
+		itemCost := price.Mul(quantity)
+		cost = cost.Add(itemCost)
+
 		orderItems = append(orderItems, &order.OrderItem{
 			Item: &cart.CartItem{
 				ProductId: int32(p.Id),
@@ -91,6 +96,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			Cost: float64(float32(productItem.Quantity) * p.Price),
 		})
 	}
+	totoalCost, _ := cost.Round(2).Float64()
 
 	lockQuantityRequest := &product.ProductLockQuantityRequest{Products: convertProductItems(productItems)}
 	lockQuantityResponse, err := rpc.ProductClient.LockProductQuantity(ctx, lockQuantityRequest)
@@ -128,7 +134,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 			DetailAddress: targetAddress.DetailAddress,
 		},
 		OrderItems: orderItems,
-		TotalCost:  float64(cost),
+		TotalCost:  totoalCost,
 		Uuid:       uuidStr,
 	})
 	if err != nil {
@@ -139,7 +145,7 @@ func (s *CheckoutProductItemsService) Run(req *checkout.CheckoutProductItemsReq)
 
 	chargeResp, err := rpc.PaymentClient.Charge(ctx, &payment.ChargeReq{
 		OrderId: orderId,
-		Amount:  cost,
+		Amount:  float32(totoalCost),
 	})
 	if err != nil {
 		klog.CtxErrorf(ctx, "支付失败rpc接口调用失败, error: %v", err)
