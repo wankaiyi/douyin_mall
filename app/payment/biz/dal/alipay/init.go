@@ -140,11 +140,11 @@ func CancelPay(ctx context.Context, orderId int64) (result bool, err error) {
 	bodyMap.Set("out_trade_no", orderId)
 	aliRsp, err := Client.TradeClose(ctx, bodyMap)
 	if err != nil {
-		if aliRsp.Response.Code == "40004" {
-			// 交易不存在
-			return true, nil
-		}
 		return false, err
+	}
+	if aliRsp.Response.Code == "40004" {
+		// 交易不存在
+		return true, nil
 	}
 
 	if aliRsp.Response.Code != "10000" || aliRsp.Response.Msg != "Success" {
