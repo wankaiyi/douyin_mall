@@ -67,7 +67,7 @@ func InitDoubaoClient() {
 	fp := retry.NewFailurePolicy()
 	fp.WithMaxRetryTimes(2)
 	DoubaoClient, err = doubaoaiservice.NewClient("doubao-service", commonSuite,
-		client.WithRPCTimeout(5*time.Second), client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
+		client.WithRPCTimeout(8*time.Second), client.WithMiddleware(middleware.ClientInterceptor), client.WithFailureRetry(fp))
 	if err != nil {
 		klog.Fatal("init doubao client failed: ", err)
 	}
