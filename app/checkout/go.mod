@@ -21,6 +21,7 @@ require (
 	github.com/nacos-group/nacos-sdk-go v1.1.5
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.7.0
+	github.com/shopspring/decimal v1.4.0
 	go.opentelemetry.io/otel v1.32.0
 	google.golang.org/protobuf v1.33.0
 	gopkg.in/yaml.v3 v3.0.1

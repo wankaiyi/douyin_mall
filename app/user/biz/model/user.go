@@ -68,7 +68,7 @@ func GetUserById(db *gorm.DB, ctx context.Context, userId int32) (user *User, er
 }
 
 func GetUserBasicInfoById(db *gorm.DB, ctx context.Context, userId int32) (user *UserBasicInfo, err error) {
-	err = db.WithContext(ctx).Model(&User{}).Select("username", "email", "sex", "description", "avatar").Where(&User{Base: Base{ID: userId}}).First(&user).Error
+	err = db.WithContext(ctx).Model(&User{}).Select("username", "email", "sex", "description", "avatar", "created_at").Where(&User{Base: Base{ID: userId}}).First(&user).Error
 	return
 }
 

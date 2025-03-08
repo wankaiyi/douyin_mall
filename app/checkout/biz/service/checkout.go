@@ -15,6 +15,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/klog"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
 	"strconv"
 )
 
@@ -89,17 +90,21 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	}
 
 	//计算总价
-	totalCost := float32(0)
+	totalCost := decimal.NewFromFloat(0)
 	for _, item := range productItems {
-		totalCost += item.GetPrice() * float32(item.GetQuantity())
+		price := decimal.NewFromFloat(float64(item.GetPrice()))
+		quantity := decimal.NewFromFloat(float64(item.GetQuantity()))
+		itemCost := price.Mul(quantity)
+		totalCost = totalCost.Add(itemCost)
 	}
+	totalCostRounded, _ := totalCost.Round(2).Float64()
 
 	//创建订单信息
 	placeOrderReq := &order.PlaceOrderReq{
 		UserId:     int32(userId),
 		Address:    address,
 		OrderItems: convertCartProductItems2OrderItems(productItems),
-		TotalCost:  float64(totalCost),
+		TotalCost:  totalCostRounded,
 		Uuid:       uuidStr,
 	}
 	placeOrderResp, err := rpc.OrderClient.PlaceOrder(ctx, placeOrderReq)
@@ -112,7 +117,7 @@ func (s *CheckoutService) Run(req *checkout.CheckoutReq) (resp *checkout.Checkou
 	//调用支付接口
 	chargeReq := &payment.ChargeReq{
 		UserId:  int32(userId),
-		Amount:  totalCost,
+		Amount:  float32(totalCostRounded),
 		OrderId: placeOrderResp.GetOrder().OrderId,
 	}
 	chargeResp, err := rpc.PaymentClient.Charge(ctx, chargeReq)
