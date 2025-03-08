@@ -63,11 +63,6 @@ func sendMessageAsync(ctx context.Context, topic string, message []byte, key str
 }
 
 func SendCheckoutDelayMsg(ctx context.Context, orderId string, delayLevel int8) {
-	err = producer.BeginTxn()
-	if err != nil {
-		klog.Errorf("开启事务失败, error: %v", err)
-		return
-	}
 	delayOrderMessage := model2.DelayOrderMessage{OrderID: orderId, Level: delayLevel}
 
 	delayMsg := &model.DelayMessage{
