@@ -53,17 +53,19 @@ func (s *GetUserService) Run(req *user.GetUserReq) (resp *user.GetUserResp, err 
 	if err != nil {
 		return nil, err
 	}
-	resp.User = &user.User{
-		Username:    u.Username,
-		Email:       u.Email,
-		Sex:         model.SexToString(u.Sex),
-		Description: u.Description,
-		Avatar:      u.Avatar,
-		CreatedAt:   u.CreatedAt,
-	}
-	resp.StatusCode = 0
-	resp.StatusMsg = constant.GetMsg(0)
-	return resp, nil
+
+	return &user.GetUserResp{
+		StatusCode: 0,
+		StatusMsg:  constant.GetMsg(0),
+		User: &user.User{
+			Username:    u.Username,
+			Email:       u.Email,
+			Sex:         model.SexToString(u.Sex),
+			Description: u.Description,
+			Avatar:      u.Avatar,
+			CreatedAt:   u.CreatedAt,
+		},
+	}, nil
 }
 
 func (s *GetUserService) SelectAndCacheUserInfo(ctx context.Context, userId int32) (*model.UserBasicInfo, error) {
