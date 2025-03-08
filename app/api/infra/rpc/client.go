@@ -71,7 +71,7 @@ func initPaymentClient() {
 }
 
 func initProductClient() {
-	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithRPCTimeout(3*time.Second), client.WithMiddleware(middleware.ClientInterceptor))
+	ProductClient, err = productcatalogservice.NewClient("product-service", commonSuite, client.WithMiddleware(middleware.ClientInterceptor))
 	if err != nil {
 		klog.Fatal("init product client failed: ", err)
 	}

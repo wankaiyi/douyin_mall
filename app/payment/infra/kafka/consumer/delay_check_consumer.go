@@ -105,7 +105,7 @@ func checkPaymentStatus(ctx context.Context, orderId int64) (bool, error) {
 			klog.CtxInfof(context.Background(), "支付宝订单状态为交易已关闭,orderId=%d,tradeStatus=%s , ", orderId, tradeStatus)
 			return true, nil
 		}
-		if tradeStatus != "TRADE_SUCCESS" {
+		if tradeStatus != "TRADE_SUCCESS" && tradeStatus != "Success" {
 			klog.CtxInfof(context.Background(), "支付宝订单状态不为TRADE_SUCCESS,orderId=%d,tradeStatus=%s , ", orderId, tradeStatus)
 			return false, nil
 		}
