@@ -35,9 +35,13 @@ func (s *ChargeService) Run(req *payment.ChargeReq) (resp *payment.ChargeResp, e
 	maxRetryTimes := 3
 	for i := 0; i < maxRetryTimes; i++ {
 		paymentUrl, err = alipay.Pay(ctx, orderId, amount, req.UserId)
+		klog.CtxInfof(ctx, "第%d次支付, 支付链接: %s", i+1, paymentUrl)
 		if err != nil {
 			klog.CtxErrorf(ctx, "支付失败, 第%d次重试, req: %+v, 错误信息: %+v", i+1, req, err.Error())
 			time.Sleep(500 * time.Millisecond)
+		}
+		if paymentUrl != "" {
+			break
 		}
 	}
 	if err != nil {
