@@ -175,6 +175,7 @@ func registerMiddleware(h *server.Hertz, cfg *hertztracing.Config) {
 	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
 		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
 	})))
+	h.Use(limit_middleware.LimitUserIdMiddleware())
 	h.Use(limit_middleware.LimitIpMiddleware())
 }
 

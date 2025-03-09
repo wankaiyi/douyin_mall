@@ -58,6 +58,8 @@ local function init(key, capacity, rate)
     if org_capacity == nil or org_rate ~= rate or org_capacity ~= capacity then
         redis.pcall("HMSET", key, "capacity", capacity, "rate", rate, "current_tokens", capacity, "capacity", capacity)
     end
+    --每次访问都设置过期时间
+    redis.pcall("EXPIRE", key, 30)
 
     return 1
 

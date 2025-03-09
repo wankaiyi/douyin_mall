@@ -26,13 +26,14 @@ var (
 type Config struct {
 	Env string
 
-	Hertz     Hertz     `yaml:"hertz"`
-	Jaeger    Jaeger    `yaml:"jaeger"`
-	Kafka     Kafka     `yaml:"kafka"`
-	Alert     Alert     `yaml:"alert"`
-	AliPay    AliPay    `yaml:"alipay"`
-	Redis     Redis     `yaml:"redis"`
-	LuaScript LuaScript `yaml:"lua_script"`
+	Hertz       Hertz       `yaml:"hertz"`
+	Jaeger      Jaeger      `yaml:"jaeger"`
+	Kafka       Kafka       `yaml:"kafka"`
+	Alert       Alert       `yaml:"alert"`
+	AliPay      AliPay      `yaml:"alipay"`
+	Redis       Redis       `yaml:"redis"`
+	LuaScript   LuaScript   `yaml:"lua_script"`
+	LimitBucket LimitBucket `yaml:"limit_bucket"`
 }
 
 type Hertz struct {
@@ -79,6 +80,18 @@ type Redis struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	DB       int    `yaml:"db"`
+}
+type LimitBucket struct {
+	IPBucket     IPBucket     `yaml:"ip_bucket"`
+	UserIdBucket UserIdBucket `yaml:"userid_bucket"`
+}
+type IPBucket struct {
+	Capacity int64 `yaml:"capacity"`
+	Rate     int64 `yaml:"rate"`
+}
+type UserIdBucket struct {
+	Capacity int64 `yaml:"capacity"`
+	Rate     int64 `yaml:"rate"`
 }
 
 // GetConf gets configuration instance
