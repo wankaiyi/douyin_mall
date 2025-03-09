@@ -4,23 +4,22 @@ package main
 
 import (
 	"context"
+	"douyin_mall/api/biz/dal"
 	"douyin_mall/api/biz/middleware"
+	"douyin_mall/api/biz/middleware/limit_middleware"
+	"douyin_mall/api/biz/router"
+	"douyin_mall/api/conf"
 	"douyin_mall/api/infra/rpc"
 	"douyin_mall/api/mtl/log"
 	"douyin_mall/common/mtl"
 	"douyin_mall/common/utils/env"
 	"douyin_mall/common/utils/feishu"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"os"
-	"time"
-
-	"douyin_mall/api/biz/router"
-	"douyin_mall/api/conf"
 	sentinelPlugin "github.com/alibaba/sentinel-golang/pkg/adapters/hertz"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/middlewares/server/recovery"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 	"github.com/hertz-contrib/cors"
@@ -29,6 +28,8 @@ import (
 	"github.com/hertz-contrib/obs-opentelemetry/provider"
 	hertztracing "github.com/hertz-contrib/obs-opentelemetry/tracing"
 	"github.com/hertz-contrib/pprof"
+	"os"
+	"time"
 )
 
 var ServiceName string
@@ -49,7 +50,7 @@ func main() {
 
 	registry, registryInfo := mtl.InitMetrics(ServiceName, conf.GetConf().Hertz.MetricsPort)
 	defer registry.Deregister(registryInfo)
-
+	dal.Init()
 	rpc.InitClient()
 
 	var address string
@@ -174,7 +175,7 @@ func registerMiddleware(h *server.Hertz, cfg *hertztracing.Config) {
 	h.Use(sentinelPlugin.SentinelServerMiddleware(sentinelPlugin.WithServerBlockFallback(func(ctx context.Context, a *app.RequestContext) {
 		a.JSON(consts.StatusTooManyRequests, utils.H{"code": 429, "message": "Server is Busy"})
 	})))
-	h.Use(middleware.LimitIpMiddleware())
+	h.Use(limit_middleware.LimitIpMiddleware())
 }
 
 func FeishuAlertRecoveryHandler(ctx context.Context, c *app.RequestContext, err interface{}, stack []byte) {
