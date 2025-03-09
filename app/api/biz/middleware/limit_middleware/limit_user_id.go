@@ -5,10 +5,10 @@ import (
 	"douyin_mall/api/biz/dal/redis"
 	"douyin_mall/api/conf"
 	"douyin_mall/common/constant"
+	"fmt"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/common/utils"
-	"strconv"
 )
 
 func LimitUserIdMiddleware() app.HandlerFunc {
@@ -20,9 +20,9 @@ func LimitUserIdMiddleware() app.HandlerFunc {
 			c.Next(ctx)
 			return
 		}
-		userId := id.(int64)
+		userId := id.(int32)
 		hlog.CtxInfof(ctx, "接收到请求, userId: %d, 访问接口", userId)
-		key := "limit_userId:" + strconv.FormatInt(userId, 10)
+		key := fmt.Sprintf("limit_userId:%d", userId)
 		//初始化令牌漏桶
 		capacity := conf.GetConf().LimitBucket.UserIdBucket.Capacity
 		rate := conf.GetConf().LimitBucket.UserIdBucket.Rate
